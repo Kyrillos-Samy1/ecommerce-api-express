@@ -1,0 +1,4 @@
+# To ignore files in the root directory and node_modules directory
+
+node_modules/
+config.env

@@ -1,0 +1,103 @@
+const { default: slugify } = require("slugify");
+const bcrypt = require("bcryptjs");
+
+const UserModel = require("../models/userModel");
+const APIError = require("../utils/apiError");
+
+const { createToken } = require("./authServices");
+
+//*===========================================  (GET, PUT, DELETE) User Data For User  ==============================================
+
+//! @desc Get Current User Data
+//! @route GET /api/v1/users/getMe
+//! @access Private/Protected
+exports.getMe = (req, res, next) => {
+  req.params.userId = req.user._id;
+  next();
+};
+
+//! @desc Update Current User Data
+//! @route PUT /api/v1/users/updateMe
+//! @access Private/Protected
+exports.updateLoggedUserData = async (req, res, next) => {
+  try {
+    const updatedDocument = await UserModel.findOneAndUpdate(
+      { _id: req.user._id },
+      {
+        name: req.body.name,
+        slug: slugify(req.body.name),
+        email: req.body.email,
+        phone: req.body.phone,
+        userPhoto: req.body.userPhoto
+      },
+      { new: true, runValidators: true }
+    )
+      .select("-__v +password +active")
+      .populate({ path: "reviews", select: "-__v" });
+
+    const token = createToken(updatedDocument._id);
+
+    //! Set Cookie (JWT) in Browser
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json({
+      data: updatedDocument,
+      token,
+      message: `User Updated Successfully!`
+    });
+  } catch (err) {
+    next(new APIError(`Error updating user: ${err.message}`, 500, err.name));
+  }
+};
+
+//! @desc Change Current User Password
+//! @route PUT /api/v1/users/changePassword
+//! @access Private/Protected
+exports.updateLoggedUserPassword = async (req, res, next) => {
+  try {
+    const updatedDocument = await UserModel.findOneAndUpdate(
+      { _id: req.user._id },
+      {
+        password: await bcrypt.hash(req.body.password, 12),
+        passwordChangedAt: Date.now() - 1000
+      },
+      { new: true, runValidators: true }
+    )
+      .select("-__v +password +active")
+      .populate({ path: "reviews", select: "-__v" });
+
+    res.status(200).json({
+      data: updatedDocument,
+      message: `Password Changed Successfully!`
+    });
+  } catch (err) {
+    next(
+      new APIError(
+        `Error during changing password: ${err.message}`,
+        500,
+        err.name
+      )
+    );
+  }
+};
+
+//! @desc Logout User
+//! @route GET /api/v1/users/logout
+//! @access Public
+exports.logoutUser = (req, res, next) => {
+  res.clearCookie("jwt", { httpOnly: true, secure: true, sameSite: "none" });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none"
+  });
+
+  res
+    .status(200)
+    .json({ status: "success", message: "Logged Out Successfully" });
+};
