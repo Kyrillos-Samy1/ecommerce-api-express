@@ -53,6 +53,22 @@ exports.createCashOrderValidator = [
         }
       });
 
+      if (value.fullName.length < 3 || value.fullName.length > 50) {
+        throw new Error("Full name must be between 3 and 50 characters");
+      }
+
+      if (value.address.length < 3 || value.address.length > 200) {
+        throw new Error("Address must be between 3 and 200 characters");
+      }
+
+      if (value.city.length < 3 || value.city.length > 100) {
+        throw new Error("City must be between 3 and 100 characters");
+      }
+
+      if (value.country.length < 2 || value.country.length > 100) {
+        throw new Error("Country must be between 2 and 100 characters");
+      }
+
       if (!/^(\+20)?01[0125]\d{8}$/.test(value.phone)) {
         throw new Error(
           "Invalid Egyptian phone number format. eg: +201XXXXXXXXX or 01XXXXXXXXX"
@@ -71,7 +87,28 @@ exports.createCashOrderValidator = [
         throw new Error("Phone number must be a number");
       }
 
-      
+      return true;
+    }),
+
+  check("paymentMethod")
+    .optional()
+    .isIn(["cash", "card"])
+    .withMessage("Payment method must be either 'cash' or 'card'"),
+  check("paymentResult")
+    .optional()
+    .isObject()
+    .withMessage("Payment result must be an object")
+    .custom((value) => {
+      const allowedFields = ["id", "status", "update_time", "email_address"];
+      const invalidFields = Object.keys(value).filter(
+        (key) => !allowedFields.includes(key)
+      );
+
+      if (invalidFields.length > 0) {
+        throw new Error(
+          `Invalid payment result fields: ${invalidFields.join(", ")}`
+        );
+      }
 
       return true;
     }),
