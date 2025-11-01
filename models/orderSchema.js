@@ -84,14 +84,22 @@ const orderSchema = new mongoose.Schema(
       required: [true, "Order Must Have A Shipping Price!"],
       default: 0.0
     },
+    totalOrderPriceBeforeDiscount: {
+      type: Number,
+      required: [true, "Order Must Have A Total Price Before Discount!"],
+      default: 0.0
+    },
     totalPriceAfterDiscount: {
       type: Number,
       required: [true, "Order Must Have A Total Price After Discount!"],
       default: 0.0
     },
-    totalOrderPrice: {
+    totalPriceAfterTaxAndShippingAdded: {
       type: Number,
-      required: [true, "Order Must Have A Total Price!"],
+      required: [
+        true,
+        "Order Must Have A Total Price After Tax And Shipping Added!"
+      ],
       default: 0.0
     },
     isPaid: {

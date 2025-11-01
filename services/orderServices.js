@@ -9,8 +9,8 @@ const APIError = require("../utils/apiError");
 exports.createCashOrder = async (req, res, next) => {
   try {
     //! Order Variables Depend on Admin
-    const taxPrice = 0;
-    const shippingPrice = 0;
+    const taxPrice = 20;
+    const shippingPrice = 10;
 
     //! 1) Get Cart Depand on CardId
     const cart = await CartModel.findById(req.params.cardId);
@@ -20,7 +20,7 @@ exports.createCashOrder = async (req, res, next) => {
       ? cart.totalPriceAfterDiscount
       : cart.totalPrice;
 
-    const totalOrderPrice = Number(
+    const totalPriceAfterTaxAndShippingAdded = Number(
       orderPrice + taxPrice + shippingPrice
     ).toFixed(2);
 
@@ -32,12 +32,14 @@ exports.createCashOrder = async (req, res, next) => {
       paymentMethodType: "cash",
       taxPrice,
       shippingPrice,
-      totalOrderPrice,
+      totalOrderPriceBeforeDiscount: cart.totalPrice,
+      totalPriceAfterDiscount: cart.totalPriceAfterDiscount,
+      totalPriceAfterTaxAndShippingAdded,
       isPaid: false,
       paidAt: null,
       isDelivered: false,
       deliveredAt: null
-    });
+    }).select("-__v");
 
     //! 4) After Creating Order, Decrement Product Quantity, Incerement Sold Quantity
     if (order) {
