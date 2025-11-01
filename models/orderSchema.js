@@ -94,7 +94,12 @@ const orderSchema = new mongoose.Schema(
       required: [true, "Order Must Have A Total Price After Discount!"],
       default: 0.0
     },
-    totalPriceAfterTaxAndShippingAdded: {
+    totalPriceAfterCouponApplied: {
+      type: Number,
+      required: [true, "Order Must Have A Total Price After Coupon Applied!"],
+      default: 0.0
+    },
+    finalTotalPriceAfterTaxAndShippingAdded: {
       type: Number,
       required: [
         true,

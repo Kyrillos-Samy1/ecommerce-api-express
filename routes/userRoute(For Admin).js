@@ -18,6 +18,7 @@ const {
   changeUserPassword
 } = require("../services/userServices(For Admin)");
 const { protectRoutes, allowRoles } = require("../services/authServices");
+const { cleanOrphanReviews } = require("../middlewares/cleanOrphanReviews");
 
 //*================================================  CRUD For Admin  ================================================
 
@@ -40,6 +41,6 @@ router
   .route("/:userId")
   .get(getUserByIdValidator, getUserById)
   .put(uploadUserImage, resizeUserImage, updateUserValidator, updateUser)
-  .delete(deleteUserValidator, deleteUser);
+  .delete(deleteUserValidator, cleanOrphanReviews, deleteUser);
 
 module.exports = router;

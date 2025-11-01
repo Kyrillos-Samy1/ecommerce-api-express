@@ -46,6 +46,9 @@ const cartSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Cart Must Have A Discounted Total Price!"]
     },
+    totalPriceAfterCouponApplied: {
+      type: Number
+    },
     totalItems: {
       type: Number,
       required: [true, "Cart Must Have A Total Items!"]

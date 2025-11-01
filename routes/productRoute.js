@@ -18,6 +18,7 @@ const {
 } = require("../utils/validators/productValidator");
 const { protectRoutes, allowRoles } = require("../services/authServices");
 const ReviewsRoutes = require("./reviewRoute");
+const { cleanOrphanReviews } = require("../middlewares/cleanOrphanReviews");
 
 const router = express.Router();
 
@@ -32,25 +33,28 @@ router
     uploadMixedImages,
     resizeProductImage,
     createProductValidator,
+    cleanOrphanReviews,
     createProduct
   )
-  .get(getAllProductsValidator, getAllProducts);
+  .get(getAllProductsValidator, cleanOrphanReviews, getAllProducts);
 
 router
   .route("/:productId")
-  .get(getProductByIdValidator, getProductById)
+  .get(getProductByIdValidator, cleanOrphanReviews, getProductById)
   .put(
     protectRoutes,
     allowRoles("admin", "manager"),
     uploadMixedImages,
     resizeProductImage,
     updateProductValidator,
+    cleanOrphanReviews,
     updateProduct
   )
   .delete(
     protectRoutes,
     allowRoles("admin"),
     deleteProductValidator,
+    cleanOrphanReviews,
     deleteProduct
   );
 

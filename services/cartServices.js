@@ -26,9 +26,11 @@ const updateCartAfterAddingProduct = async (cart) => {
 
   if (cart.appliedCoupon && cart.appliedCouponDiscount) {
     const discountPercent = Number(cart.appliedCouponDiscount);
-    const priceBeforeDiscount = Number(cart.totalPriceAfterDiscount);
+    const priceBeforeDiscount = Number(cart.totalPriceAfterDiscount)
+      ? Number(cart.totalPriceAfterDiscount)
+      : Number(cart.totalPrice);
     const appliedCouponDiscount = (priceBeforeDiscount * discountPercent) / 100;
-    cart.totalPriceAfterDiscount = Number(
+    cart.totalPriceAfterCouponApplied = Number(
       Number((priceBeforeDiscount - appliedCouponDiscount).toFixed(2))
     );
   }
@@ -53,6 +55,7 @@ exports.addProductToCart = async (req, res, next) => {
 
     if (!cart) {
       const totalPrice = price * quantity;
+
       const itemPriceAfterDiscount = !Number.isNaN(discountPrice)
         ? discountPrice
         : price;
@@ -160,6 +163,7 @@ exports.removeProductFromCart = async (req, res, next) => {
     if (cart.cartItems.length === 0) {
       cart.appliedCouponDiscount = 0;
       cart.appliedCoupon = null;
+      cart.totalPriceAfterCouponApplied = 0;
     }
 
     await cart.save();
@@ -221,6 +225,7 @@ exports.clearCart = async (req, res, next) => {
           totalPriceAfterDiscount: 0,
           appliedCoupon: null,
           appliedCouponDiscount: 0,
+          totalPriceAfterCouponApplied: 0,
           totalItems: 0
         }
       },
@@ -255,13 +260,14 @@ exports.applyCouponCode = async (req, res, next) => {
 
     const discountPercent = Number(couponFound.discount);
 
-    const priceBeforeDiscount =
+    const priceBeforeCouponApplied =
       Number(cart.totalPriceAfterDiscount) || Number(cart.totalPrice);
 
-    const appliedCouponDiscount = (priceBeforeDiscount * discountPercent) / 100;
+    const appliedCouponDiscount =
+      (priceBeforeCouponApplied * discountPercent) / 100;
 
-    cart.totalPriceAfterDiscount = Number(
-      (priceBeforeDiscount - appliedCouponDiscount).toFixed(2)
+    cart.totalPriceAfterCouponApplied = Number(
+      (priceBeforeCouponApplied - appliedCouponDiscount).toFixed(2)
     );
 
     cart.appliedCoupon = couponFound.coupon;

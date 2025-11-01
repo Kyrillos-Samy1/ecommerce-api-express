@@ -16,13 +16,24 @@ exports.createCashOrder = async (req, res, next) => {
     const cart = await CartModel.findById(req.params.cardId);
 
     //! 2) Get Order Price Depend on Cart Price "Check If Coupon Applied?"
-    const orderPrice = cart.totalPriceAfterDiscount
-      ? cart.totalPriceAfterDiscount
-      : cart.totalPrice;
+    let orderPrice;
+    if (
+      cart.totalPriceAfterCouponApplied != null &&
+      cart.totalPriceAfterCouponApplied !== 0
+    ) {
+      orderPrice = cart.totalPriceAfterCouponApplied;
+    } else if (
+      cart.totalPriceAfterDiscount != null &&
+      cart.totalPriceAfterDiscount !== 0
+    ) {
+      orderPrice = cart.totalPriceAfterDiscount;
+    } else {
+      orderPrice = cart.totalPrice;
+    }
 
-    const totalPriceAfterTaxAndShippingAdded = Number(
-      orderPrice + taxPrice + shippingPrice
-    ).toFixed(2);
+    const finalTotalPriceAfterTaxAndShippingAdded = Number(
+      (Number(orderPrice) + Number(taxPrice) + Number(shippingPrice)).toFixed(2)
+    );
 
     //! 3) Create Order with default paymentMethodType "cash"
     const order = await OrderModel.create({
@@ -34,12 +45,13 @@ exports.createCashOrder = async (req, res, next) => {
       shippingPrice,
       totalOrderPriceBeforeDiscount: cart.totalPrice,
       totalPriceAfterDiscount: cart.totalPriceAfterDiscount,
-      totalPriceAfterTaxAndShippingAdded,
+      totalPriceAfterCouponApplied: cart.totalPriceAfterCouponApplied || 0.0,
+      finalTotalPriceAfterTaxAndShippingAdded,
       isPaid: false,
       paidAt: null,
       isDelivered: false,
       deliveredAt: null
-    }).select("-__v");
+    });
 
     //! 4) After Creating Order, Decrement Product Quantity, Incerement Sold Quantity
     if (order) {
@@ -71,6 +83,7 @@ exports.createCashOrder = async (req, res, next) => {
           totalPriceAfterDiscount: 0,
           appliedCoupon: null,
           appliedCouponDiscount: 0,
+          totalPriceAfterCouponApplied: 0,
           totalItems: 0
         }
       },
