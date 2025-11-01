@@ -39,26 +39,42 @@ const orderSchema = new mongoose.Schema(
     shippingAddress: {
       fullName: {
         type: String,
+        trim: true,
+        minLength: [3, "Full Name Must Be At Least 3 Characters Long!"],
+        maxLength: [100, "Full Name Must Be Less Than 100 Characters!"],
         required: [true, "Order Must Have A Full Name!"]
       },
       address: {
         type: String,
+        trim: true,
+        minLength: [3, "Address Must Be At Least 3 Characters Long!"],
+        maxLength: [200, "Address Must Be Less Than 200 Characters!"],
         required: [true, "Order Must Have An Address!"]
       },
       city: {
         type: String,
+        trim: true,
+        minLength: [3, "City Must Be At Least 3 Characters Long!"],
+        maxLength: [100, "City Must Be Less Than 100 Characters!"],
         required: [true, "Order Must Have A City!"]
       },
       postalCode: {
         type: String,
+        trim: true,
+        minLength: [5, "Postal Code Must Be 5 Characters Long!"],
+        maxLength: [5, "Postal Code Must Be 5 Characters Long!"],
         required: [true, "Order Must Have A Postal Code!"]
       },
       country: {
         type: String,
+        trim: true,
+        minLength: [3, "Country Must Be At Least 3 Characters Long!"],
+        maxLength: [100, "Country Must Be Less Than 100 Characters!"],
         required: [true, "Order Must Have A Country!"]
       },
       phone: {
         type: String,
+        trim: true,
         required: [true, "Order Must Have A Phone Number!"]
       }
     },
