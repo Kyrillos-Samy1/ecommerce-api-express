@@ -138,6 +138,11 @@ const orderSchema = new mongoose.Schema(
     },
     deliveredAt: {
       type: Date
+    },
+    isCancelled: {
+      type: Boolean,
+      required: [true, "Order Must Have A Cancellation Status!"],
+      default: false
     }
   },
   {

@@ -50,7 +50,8 @@ exports.createCashOrder = async (req, res, next) => {
       isPaid: false,
       paidAt: null,
       isDelivered: false,
-      deliveredAt: null
+      deliveredAt: null,
+      isCancelled: false
     });
 
     //! 4) After Creating Order, Decrement Product Quantity, Incerement Sold Quantity
@@ -94,6 +95,55 @@ exports.createCashOrder = async (req, res, next) => {
     res.status(201).json({
       status: "success",
       message: "Order created successfully",
+      data: order
+    });
+  } catch (err) {
+    next(new APIError(err.message, 500, err.name));
+  }
+};
+
+exports.getLoggedUserOrders = async (req, res, next) => {
+  try {
+    const orders = await OrderModel.find({ user: req.user._id }).sort(
+      "-createdAt"
+    );
+    res.status(200).json({
+      status: "success",
+      message: "Orders Found Successfully!",
+      data: orders
+    });
+  } catch (err) {
+    next(new APIError(err.message, 500, err.name));
+  }
+};
+
+exports.getSpecificOrder = async (req, res, next) => {
+  try {
+    const order = await OrderModel.findById(req.params.id);
+    if (!order) {
+      return next(new APIError("Order not found with this ID", 404));
+    }
+    res.status(200).json({
+      status: "success",
+      message: "Order Found Successfully!",
+      data: order
+    });
+  } catch (err) {
+    next(new APIError(err.message, 500, err.name));
+  }
+};
+
+exports.cancelOrder = async (req, res, next) => {
+  try {
+    const order = await OrderModel.findByIdAndUpdate(req.params.id, {
+      isCancelled: true
+    });
+    if (!order) {
+      return next(new APIError("Order not found with this ID", 404));
+    }
+    res.status(200).json({
+      status: "success",
+      message: "Order Cancelled Successfully!",
       data: order
     });
   } catch (err) {
