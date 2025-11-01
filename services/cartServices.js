@@ -135,9 +135,9 @@ exports.getUserCart = async (req, res, next) => {
     await cart.save();
 
     res.status(200).json({
+      message: "Cart Fetched Successfully!",
       results: cart.cartItems.length,
-      userCart: cart,
-      message: "Cart Fetched Successfully!"
+      userCart: cart
     });
   } catch (err) {
     next(new APIError(err.message, 500, err.name));
@@ -165,9 +165,9 @@ exports.removeProductFromCart = async (req, res, next) => {
     await cart.save();
 
     res.status(200).json({
+      message: "Product deleted from cart!",
       results: cart.cartItems.length,
-      userCart: cart,
-      message: "Product deleted from cart!"
+      userCart: cart
     });
   } catch (err) {
     next(new APIError(err.message, 500, err.name));
@@ -198,9 +198,9 @@ exports.updateCartQuantity = async (req, res, next) => {
     await cart.save();
 
     res.status(200).json({
+      message: "Product quantity updated successfully!",
       results: cart.cartItems.length,
-      userCart: cart,
-      message: "Product quantity updated successfully!"
+      userCart: cart
     });
   } catch (err) {
     next(new APIError(err.message, 500, err.name));
@@ -232,8 +232,8 @@ exports.clearCart = async (req, res, next) => {
     }
 
     res.status(200).json({
-      userCart: cart,
-      message: "Cart cleared successfully!"
+      message: "Cart cleared successfully!",
+      userCart: cart
     });
   } catch (err) {
     next(new APIError(err.message, 500, err.name));
@@ -270,10 +270,10 @@ exports.applyCouponCode = async (req, res, next) => {
     await cart.save();
 
     res.status(200).json({
-      userCart: cart,
+      message: "Coupon applied successfully!",
       discountPercent,
       appliedCouponDiscount,
-      message: "Coupon applied successfully!"
+      userCart: cart
     });
   } catch (err) {
     next(new APIError(err.message, 500, err.name));
