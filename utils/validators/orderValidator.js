@@ -1,6 +1,7 @@
 const { check } = require("express-validator");
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
 const CartModel = require("../../models/cartSchema");
+const OrderModel = require("../../models/orderSchema");
 
 exports.createCashOrderValidator = [
   check("cardId")
@@ -115,3 +116,54 @@ exports.createCashOrderValidator = [
   validatorMiddleware
 ];
 
+exports.getSpecificOrder = [
+  check("orderId")
+    .trim()
+    .isMongoId()
+    .withMessage("Invalid Order ID format")
+    .notEmpty()
+    .withMessage("Order ID is required")
+    .custom(async (value, { req }) => {
+      const order = await OrderModel.findById(value);
+      if (!order) {
+        throw new Error(`Order not found with this ID: ${value}`);
+      }
+
+      if (order.user.toString() !== req.user._id.toString()) {
+        throw new Error("You cannot get an order for another user");
+      }
+
+      if (order.isCancelled) {
+        throw new Error("This order has been cancelled");
+      }
+
+      return true;
+    }),
+  validatorMiddleware
+];
+
+exports.cancelOrderValidator = [
+  check("orderId")
+    .trim()
+    .isMongoId()
+    .withMessage("Invalid Order ID format")
+    .notEmpty()
+    .withMessage("Order ID is required")
+    .custom(async (value, { req }) => {
+      const order = await OrderModel.findById(value);
+      if (!order) {
+        throw new Error(`Order not found with this ID: ${value}`);
+      }
+
+      if (order.user.toString() !== req.user._id.toString()) {
+        throw new Error("You cannot cancel an order for another user");
+      }
+
+      if (order.isCancelled) {
+        throw new Error("This order has already been cancelled");
+      }
+
+      return true;
+    }),
+  validatorMiddleware
+];

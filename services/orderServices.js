@@ -102,11 +102,15 @@ exports.createCashOrder = async (req, res, next) => {
   }
 };
 
+//! @desk Get Logged User Orders
+//! @route GET /api/v1/orders
+//! @access Private/Protected/User
 exports.getLoggedUserOrders = async (req, res, next) => {
   try {
     const orders = await OrderModel.find({ user: req.user._id }).sort(
       "-createdAt"
     );
+
     res.status(200).json({
       status: "success",
       message: "Orders Found Successfully!",
@@ -117,12 +121,13 @@ exports.getLoggedUserOrders = async (req, res, next) => {
   }
 };
 
+//! @desk Get Specific Order
+//! @route GET /api/v1/orders/:orderId
+//! @access Private/Protected/User
 exports.getSpecificOrder = async (req, res, next) => {
   try {
     const order = await OrderModel.findById(req.params.id);
-    if (!order) {
-      return next(new APIError("Order not found with this ID", 404));
-    }
+
     res.status(200).json({
       status: "success",
       message: "Order Found Successfully!",
@@ -133,14 +138,15 @@ exports.getSpecificOrder = async (req, res, next) => {
   }
 };
 
+//! @desk Cancel Order
+//! @route PUT /api/v1/orders/:orderId
+//! @access Private/Protected/User
 exports.cancelOrder = async (req, res, next) => {
   try {
     const order = await OrderModel.findByIdAndUpdate(req.params.id, {
       isCancelled: true
     });
-    if (!order) {
-      return next(new APIError("Order not found with this ID", 404));
-    }
+
     res.status(200).json({
       status: "success",
       message: "Order Cancelled Successfully!",
