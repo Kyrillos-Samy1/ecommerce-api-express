@@ -116,7 +116,7 @@ exports.createCashOrderValidator = [
   validatorMiddleware
 ];
 
-exports.getSpecificOrder = [
+exports.getSpecificOrderValidator = [
   check("orderId")
     .trim()
     .isMongoId()
