@@ -1,4 +1,4 @@
-const CartModel = require("../models/cartSchema");
+const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");
@@ -130,7 +130,7 @@ exports.getLoggedUserOrders = async (req, res, next) => {
 //! @access Private/Protected/User
 exports.getSpecificOrder = async (req, res, next) => {
   try {
-    const order = await OrderModel.findById(req.params.id);
+    const order = await OrderModel.findById(req.params.orderId);
 
     res.status(200).json({
       status: "success",
@@ -147,9 +147,13 @@ exports.getSpecificOrder = async (req, res, next) => {
 //! @access Private/Protected/User
 exports.cancelOrder = async (req, res, next) => {
   try {
-    const order = await OrderModel.findByIdAndUpdate(req.params.id, {
-      isCancelled: true
-    });
+    const order = await OrderModel.findByIdAndUpdate(
+      req.params.orderId,
+      {
+        isCancelled: true
+      },
+      { new: true, runValidators: true }
+    );
 
     res.status(200).json({
       status: "success",

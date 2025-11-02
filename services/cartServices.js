@@ -1,4 +1,4 @@
-const CartModel = require("../models/cartSchema");
+const CartModel = require("../models/cartModel");
 const CouponModel = require("../models/couponModel");
 const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");

@@ -17,7 +17,6 @@ const {
   resizeUserImage,
   deleteUser
 } = require("../services/userServices(For Admin)");
-const { cleanOrphanReviews } = require("../middlewares/cleanOrphanReviews");
 
 //*================================================  CRUD For Current User  ============================================================
 
@@ -43,11 +42,6 @@ router.put(
 
 router.post("/logout", logoutUser);
 
-router.delete(
-  "/deleteMe",
-  deleteMeUserValidator,
-  cleanOrphanReviews,
-  deleteUser
-);
+router.delete("/deleteMe", deleteMeUserValidator, deleteUser);
 
 module.exports = router;

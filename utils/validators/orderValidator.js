@@ -1,6 +1,6 @@
 const { check } = require("express-validator");
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
-const CartModel = require("../../models/cartSchema");
+const CartModel = require("../../models/cartModel");
 const OrderModel = require("../../models/orderSchema");
 
 exports.createCashOrderValidator = [

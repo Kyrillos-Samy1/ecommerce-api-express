@@ -18,7 +18,6 @@ const {
   getReviewByIdValidator,
   updateReviewValidator
 } = require("../utils/validators/reviewValidator");
-const { cleanOrphanReviews } = require("../middlewares/cleanOrphanReviews");
 
 //! mergeParams: Allow Us To Access Params From Parent Router
 //! Ex: We Need To Access reviewId From Review Router
@@ -32,26 +31,14 @@ router
     setParamIdToBodyAndUserId("productId", "product", "user"),
     createReviewValidator,
     setLoggedUserIdToBody,
-    cleanOrphanReviews,
     createReview
   )
-  .get(getAllReviewsValidator, cleanOrphanReviews, getAllReviews);
+  .get(getAllReviewsValidator, getAllReviews);
 
 router
   .route("/:reviewId")
-  .get(getReviewByIdValidator, cleanOrphanReviews, getReviewById)
-  .put(
-    protectRoutes,
-    allowRoles("user"),
-    updateReviewValidator,
-    cleanOrphanReviews,
-    updateReview
-  )
-  .delete(
-    protectRoutes,
-    allowRoles("user", "manager", "admin"),
-    cleanOrphanReviews,
-    deleteReview
-  );
+  .get(getReviewByIdValidator, getReviewById)
+  .put(protectRoutes, allowRoles("user"), updateReviewValidator, updateReview)
+  .delete(protectRoutes, allowRoles("user", "manager", "admin"), deleteReview);
 
 module.exports = router;

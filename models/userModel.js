@@ -4,6 +4,8 @@ const validator = require("validator");
 const {
   applyImageUrlMiddleware
 } = require("../middlewares/imageUrlBuilderMiddleware");
+const ReviewModel = require("./reviewModel");
+const OrderModel = require("./orderSchema");
 
 //! 1- Create User Schema
 const userSchema = new mongoose.Schema(
@@ -93,6 +95,31 @@ applyImageUrlMiddleware(userSchema, "users");
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 12);
+
+  next();
+});
+
+//! Delete user reviews and orders when user is deleted
+userSchema.pre("findOneAndDelete", async function (next) {
+  const filter = this.getFilter();
+  const userId = filter._id;
+
+  if (!userId) return next();
+
+  const deletedReviews = await ReviewModel.find({ user: userId });
+
+  await Promise.all([
+    ReviewModel.deleteMany({ user: userId }),
+    OrderModel.deleteMany({ user: userId })
+  ]);
+
+  const productIds = [
+    ...new Set(deletedReviews.map((review) => review.product.toString()))
+  ];
+  //! Calculate average ratings concurrently without using iterators or awaiting inside loops
+  await Promise.all(
+    productIds.map((productId) => ReviewModel.calcAverageRatings(productId))
+  );
 
   next();
 });

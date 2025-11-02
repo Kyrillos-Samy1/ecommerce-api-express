@@ -2,7 +2,7 @@ const { check } = require("express-validator");
 
 const ProductModel = require("../../models/productModel");
 const UserModel = require("../../models/userModel");
-const CartModel = require("../../models/cartSchema");
+const CartModel = require("../../models/cartModel");
 const CouponModel = require("../../models/couponModel");
 
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");

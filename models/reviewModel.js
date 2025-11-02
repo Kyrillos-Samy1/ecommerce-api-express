@@ -70,5 +70,8 @@ reviewSchema.post(/^findOneAnd/, async (doc) => {
   }
 });
 
+//! 
+reviewSchema.index({ product: 1, user: 1 }, { unique: true });
+
 //! 2- Create Review Model
 module.exports = mongoose.model("Review", reviewSchema);
