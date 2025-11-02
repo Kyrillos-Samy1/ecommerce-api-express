@@ -15,8 +15,8 @@ exports.createDocumnet =
       const createdDocument = await CreateDocumnetModel.create(req.body);
 
       res.status(201).json({
+        message: `${FactoryName} Created Successfully!`,
         data: createdDocument,
-        message: `${FactoryName} Created Successfully!`
       });
     } catch (err) {
       return next(
@@ -86,8 +86,8 @@ exports.getAllDocuments =
       res.status(200).json({
         paginationResult,
         results: documents.length,
+        message: `${FactoryName} Fetched Successfully!`,
         data: documents,
-        message: `${FactoryName} Fetched Successfully!`
       });
     } catch (err) {
       return next(
@@ -122,8 +122,8 @@ exports.getDocumentById =
       }
 
       res.status(200).json({
+        message: `${FactoryName} Fetched Successfully!`,
         data: fetchedDocument,
-        message: `${FactoryName} Fetched Successfully!`
       });
     } catch (err) {
       console.error(err);
@@ -156,8 +156,8 @@ exports.updateOneDocument =
       ).select("-__v");
 
       res.status(200).json({
+        message: `${FactoryName} Updated Successfully!`,
         data: updatedDocument,
-        message: `${FactoryName} Updated Successfully!`
       });
     } catch (err) {
       next(
@@ -179,8 +179,8 @@ exports.deleteOneDocument =
         await DeletingModel.findByIdAndDelete(documentId).select("-__v");
 
       res.status(200).json({
+        message: `${FactoryName} Deleted Successfully!`,
         data: deletedDocument,
-        message: `${FactoryName} Deleted Successfully!`
       });
     } catch (err) {
       console.error(err);
