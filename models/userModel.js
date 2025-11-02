@@ -100,7 +100,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-//! Cascade delete for user-related data on user deletion (e.g., reviews, orders)
+//! Implement cascade delete for user-related data and enhance order cancellation logic with stock restoration
 userSchema.pre("findOneAndDelete", async function (next) {
   try {
     const filter = this.getFilter();
