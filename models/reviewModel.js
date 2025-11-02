@@ -70,7 +70,7 @@ reviewSchema.post(/^findOneAnd/, async (doc) => {
   }
 });
 
-//! 
+//! To prevent duplicate reviews from the same user on the same product
 reviewSchema.index({ product: 1, user: 1 }, { unique: true });
 
 //! 2- Create Review Model
