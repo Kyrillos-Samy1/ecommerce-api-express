@@ -6,6 +6,7 @@ const {
 } = require("../middlewares/imageUrlBuilderMiddleware");
 const ReviewModel = require("./reviewModel");
 const OrderModel = require("./orderSchema");
+const ProductModel = require("./productModel");
 
 //! 1- Create User Schema
 const userSchema = new mongoose.Schema(
@@ -99,29 +100,66 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-//! Delete user reviews and orders when user is deleted
+//! Cascade delete for user-related data on user deletion (e.g., reviews, orders)
 userSchema.pre("findOneAndDelete", async function (next) {
-  const filter = this.getFilter();
-  const userId = filter._id;
+  try {
+    const filter = this.getFilter();
+    const userId = filter._id;
 
-  if (!userId) return next();
+    if (!userId) return next();
 
-  const deletedReviews = await ReviewModel.find({ user: userId });
+    //! Get affected reviews & orders before deletion
+    const [deletedReviews, userOrders] = await Promise.all([
+      ReviewModel.find({ user: userId }),
+      OrderModel.find({ user: userId })
+    ]);
 
-  await Promise.all([
-    ReviewModel.deleteMany({ user: userId }),
-    OrderModel.deleteMany({ user: userId })
-  ]);
+    //! Restore stock & adjust sold counts
+    const productAdjustments = [];
 
-  const productIds = [
-    ...new Set(deletedReviews.map((review) => review.product.toString()))
-  ];
-  //! Calculate average ratings concurrently without using iterators or awaiting inside loops
-  await Promise.all(
-    productIds.map((productId) => ReviewModel.calcAverageRatings(productId))
-  );
+    userOrders.forEach((order) => {
+      order.cartItems.forEach((item) => {
+        productAdjustments.push({
+          updateOne: {
+            filter: { _id: item.product },
+            update: {
+              $inc: {
+                quantity: item.quantity,
+                sold: -item.quantity
+              }
+            }
+          }
+        });
+      });
+    });
 
-  next();
+    if (productAdjustments.length > 0) {
+      await ProductModel.bulkWrite(productAdjustments);
+    }
+
+    //! Delete reviews & orders concurrently
+    await Promise.all([
+      ReviewModel.deleteMany({ user: userId }),
+      OrderModel.deleteMany({ user: userId })
+    ]);
+
+    //! Recalculate ratings for affected products
+    const productIds = [
+      ...new Set(deletedReviews.map((review) => review.product.toString()))
+    ];
+
+    if (productIds.length > 0) {
+      await Promise.all(
+        productIds.map((productId) => ReviewModel.calcAverageRatings(productId))
+      );
+    }
+
+    console.log(`Cascade delete completed for user: ${userId}`);
+    next();
+  } catch (err) {
+    console.error("Error during user cascade delete:", err);
+    next();
+  }
 });
 
 //! 2- Create User Model

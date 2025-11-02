@@ -147,20 +147,41 @@ exports.getSpecificOrder = async (req, res, next) => {
 //! @access Private/Protected/User
 exports.cancelOrder = async (req, res, next) => {
   try {
-    const order = await OrderModel.findByIdAndUpdate(
-      req.params.orderId,
-      {
-        isCancelled: true
-      },
-      { new: true, runValidators: true }
-    );
+    const order = await OrderModel.findById(req.params.orderId);
+
+    if (!order) {
+      return next(new APIError("Order not found", 404));
+    }
+
+    if (order.isCancelled) {
+      return next(new APIError("Order already cancelled", 400));
+    }
+
+    order.isCancelled = true;
+    await order.save();
+
+    //! Restore stock & decrease sold count
+    const operations = order.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: {
+          $inc: {
+            quantity: item.quantity,
+            sold: -item.quantity
+          }
+        }
+      }
+    }));
+
+    await ProductModel.bulkWrite(operations);
 
     res.status(200).json({
       status: "success",
-      message: "Order Cancelled Successfully!",
+      message: "Order cancelled successfully, stock restored & sales adjusted!",
       data: order
     });
   } catch (err) {
+    console.error(err);
     next(new APIError(err.message, 500, err.name));
   }
 };
