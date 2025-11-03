@@ -24,8 +24,15 @@ router.get("/", allowRoles("user"), getLoggedUserOrders);
 
 router
   .route("/:orderId")
-  .get(allowRoles("user"), getSpecificOrderValidator, getSpecificOrder)
-  .put(allowRoles("user"), cancelOrderValidator, cancelOrder)
+  .get(
+    allowRoles("user", "admin", "manager"),
+    getSpecificOrderValidator,
+    getSpecificOrder
+  )
+  .put(allowRoles("user", "admin"), cancelOrderValidator, cancelOrder);
+
+router
+  .route("/:orderId/deliver")
   .patch(
     allowRoles("admin", "manager"),
     updateOrderIsDeliveredStatusValidator,
@@ -33,7 +40,7 @@ router
   );
 
 router
-  .route("/cash/:orderId")
+  .route("/cash/:orderId/pay")
   .patch(
     allowRoles("admin", "manager"),
     updateOrderIsPaidStatusValidator,

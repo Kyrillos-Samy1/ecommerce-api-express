@@ -150,6 +150,17 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
+orderSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "user",
+    select: "name email phone userPhoto"
+  }).populate({
+    path: "orderItems.product",
+    select: "title slug imageCover"
+  });
+  next();
+});
+
 const OrderModel = mongoose.model("Order", orderSchema);
 
 module.exports = OrderModel;

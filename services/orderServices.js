@@ -106,7 +106,7 @@ exports.createCashOrder = async (req, res, next) => {
 
 //! @desk Get Logged User Orders
 //! @route GET /api/v1/orders
-//! @access Private/Protected/User
+//! @access Private/Protected/User/Admin/Manager
 exports.getLoggedUserOrders = async (req, res, next) => {
   try {
     const orders = await OrderModel.find({ user: req.user._id }).sort(
@@ -129,7 +129,7 @@ exports.getLoggedUserOrders = async (req, res, next) => {
 
 //! @desk Get Specific Order
 //! @route GET /api/v1/orders/:orderId
-//! @access Private/Protected/User
+//! @access Private/Protected/User/Admin/Manager
 exports.getSpecificOrder = async (req, res, next) => {
   try {
     const order = await OrderModel.findById(req.params.orderId);
@@ -146,7 +146,7 @@ exports.getSpecificOrder = async (req, res, next) => {
 
 //! @desk Cancel Order
 //! @route PUT /api/v1/orders/:orderId
-//! @access Private/Protected/User
+//! @access Private/Protected/User/Admin
 exports.cancelOrder = async (req, res, next) => {
   try {
     const order = await OrderModel.findById(req.params.orderId);
@@ -183,7 +183,7 @@ exports.cancelOrder = async (req, res, next) => {
 //!====================================================== FOR ADMIN ======================================================
 
 //! @desk Update Is Paid Status
-//! @route PATCH /api/v1/orders/cash/:orderId
+//! @route PATCH /api/v1/orders/cash/:orderId/pay
 //! @access Private/Protected/Admin
 exports.updateOrderIsPaidStatus = async (req, res, next) => {
   try {
@@ -204,7 +204,7 @@ exports.updateOrderIsPaidStatus = async (req, res, next) => {
 };
 
 //! @desk Update Is Delivred Status
-//! @route PATCH /api/v1/orders/:orderId
+//! @route PATCH /api/v1/orders/:orderId/deliver
 //! @access Private/Protected/Admin
 exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
   try {
