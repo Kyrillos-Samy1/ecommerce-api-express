@@ -118,7 +118,7 @@ userSchema.pre("findOneAndDelete", async function (next) {
     const productAdjustments = [];
 
     userOrders.forEach((order) => {
-      order.cartItems.forEach((item) => {
+      order.orderItems.forEach((item) => {
         productAdjustments.push({
           updateOne: {
             filter: { _id: item.product },

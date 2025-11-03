@@ -149,19 +149,11 @@ exports.cancelOrder = async (req, res, next) => {
   try {
     const order = await OrderModel.findById(req.params.orderId);
 
-    if (!order) {
-      return next(new APIError("Order not found", 404));
-    }
-
-    if (order.isCancelled) {
-      return next(new APIError("Order already cancelled", 400));
-    }
-
     order.isCancelled = true;
     await order.save();
 
     //! Restore stock & decrease sold count
-    const operations = order.cartItems.map((item) => ({
+    const operations = order.orderItems.map((item) => ({
       updateOne: {
         filter: { _id: item.product },
         update: {

@@ -163,6 +163,14 @@ exports.cancelOrderValidator = [
         throw new Error("This order has already been cancelled");
       }
 
+      if (order.isDelivered) {
+        throw new Error("This order has already been delivered");
+      }
+
+      if (!order.orderItems.length) {
+        throw new Error("This order is empty");
+      }
+
       return true;
     }),
   validatorMiddleware
