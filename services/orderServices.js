@@ -114,7 +114,7 @@ exports.getLoggedUserOrders = async (req, res, next) => {
     );
 
     if (orders.length === 0) {
-      return next(new APIError("No Orders Found", 404, "NotFoundError"));
+      return next(new APIError("No Orders Found!", 404, "NotFoundError"));
     }
 
     res.status(200).json({
