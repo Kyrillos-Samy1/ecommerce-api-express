@@ -179,3 +179,47 @@ exports.cancelOrder = async (req, res, next) => {
     next(new APIError(err.message, 500, err.name));
   }
 };
+
+//!====================================================== FOR ADMIN ======================================================
+
+//! @desk Update Is Paid Status
+//! @route PATCH /api/v1/orders/cash/:orderId
+//! @access Private/Protected/Admin
+exports.updateOrderIsPaidStatus = async (req, res, next) => {
+  try {
+    const order = await OrderModel.findById(req.params.orderId).select("-__v");
+
+    order.isPaid = true;
+    order.paidAt = Date.now();
+    await order.save();
+
+    res.status(200).json({
+      status: "success",
+      message: "Order Payment Status Updated Successfully!",
+      data: order
+    });
+  } catch (err) {
+    next(new APIError(err.message, 500, err.name));
+  }
+};
+
+//! @desk Update Is Delivred Status
+//! @route PATCH /api/v1/orders/:orderId
+//! @access Private/Protected/Admin
+exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
+  try {
+    const order = await OrderModel.findById(req.params.orderId).select("-__v");
+
+    order.isDelivered = true;
+    order.deliveredAt = Date.now();
+    await order.save();
+
+    res.status(200).json({
+      status: "success",
+      message: "Order Delivery Status Updated Successfully!",
+      data: order
+    });
+  } catch (err) {
+    next(new APIError(err.message, 500, err.name));
+  }
+};

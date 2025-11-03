@@ -175,3 +175,57 @@ exports.cancelOrderValidator = [
     }),
   validatorMiddleware
 ];
+
+//!===================================================== FOR ADMIN ======================================================
+
+exports.updateOrderIsPaidStatusValidator = [
+  check("orderId")
+    .trim()
+    .isMongoId()
+    .withMessage("Invalid Order ID format")
+    .notEmpty()
+    .withMessage("Order ID is required")
+    .custom(async (value) => {
+      const order = await OrderModel.findById(value);
+      if (!order) {
+        throw new Error(`Order not found with this ID: ${value}`);
+      }
+
+      if (order.isPaid) {
+        throw new Error("This order has already been paid!");
+      }
+
+      if (order.isCancelled) {
+        throw new Error("This order has already been cancelled!");
+      }
+
+      return true;
+    }),
+  validatorMiddleware
+];
+
+exports.updateOrderIsDeliveredStatusValidator = [
+  check("orderId")
+    .trim()
+    .isMongoId()
+    .withMessage("Invalid Order ID format")
+    .notEmpty()
+    .withMessage("Order ID is required")
+    .custom(async (value) => {
+      const order = await OrderModel.findById(value);
+      if (!order) {
+        throw new Error(`Order not found with this ID: ${value}`);
+      }
+
+      if (order.isDelivered) {
+        throw new Error("This order has already been delivered!");
+      }
+
+      if (order.isCancelled) {
+        throw new Error("This order has already been cancelled!");
+      }
+
+      return true;
+    }),
+  validatorMiddleware
+];

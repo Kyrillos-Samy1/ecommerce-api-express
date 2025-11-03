@@ -3,26 +3,45 @@ const {
   createCashOrder,
   getLoggedUserOrders,
   getSpecificOrder,
-  cancelOrder
+  cancelOrder,
+  updateOrderIsPaidStatus,
+  updateOrderIsDeliveredStatus
 } = require("../services/orderServices");
 const { allowRoles, protectRoutes } = require("../services/authServices");
 const {
   createCashOrderValidator,
   getSpecificOrderValidator,
-  cancelOrderValidator
+  cancelOrderValidator,
+  updateOrderIsPaidStatusValidator,
+  updateOrderIsDeliveredStatusValidator
 } = require("../utils/validators/orderValidator");
 
 const router = express.Router();
 
-router.use(protectRoutes, allowRoles("user"));
+router.use(protectRoutes);
 
-router.post("/cash/:cardId", createCashOrderValidator, createCashOrder);
+router
+  .route("/cash/:cardId")
+  .post(allowRoles("user"), createCashOrderValidator, createCashOrder);
 
-router.get("/", getLoggedUserOrders);
+router
+  .route("/cash/:orderId")
+  .patch(
+    allowRoles("admin", "manager"),
+    updateOrderIsPaidStatusValidator,
+    updateOrderIsPaidStatus
+  );
+
+router.get("/", allowRoles("user"), getLoggedUserOrders);
 
 router
   .route("/:orderId")
-  .get(getSpecificOrderValidator, getSpecificOrder)
-  .put(cancelOrderValidator, cancelOrder);
+  .get(allowRoles("user"), getSpecificOrderValidator, getSpecificOrder)
+  .put(allowRoles("user"), cancelOrderValidator, cancelOrder)
+  .patch(
+    allowRoles("admin", "manager"),
+    updateOrderIsDeliveredStatusValidator,
+    updateOrderIsDeliveredStatus
+  );
 
 module.exports = router;
