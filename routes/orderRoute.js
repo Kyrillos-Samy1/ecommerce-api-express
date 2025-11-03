@@ -20,18 +20,6 @@ const router = express.Router();
 
 router.use(protectRoutes);
 
-router
-  .route("/cash/:cardId")
-  .post(allowRoles("user"), createCashOrderValidator, createCashOrder);
-
-router
-  .route("/cash/:orderId")
-  .patch(
-    allowRoles("admin", "manager"),
-    updateOrderIsPaidStatusValidator,
-    updateOrderIsPaidStatus
-  );
-
 router.get("/", allowRoles("user"), getLoggedUserOrders);
 
 router
@@ -43,5 +31,17 @@ router
     updateOrderIsDeliveredStatusValidator,
     updateOrderIsDeliveredStatus
   );
+
+router
+  .route("/cash/:orderId")
+  .patch(
+    allowRoles("admin", "manager"),
+    updateOrderIsPaidStatusValidator,
+    updateOrderIsPaidStatus
+  );
+
+router
+  .route("/cash/:cardId")
+  .post(allowRoles("user"), createCashOrderValidator, createCashOrder);
 
 module.exports = router;
