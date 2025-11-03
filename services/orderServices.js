@@ -17,6 +17,7 @@ exports.createCashOrder = async (req, res, next) => {
 
     //! 2) Get Order Price Depend on Cart Price "Check If Coupon Applied?"
     let orderPrice;
+
     if (
       cart.totalPriceAfterCouponApplied != null &&
       cart.totalPriceAfterCouponApplied !== 0
@@ -94,7 +95,7 @@ exports.createCashOrder = async (req, res, next) => {
     //! 6) Send Response
     res.status(201).json({
       status: "success",
-      message: "Order created successfully",
+      message: "Order created successfully! Please proceed to pay at delivery time.",
       data: order
     });
   } catch (err) {
