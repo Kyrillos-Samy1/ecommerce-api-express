@@ -95,7 +95,8 @@ exports.createCashOrder = async (req, res, next) => {
     //! 6) Send Response
     res.status(201).json({
       status: "success",
-      message: "Order created successfully! Please proceed to pay at delivery time.",
+      message:
+        "Order created successfully! Please proceed to pay at delivery time.",
       data: order
     });
   } catch (err) {
