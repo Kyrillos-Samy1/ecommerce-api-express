@@ -184,7 +184,7 @@ exports.cancelOrder = async (req, res, next) => {
 
 //! @desk Update Is Paid Status
 //! @route PATCH /api/v1/orders/cash/:orderId/pay
-//! @access Private/Protected/Admin
+//! @access Private/Protected/Admin/Manager
 exports.updateOrderIsPaidStatus = async (req, res, next) => {
   try {
     const order = await OrderModel.findById(req.params.orderId).select("-__v");
@@ -205,7 +205,7 @@ exports.updateOrderIsPaidStatus = async (req, res, next) => {
 
 //! @desk Update Is Delivred Status
 //! @route PATCH /api/v1/orders/:orderId/deliver
-//! @access Private/Protected/Admin
+//! @access Private/Protected/Admin/Manager
 exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
   try {
     const order = await OrderModel.findById(req.params.orderId).select("-__v");
