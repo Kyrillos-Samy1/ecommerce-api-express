@@ -90,7 +90,7 @@ exports.checkoutSession = async (req, res, next) => {
 
     let discounts = [];
 
-    // Apply Coupon Discount if exists
+    //! Apply Coupon Discount if exists
     if (discountAmount > 0) {
       const coupon = await stripe.coupons.create({
         name: `Discount Coupon - ${cart.appliedCoupon || "N/A"}`,
@@ -98,6 +98,7 @@ exports.checkoutSession = async (req, res, next) => {
         currency: "usd",
         duration: "once"
       });
+
       discounts = [{ coupon: coupon.id }];
     }
 
