@@ -5,10 +5,7 @@ const {
   getSpecificOrder,
   cancelOrder,
   updateOrderIsPaidStatus,
-  updateOrderIsDeliveredStatus,
-  checkoutSession,
-  checkoutSessionSuccess,
-  checkoutSessionCancel
+  updateOrderIsDeliveredStatus
 } = require("../services/orderServices");
 const { allowRoles, protectRoutes } = require("../services/authServices");
 const {
