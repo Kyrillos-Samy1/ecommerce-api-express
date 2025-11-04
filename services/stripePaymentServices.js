@@ -106,7 +106,9 @@ exports.checkoutSession = async (req, res, next) => {
       payment_method_types: ["card"],
       mode: "payment",
       line_items: lineItems,
+
       discounts,
+
       metadata: {
         cartId: req.params.cartId,
         finalTotalPrice,
@@ -122,13 +124,17 @@ exports.checkoutSession = async (req, res, next) => {
           Phone: phone
         })
       },
+
       customer_email: req.user.email,
       client_reference_id: req.params.cartId,
+
       success_url: `${req.protocol}://${req.get("host")}/api/v1/stripe/online/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.protocol}://${req.get("host")}/api/v1/stripe/online/cancel`,
+
       shipping_address_collection: {
         allowed_countries: ["US", "EG", "AE", "GB", "FR", "CA"]
       },
+
       shipping_options: [
         {
           shipping_rate_data: {
