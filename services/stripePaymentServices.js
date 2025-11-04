@@ -132,7 +132,22 @@ exports.checkoutSession = async (req, res, next) => {
       cancel_url: `${req.protocol}://${req.get("host")}/api/v1/stripe/online/cancel`,
 
       shipping_address_collection: {
-        allowed_countries: ["US", "EG", "AE", "GB", "FR", "CA"]
+        allowed_countries: [
+          "US",
+          "EG",
+          "AE",
+          "GB",
+          "FR",
+          "CA",
+          "MX",
+          "IN",
+          "TR",
+          "SA",
+          "JO",
+          "KW",
+          "BH",
+          "QA"
+        ]
       },
 
       shipping_options: [
