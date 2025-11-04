@@ -150,7 +150,7 @@ exports.checkoutSession = async (req, res, next) => {
           "QA"
         ]
       },
-      
+
       phone_number_collection: {
         enabled: true
       },
