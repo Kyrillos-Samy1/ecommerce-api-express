@@ -9,6 +9,7 @@ const APIError = require("../utils/apiError");
 //! @access Private/Protected/User
 exports.checkoutSession = async (req, res, next) => {
   try {
+    //! 0) Get Order to retrieve shipping address
     const order = await OrderModel.findOne({ user: req.user._id });
 
     const { fullName, address, city, postalCode, country, phone } =
