@@ -15,6 +15,10 @@ const cartSchema = new mongoose.Schema(
           ref: "Product",
           required: [true, "Cart Item Must Belong To A Product!"]
         },
+        title: {
+          type: String,
+          required: [true, "Cart Item Must Have A Title!"]
+        },
         quantity: {
           type: Number,
           required: [true, "Cart Item Must Have A Quantity!"],
@@ -35,6 +39,10 @@ const cartSchema = new mongoose.Schema(
         priceAfterDiscount: {
           type: Number,
           required: [true, "Cart Item Must Have A Discounted Price!"]
+        },
+        image: {
+          type: String,
+          required: [true, "Cart Item Must Have An Image!"]
         }
       }
     ],

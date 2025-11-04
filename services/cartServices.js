@@ -64,12 +64,14 @@ exports.addProductToCart = async (req, res, next) => {
         user: req.user._id,
         cartItems: [
           {
+            title: product.title,
             product: productId,
             quantity,
             color,
             size,
             price,
-            priceAfterDiscount: discountPrice
+            priceAfterDiscount: discountPrice,
+            image: product.imageCover
           }
         ],
         totalQuantity: quantity,
@@ -90,11 +92,13 @@ exports.addProductToCart = async (req, res, next) => {
       } else {
         cart.cartItems.push({
           product: productId,
+          title: product.title,
           quantity,
           color,
           size,
           price,
-          priceAfterDiscount: discountPrice
+          priceAfterDiscount: discountPrice,
+          image: product.imageCover
         });
       }
 
