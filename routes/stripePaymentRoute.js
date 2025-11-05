@@ -5,6 +5,9 @@ const {
   checkoutSessionSuccess,
   checkoutSessionCancel
 } = require("../services/stripePaymentServices");
+const {
+  checkoutSessionValidator
+} = require("../utils/validators/stripePaymentValidator");
 
 const router = express.Router();
 
@@ -12,6 +15,7 @@ router.get(
   "/checkout-session/:cartId",
   protectRoutes,
   allowRoles("user"),
+  checkoutSessionValidator,
   checkoutSession
 );
 router.get("/online/success", checkoutSessionSuccess);

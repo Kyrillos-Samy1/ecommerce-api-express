@@ -9,22 +9,12 @@ const APIError = require("../utils/apiError");
 //! @access Private/Protected/User
 exports.checkoutSession = async (req, res, next) => {
   try {
-    //! 0) Get Order to retrieve shipping address
-    const order = await OrderModel.findOne({ user: req.user._id });
-
-    const { fullName, address, city, postalCode, country, phone } =
-      order.shippingAddress;
-
     //! Order Variables Depend on Admin
     const shippingPrice = 10;
     const taxPrice = 20;
 
     //! 1) Get Cart Depand on CartId
     const cart = await CartModel.findById(req.params.cartId);
-
-    if (!cart || cart.cartItems.length === 0) {
-      return next(new APIError("Cart not found!", 404, "NotFoundError"));
-    }
 
     //! 2) Create Stripe Checkout Session
 
@@ -119,12 +109,12 @@ exports.checkoutSession = async (req, res, next) => {
         shippingPrice,
         discountAmount,
         shippingAddress: JSON.stringify({
-          FullName: fullName,
-          Address: address,
-          City: city,
-          PostalCode: postalCode,
-          Country: country,
-          Phone: phone
+          FullName: req.user.name,
+          Address: req.user.addresses[0].details || "N/A",
+          City: req.user.addresses[0].city || "N/A",
+          PostalCode: req.user.addresses[0].zipCode || "N/A",
+          Country: req.user.addresses[0].country || "N/A",
+          Phone: req.user.addresses[0].phone || "N/A"
         })
       },
 
