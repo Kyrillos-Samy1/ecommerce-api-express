@@ -1,7 +1,9 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const CartModel = require("../models/cartModel");
+const OrderModel = require("../models/orderSchema");
 const APIError = require("../utils/apiError");
+const { createCardOrder } = require("./orderServices");
 
 //! @desc Get Checkout Session From Stripe and Send it as a Response
 //! @route POST /api/v1/stripe/checkout/:cartId
@@ -170,6 +172,45 @@ exports.checkoutSession = async (req, res, next) => {
       message: "Checkout Session Created Successfully!",
       data: session
     });
+  } catch (err) {
+    next(new APIError(err.message, 500, err.name));
+  }
+};
+
+//! @desc Stripe Webhook Checkout to handle post-payment actions
+//! @route POST /webhook-checkout
+//! @access Public
+exports.webhookCheckout = async (req, res, next) => {
+  try {
+    const sig = req.headers["stripe-signature"];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+
+      const order = await createCardOrder(session)();
+
+      order.isPaid = true;
+      order.paidAt = Date.now();
+      await order.save();
+
+      res.status(200).json({
+        status: "success",
+        message: "Order Payment Status Updated Successfully!",
+        data: order
+      });
+    }
   } catch (err) {
     next(new APIError(err.message, 500, err.name));
   }

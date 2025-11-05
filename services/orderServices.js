@@ -1,5 +1,3 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
 const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
@@ -226,71 +224,37 @@ exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
   }
 };
 
-//*===================================== FOR WEBHOOK CHECKOUT - STRIPE INTEGRATION ===============================================
+//*==================================================== STRIPE INTEGRATION ===============================================
 
-//! @desk Update Order Is Paid Status for Webhook Checkout
-//! @route PATCH /api/v1/orders/webhook/:orderId/pay
-//! @access Public/Webhook
-exports.webhookCheckout = async (req, res, next) => {
-  try {
-    const sig = req.headers["stripe-signature"];
-
-    let event;
-
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET
-      );
-    } catch (err) {
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-
-      const order = await OrderModel.findById(session.client_reference_id);
-
-      order.isPaid = true;
-      order.paidAt = Date.now();
-      order.paymentMethodType = "card";
-      order.paymentResult = {
-        id: session.payment_intent,
-        status: session.payment_status,
-        update_time: new Date().toISOString(),
-        email_address: session.customer_details.email
-      };
-
-      await order.save();
-
-      res.status(200).json({
-        status: "success",
-        message: "Order Payment Status Updated Successfully!",
-        data: order
-      });
-    }
-  } catch (err) {
-    next(new APIError(err.message, 500, err.name));
-  }
-};
-
-//! @desc Create Card Order After Payment Success
-//! @route POST /api/v1/orders/card/create-order
-//! @access Private/Protected/User
+//! @desc Create Card Order after Successful Payment via Stripe Webhook
+//! @route POST /webhook-checkout
+//! @access Public
 exports.createCardOrder = (session) => async (req, res, next) => {
   try {
-    //! Order Variables Depend on Admin
-
+    //! 1) Define Order Data from Session Object
     const cartId = session.client_reference_id;
-    const shippingAddress = session.metadata.shippingAddress;
+    const { country, line1, line2, postal_code, state } =
+      session.customer_details.address;
     const totalPriceAfterTaxAndShippingPricesAdded = session.amount_total;
     const taxPrice = session.total_details.amount_tax;
     const shippingPrice = session.total_details.amount_shipping;
 
-    //! 1) Get Cart Depand on CardId
-    const cart = await CartModel.findById();
-    //! 2) Create Order with paymentMethodType "card"
+    const phone = session.customer_details.phone;
+    const fullName = session.customer_details.name;
+
+    const shippingAddress = {
+      fullName,
+      address: `${line1}, ${line2}`,
+      city: state,
+      country,
+      postalCode: postal_code,
+      phone
+    };
+
+    //! 2) Get Cart Data Depand on CartId
+    const cart = await CartModel.findById(cartId);
+
+    //! 3) Create Order with paymentMethodType "card" and paymentResult from Session Object
     const order = await OrderModel.create({
       user: session.metadata.userId,
       cart: cartId,
@@ -309,11 +273,41 @@ exports.createCardOrder = (session) => async (req, res, next) => {
       totalPriceAfterTaxAndShippingPricesAdded
     });
 
-    res.status(200).json({
-      status: "success",
-      message: "Order Created Successfully!",
-      data: order
-    });
+    //! 4) After Creating Order, Decrement Product Quantity, Incerement Sold Quantity
+    if (order) {
+      const operations = cart.cartItems.map((item) => ({
+        updateOne: {
+          filter: { _id: item.product },
+          update: {
+            $inc: {
+              quantity: -item.quantity,
+              sold: item.quantity
+            }
+          }
+        }
+      }));
+      await ProductModel.bulkWrite(operations);
+    }
+
+    //! 5) Clear Cart Depand on CardId
+    await CartModel.findOneAndUpdate(
+      { user: session.metadata.userId },
+      {
+        $set: {
+          cartItems: [],
+          totalPrice: 0,
+          totalPriceAfterDiscount: 0,
+          appliedCoupon: null,
+          appliedCouponDiscount: 0,
+          totalPriceAfterCouponApplied: 0,
+          totalItems: 0
+        }
+      },
+      { new: true, runValidators: true }
+    );
+
+    //! 6) Return Order
+    return order;
   } catch (err) {
     next(new APIError(err.message, 500, err.name));
   }
