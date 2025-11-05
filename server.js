@@ -7,11 +7,11 @@ const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 
 dotenv.config({ path: "./config.env" });
+const compression = require("compression");
 const dbConnection = require("./config/databaseConnection");
 const APIError = require("./utils/apiError");
 const globalErrorHandler = require("./middlewares/errorMiddleware");
 const { Routes } = require("./routes");
-const { CORS_OPTIONS } = require("./middlewares/corsOptions");
 
 //! Connect with DB
 dbConnection();
@@ -22,8 +22,9 @@ const app = express();
 //! Logging middleware for development environment
 app.use(express.json()); //! Middleware to parse JSON bodies
 app.use(cookieParser()); //! Middleware to parse Cookies
-app.use(cors(CORS_OPTIONS)); //! Middleware to enable any domain to access your APIs
-app.options("*", cors(CORS_OPTIONS)); //! Enable pre-flight across-the-board requests
+app.use(cors()); //! Middleware to enable any domain to access your APIs
+app.options("*", cors()); //! Enable pre-flight across-the-board requests
+app.use(compression()); //! Middleware to enable GZIP compression for responses
 app.use(express.static(path.join(__dirname, "uploads"))); //! Middleware to serve static files in "uploads" folder
 
 if (process.env.NODE_ENV === "development") {
