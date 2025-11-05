@@ -45,7 +45,7 @@ if (process.env.NODE_ENV === "development") {
 Routes(app);
 
 app.get("/", (req, res) => {
-  res.send("Welcome to my API Server!");
+  res.send("Welcome to the API Server!");
 });
 
 //! Handle all other routes
