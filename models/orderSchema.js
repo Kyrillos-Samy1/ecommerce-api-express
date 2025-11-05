@@ -54,7 +54,7 @@ const orderSchema = new mongoose.Schema(
       city: {
         type: String,
         trim: true,
-        minLength: [3, "City Must Be At Least 3 Characters Long!"],
+        minLength: [2, "City Must Be At Least 2 Characters Long!"],
         maxLength: [100, "City Must Be Less Than 100 Characters!"],
         required: [true, "Order Must Have A City!"]
       },
@@ -68,7 +68,7 @@ const orderSchema = new mongoose.Schema(
       country: {
         type: String,
         trim: true,
-        minLength: [3, "Country Must Be At Least 3 Characters Long!"],
+        minLength: [2, "Country Must Be At Least 2 Characters Long!"],
         maxLength: [100, "Country Must Be Less Than 100 Characters!"],
         required: [true, "Order Must Have A Country!"]
       },
