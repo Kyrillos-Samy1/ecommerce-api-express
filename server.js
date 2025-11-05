@@ -12,7 +12,7 @@ const dbConnection = require("./config/databaseConnection");
 const APIError = require("./utils/apiError");
 const globalErrorHandler = require("./middlewares/errorMiddleware");
 const { Routes } = require("./routes");
-const { webhookCheckout } = require("./services/orderServices");
+const { webhookCheckout } = require("./services/stripePaymentServices");
 
 //! Connect with DB
 dbConnection();
