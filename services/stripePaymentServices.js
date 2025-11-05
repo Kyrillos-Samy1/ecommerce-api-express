@@ -57,7 +57,7 @@ exports.checkoutSession = async (req, res, next) => {
           )
         },
         quantity: item.quantity
-      })),
+      }))
 
       // //! Apply Tax if exists
       // ...(taxPrice > 0
@@ -95,6 +95,7 @@ exports.checkoutSession = async (req, res, next) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
+
       line_items: lineItems,
 
       discounts,
