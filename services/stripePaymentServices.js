@@ -165,23 +165,6 @@ exports.checkoutSession = async (req, res, next) => {
       ]
     });
 
-    //! 5) Clear Cart Depand on CardId
-    // await CartModel.findByIdAndUpdate(
-    //   req.params.cardId,
-    //   {
-    //     $set: {
-    //      cartItems: [],
-    //       totalPrice: 0,
-    //       totalPriceAfterDiscount: 0,
-    //       appliedCoupon: null,
-    //       appliedCouponDiscount: 0,
-    //       totalPriceAfterCouponApplied: 0,
-    //       totalItems: 0
-    //     }
-    //   },
-    //   { new: true, runValidators: true }
-    // );
-
     res.status(200).json({
       status: "success",
       message: "Checkout Session Created Successfully!",

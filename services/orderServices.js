@@ -1,3 +1,5 @@
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
@@ -180,7 +182,7 @@ exports.cancelOrder = async (req, res, next) => {
   }
 };
 
-//!====================================================== FOR ADMIN ======================================================
+//*====================================================== FOR ADMIN ======================================================
 
 //! @desk Update Is Paid Status
 //! @route PATCH /api/v1/orders/cash/:orderId/pay
@@ -223,3 +225,65 @@ exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
     next(new APIError(err.message, 500, err.name));
   }
 };
+
+//*===================================== FOR WEBHOOK CHECKOUT - STRIPE INTEGRATION ===============================================
+
+//! @desk Update Order Is Paid Status for Webhook Checkout
+//! @route PATCH /api/v1/orders/webhook/:orderId/pay
+//! @access Public/Webhook
+exports.webhookCheckout = async (req, res, next) => {
+  try {
+    const sig = req.headers["stripe-signature"];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+
+      const order = await OrderModel.findById(session.client_reference_id);
+
+      order.isPaid = true;
+      order.paidAt = Date.now();
+      order.paymentMethodType = "card";
+      order.paymentResult = {
+        id: session.payment_intent,
+        status: session.payment_status,
+        update_time: new Date().toISOString(),
+        email_address: session.customer_details.email
+      };
+
+      await order.save();
+
+      res.status(200).json({
+        status: "success",
+        message: "Order Payment Status Updated Successfully!",
+        data: order
+      });
+    }
+  } catch (err) {
+    next(new APIError(err.message, 500, err.name));
+  }
+};
+
+exports.createCardOrder = (session)=>async (req, res, next) => {
+  try {
+    //! Order Variables Depend on Admin
+    const taxPrice = 20;
+    const shippingPrice = 10;
+
+    const cartId = session.client_reference_id;
+    const shippingAddress = session.metadata.shippingAddress;
+    const totalPriceAfterTaxAndShippingPricesAdded = session.amount_total;
+
+    //! 1) Get Cart Depand on CardId
+    const cart = await CartModel.findById();

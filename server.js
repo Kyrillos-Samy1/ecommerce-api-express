@@ -12,6 +12,7 @@ const dbConnection = require("./config/databaseConnection");
 const APIError = require("./utils/apiError");
 const globalErrorHandler = require("./middlewares/errorMiddleware");
 const { Routes } = require("./routes");
+const { webhookCheckout } = require("./services/orderServices");
 
 //! Connect with DB
 dbConnection();
@@ -26,6 +27,12 @@ app.use(cors()); //! Middleware to enable any domain to access your APIs
 app.options("*", cors()); //! Enable pre-flight across-the-board requests
 app.use(compression()); //! Middleware to enable GZIP compression for responses
 app.use(express.static(path.join(__dirname, "uploads"))); //! Middleware to serve static files in "uploads" folder
+
+app.post(
+  "/webhook-checkout",
+  express.raw({ type: "application/json" }),
+  webhookCheckout
+);
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
