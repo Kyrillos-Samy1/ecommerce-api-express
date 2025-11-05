@@ -248,7 +248,7 @@ exports.createCardOrder = async (session, next) => {
   try {
     //! 1) Define Order Data from Session Object
     const cartId = session.client_reference_id;
-    const { country, line1, line2, postal_code, state } =
+    const { country, line1, line2, postal_code, city, state } =
       session.customer_details.address;
     const finalTotalPriceAfterTaxAndShippingAdded = session.amount_total / 100;
     const taxPrice = session.total_details.amount_tax / 100;
@@ -262,7 +262,7 @@ exports.createCardOrder = async (session, next) => {
     const shippingAddress = {
       fullName,
       address: `${line1}${line2 ? `, ${line2}` : ""}`,
-      city: state,
+      city: city || state,
       country,
       postalCode: postal_code,
       phone
