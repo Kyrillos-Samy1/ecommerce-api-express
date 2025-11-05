@@ -275,15 +275,46 @@ exports.webhookCheckout = async (req, res, next) => {
   }
 };
 
-exports.createCardOrder = (session)=>async (req, res, next) => {
+//! @desc Create Card Order After Payment Success
+//! @route POST /api/v1/orders/card/create-order
+//! @access Private/Protected/User
+exports.createCardOrder = (session) => async (req, res, next) => {
   try {
     //! Order Variables Depend on Admin
-    const taxPrice = 20;
-    const shippingPrice = 10;
 
     const cartId = session.client_reference_id;
     const shippingAddress = session.metadata.shippingAddress;
     const totalPriceAfterTaxAndShippingPricesAdded = session.amount_total;
+    const taxPrice = session.total_details.amount_tax;
+    const shippingPrice = session.total_details.amount_shipping;
 
     //! 1) Get Cart Depand on CardId
     const cart = await CartModel.findById();
+    //! 2) Create Order with paymentMethodType "card"
+    const order = await OrderModel.create({
+      user: session.metadata.userId,
+      cart: cartId,
+      orderItems: cart.cartItems,
+      shippingAddress,
+      paymentMethodType: "card",
+      paymentResult: {
+        id: session.payment_intent,
+        status: session.payment_status,
+        update_time: new Date().toISOString(),
+        email_address: session.customer_details.email
+      },
+      itemsPrice: cart.totalPrice,
+      taxPrice,
+      shippingPrice,
+      totalPriceAfterTaxAndShippingPricesAdded
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Order Created Successfully!",
+      data: order
+    });
+  } catch (err) {
+    next(new APIError(err.message, 500, err.name));
+  }
+};
