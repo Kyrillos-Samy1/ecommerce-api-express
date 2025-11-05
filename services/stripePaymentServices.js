@@ -10,7 +10,7 @@ exports.checkoutSession = async (req, res, next) => {
   try {
     //! Order Variables Depend on Admin
     const shippingPrice = 10;
-    const taxPrice = 20;
+    const taxPrice = 0; //! Tax will be calculated automatically by Stripe based on customer location
 
     //! 1) Get Cart Depand on CartId
     const cart = await CartModel.findById(req.params.cartId);
@@ -59,22 +59,22 @@ exports.checkoutSession = async (req, res, next) => {
         quantity: item.quantity
       })),
 
-      //! Apply Tax if exists
-      ...(taxPrice > 0
-        ? [
-            {
-              price_data: {
-                currency: "usd",
-                product_data: {
-                  name: "Tax",
-                  description: "Applied VAT or sales tax"
-                },
-                unit_amount: Math.round(taxPrice * 100)
-              },
-              quantity: 1
-            }
-          ]
-        : [])
+      // //! Apply Tax if exists
+      // ...(taxPrice > 0
+      //   ? [
+      //       {
+      //         price_data: {
+      //           currency: "usd",
+      //           product_data: {
+      //             name: "Tax",
+      //             description: "Applied VAT or sales tax"
+      //           },
+      //           unit_amount: Math.round(taxPrice * 100)
+      //         },
+      //         quantity: 1
+      //       }
+      //     ]
+      //   : [])
     ];
 
     let discounts = [];
@@ -99,7 +99,7 @@ exports.checkoutSession = async (req, res, next) => {
 
       discounts,
 
-      // automatic_tax: { enabled: true }, //! Enable Automatic Tax Based on Customer Location
+      automatic_tax: { enabled: true }, //! Enable Automatic Tax Based on Customer Location
 
       metadata: {
         cartId: req.params.cartId,
