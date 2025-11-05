@@ -2,6 +2,7 @@ const path = require("path");
 
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 
@@ -10,6 +11,7 @@ const dbConnection = require("./config/databaseConnection");
 const APIError = require("./utils/apiError");
 const globalErrorHandler = require("./middlewares/errorMiddleware");
 const { Routes } = require("./routes");
+const { CORS_OPTIONS } = require("./middlewares/corsOptions");
 
 //! Connect with DB
 dbConnection();
@@ -20,6 +22,8 @@ const app = express();
 //! Logging middleware for development environment
 app.use(express.json()); //! Middleware to parse JSON bodies
 app.use(cookieParser()); //! Middleware to parse Cookies
+app.use(cors(CORS_OPTIONS)); //! Middleware to enable any domain to access your APIs
+app.options("*", cors(CORS_OPTIONS)); //! Enable pre-flight across-the-board requests
 app.use(express.static(path.join(__dirname, "uploads"))); //! Middleware to serve static files in "uploads" folder
 
 if (process.env.NODE_ENV === "development") {

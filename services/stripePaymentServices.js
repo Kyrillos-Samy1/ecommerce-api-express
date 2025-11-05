@@ -110,6 +110,8 @@ exports.checkoutSession = async (req, res, next) => {
 
       discounts,
 
+      // automatic_tax: { enabled: true }, //! Enable Automatic Tax Based on Customer Location
+
       metadata: {
         cartId: req.params.cartId,
         finalTotalPrice,
