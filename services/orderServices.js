@@ -224,7 +224,7 @@ exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
   }
 };
 
-//*==================================================== STRIPE INTEGRATION ===============================================
+//*==================================================== FOR STRIPE WEBHOOK ===============================================
 
 //! @desc Create Card Order after Successful Payment via Stripe Webhook
 //! @route POST /webhook-checkout

@@ -1,7 +1,6 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const CartModel = require("../models/cartModel");
-const OrderModel = require("../models/orderSchema");
 const APIError = require("../utils/apiError");
 const { createCardOrder } = require("./orderServices");
 
