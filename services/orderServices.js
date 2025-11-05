@@ -3,6 +3,47 @@ const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");
 
+//! @ desc Helper Function to Update Product Quantities & Clear Cart
+const updateOrderQuantityAndClearCart = async (order, cart, userId) => {
+  //! 4) Update Product Quantities
+  if (order) {
+    const operations = cart.cartItems.map((item) => ({
+      // await Promise.all(
+      //   cart.cartItems.map(async (item) => {
+      //     await ProductModel.findByIdAndUpdate(item.product, {
+      //       $inc: { quantity: -item.quantity, sold: item.quantity }
+      //     });
+      //   })
+      // );
+
+      updateOne: {
+        filter: { _id: item.product },
+        update: {
+          $inc: { quantity: -item.quantity, sold: item.quantity }
+        }
+      }
+    }));
+    await ProductModel.bulkWrite(operations);
+  }
+
+  //! 5) Clear Cart
+  await CartModel.findOneAndUpdate(
+    { user: userId },
+    {
+      $set: {
+        cartItems: [],
+        totalPrice: 0,
+        totalPriceAfterDiscount: 0,
+        appliedCoupon: null,
+        appliedCouponDiscount: 0,
+        totalPriceAfterCouponApplied: 0,
+        totalItems: 0
+      }
+    },
+    { new: true, runValidators: true }
+  );
+};
+
 //! @desc Create CashOrder
 //! @route POST /api/v1/orders/cash/:cardId
 //! @access Private/Protected/User
@@ -44,6 +85,12 @@ exports.createCashOrder = async (req, res, next) => {
       paymentMethodType: "cash",
       taxPrice,
       shippingPrice,
+      paymentResult: {
+        id: null,
+        status: "Pending",
+        update_time: null,
+        email_address: null
+      },
       totalOrderPriceBeforeDiscount: cart.totalPrice,
       totalPriceAfterDiscount: cart.totalPriceAfterDiscount,
       totalPriceAfterCouponApplied: cart.totalPriceAfterCouponApplied || 0.0,
@@ -55,44 +102,10 @@ exports.createCashOrder = async (req, res, next) => {
       isCancelled: false
     });
 
-    //! 4) After Creating Order, Decrement Product Quantity, Incerement Sold Quantity
-    if (order) {
-      // await Promise.all(
-      //   cart.cartItems.map(async (item) => {
-      //     await ProductModel.findByIdAndUpdate(item.product, {
-      //       $inc: { quantity: -item.quantity, sold: item.quantity }
-      //     });
-      //   })
-      // );
+    //! 4) Update Product Quantities & Sold Count + Clear Cart
+    await updateOrderQuantityAndClearCart(order, cart, req.user._id);
 
-      const operations = cart.cartItems.map((item) => ({
-        updateOne: {
-          filter: { _id: item.product },
-          update: { $inc: { quantity: -item.quantity, sold: item.quantity } }
-        }
-      }));
-
-      await ProductModel.bulkWrite(operations, {});
-    }
-
-    //! 5) Clear Cart Depand on CardId
-    await CartModel.findOneAndUpdate(
-      { user: req.user._id },
-      {
-        $set: {
-          cartItems: [],
-          totalPrice: 0,
-          totalPriceAfterDiscount: 0,
-          appliedCoupon: null,
-          appliedCouponDiscount: 0,
-          totalPriceAfterCouponApplied: 0,
-          totalItems: 0
-        }
-      },
-      { new: true, runValidators: true }
-    );
-
-    //! 6) Send Response
+    //! 5) Send Response
     res.status(201).json({
       status: "success",
       message:
@@ -152,6 +165,7 @@ exports.cancelOrder = async (req, res, next) => {
     const order = await OrderModel.findById(req.params.orderId);
 
     order.isCancelled = true;
+    order.paymentResult.status = "Cancelled";
     await order.save();
 
     //! Restore stock & decrease sold count
@@ -191,6 +205,7 @@ exports.updateOrderIsPaidStatus = async (req, res, next) => {
 
     order.isPaid = true;
     order.paidAt = Date.now();
+    order.paymentResult.status = "Paid";
     await order.save();
 
     res.status(200).json({
@@ -229,22 +244,24 @@ exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
 //! @desc Create Card Order after Successful Payment via Stripe Webhook
 //! @route POST /webhook-checkout
 //! @access Public
-exports.createCardOrder = (session) => async (req, res, next) => {
+exports.createCardOrder = async (session, next) => {
   try {
     //! 1) Define Order Data from Session Object
     const cartId = session.client_reference_id;
     const { country, line1, line2, postal_code, state } =
       session.customer_details.address;
-    const totalPriceAfterTaxAndShippingPricesAdded = session.amount_total;
-    const taxPrice = session.total_details.amount_tax;
-    const shippingPrice = session.total_details.amount_shipping;
+    const finalTotalPriceAfterTaxAndShippingAdded = session.amount_total / 100;
+    const taxPrice = session.total_details.amount_tax / 100;
+    const shippingPrice = session.total_details.amount_shipping / 100;
 
     const phone = session.customer_details.phone;
     const fullName = session.customer_details.name;
 
+    const userId = session.metadata.userId;
+
     const shippingAddress = {
       fullName,
-      address: `${line1}, ${line2}`,
+      address: `${line1}${line2 ? `, ${line2}` : ""}`,
       city: state,
       country,
       postalCode: postal_code,
@@ -256,8 +273,7 @@ exports.createCardOrder = (session) => async (req, res, next) => {
 
     //! 3) Create Order with paymentMethodType "card" and paymentResult from Session Object
     const order = await OrderModel.create({
-      user: session.metadata.userId,
-      cart: cartId,
+      user: userId,
       orderItems: cart.cartItems,
       shippingAddress,
       paymentMethodType: "card",
@@ -270,45 +286,24 @@ exports.createCardOrder = (session) => async (req, res, next) => {
       itemsPrice: cart.totalPrice,
       taxPrice,
       shippingPrice,
-      totalPriceAfterTaxAndShippingPricesAdded
+      totalOrderPriceBeforeDiscount: cart.totalPrice,
+      totalPriceAfterDiscount: cart.totalPriceAfterDiscount,
+      totalPriceAfterCouponApplied: cart.totalPriceAfterCouponApplied || 0.0,
+      finalTotalPriceAfterTaxAndShippingAdded,
+      isPaid: true,
+      paidAt: Date.now(),
+      isDelivered: false,
+      deliveredAt: null,
+      isCancelled: false
     });
 
-    //! 4) After Creating Order, Decrement Product Quantity, Incerement Sold Quantity
-    if (order) {
-      const operations = cart.cartItems.map((item) => ({
-        updateOne: {
-          filter: { _id: item.product },
-          update: {
-            $inc: {
-              quantity: -item.quantity,
-              sold: item.quantity
-            }
-          }
-        }
-      }));
-      await ProductModel.bulkWrite(operations);
-    }
+    //! 4) Update Product Quantities & Sold Count + Clear Cart
+    await updateOrderQuantityAndClearCart(order, cart, userId);
 
-    //! 5) Clear Cart Depand on CardId
-    await CartModel.findOneAndUpdate(
-      { user: session.metadata.userId },
-      {
-        $set: {
-          cartItems: [],
-          totalPrice: 0,
-          totalPriceAfterDiscount: 0,
-          appliedCoupon: null,
-          appliedCouponDiscount: 0,
-          totalPriceAfterCouponApplied: 0,
-          totalItems: 0
-        }
-      },
-      { new: true, runValidators: true }
-    );
-
-    //! 6) Return Order
+    //! 5) Return Order
     return order;
   } catch (err) {
-    next(new APIError(err.message, 500, err.name));
+    if (next) next(new APIError(err.message, 500, err.name));
+    else throw err;
   }
 };

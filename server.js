@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 
 dotenv.config({ path: "./config.env" });
 const compression = require("compression");
@@ -20,6 +21,13 @@ dbConnection();
 //! Initialize Express App
 const app = express();
 
+//! Stripe Webhook to handle post-payment actions
+app.post(
+  "/webhook-checkout",
+  bodyParser.raw({ type: "application/json" }),
+  webhookCheckout
+);
+
 //! Logging middleware for development environment
 app.use(express.json()); //! Middleware to parse JSON bodies
 app.use(cookieParser()); //! Middleware to parse Cookies
@@ -27,12 +35,6 @@ app.use(cors()); //! Middleware to enable any domain to access your APIs
 app.options("*", cors()); //! Enable pre-flight across-the-board requests
 app.use(compression()); //! Middleware to enable GZIP compression for responses
 app.use(express.static(path.join(__dirname, "uploads"))); //! Middleware to serve static files in "uploads" folder
-
-app.post(
-  "/webhook-checkout",
-  express.raw({ type: "application/json" }),
-  webhookCheckout
-);
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -43,7 +45,7 @@ if (process.env.NODE_ENV === "development") {
 Routes(app);
 
 app.get("/", (req, res) => {
-  res.send("Hello, World!");
+  res.send("Welcome to the API Server!");
 });
 
 //! Handle all other routes

@@ -198,11 +198,7 @@ exports.webhookCheckout = async (req, res, next) => {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
 
-      const order = await createCardOrder(session)();
-
-      order.isPaid = true;
-      order.paidAt = Date.now();
-      await order.save();
+      const order = await createCardOrder(session);
 
       res.status(200).json({
         status: "success",
@@ -210,6 +206,8 @@ exports.webhookCheckout = async (req, res, next) => {
         data: order
       });
     }
+
+    res.status(200).json({ received: true });
   } catch (err) {
     next(new APIError(err.message, 500, err.name));
   }
