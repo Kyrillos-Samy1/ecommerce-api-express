@@ -3,36 +3,27 @@ const APIError = require("../utils/apiError");
 
 //! Process Image and Upload to Cloudinary
 exports.uploadToCloudinary =
-  (folder, filename, fieldImageName) => async (req, res, next) => {
+  (folder, fieldImageName) => async (req, res, next) => {
     try {
-      // استخدم الـ buffer المرتبط بالـ field name
-      const optimizedBuffer = req[`${fieldImageName}Buffer`];
-      if (!optimizedBuffer) {
-        return next(
-          new APIError(
-            `No buffer found for ${fieldImageName}`,
-            400,
-            "Upload Error"
-          )
-        );
+      if (!req.file) {
+        return next(new APIError("No file uploaded", 400, "Upload Error"));
       }
-
-      const publicId =
-        typeof filename === "function" ? filename(req) : filename;
 
       const results = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
-          { folder, public_id: publicId },
+          { folder, public_id: req.body[fieldImageName].tempFilename },
           (error, result) => {
             if (error)
               return reject(
                 new APIError("Cloudinary Upload Failed", 500, "Upload Error")
               );
-            resolve(result);
+            resolve({
+              secure_url: result.secure_url,
+              public_id: result.public_id
+            });
           }
         );
-
-        uploadStream.end(optimizedBuffer);
+        uploadStream.end(req.file.buffer);
       });
 
       req.body[fieldImageName] = {
@@ -57,12 +48,12 @@ exports.uploadToCloudinaryArrayOfImages =
         );
 
       const uploadPromises = imagesData.map(
-        (img, index) =>
+        (img) =>
           new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
               {
                 folder,
-                public_id: `${img.tempFilename}-${index}`
+                public_id: `${img.tempFilename}`
               },
               (error, result) => {
                 if (error)
@@ -92,10 +83,23 @@ exports.uploadToCloudinaryArrayOfImages =
   };
 
 //! Delete from Cloudinary
-exports.deleteFromCloudinary = async (publicId) => {
+exports.deleteFromCloudinary = (publicId) => async (req, res, next) => {
   try {
-    return await cloudinary.uploader.destroy(publicId);
+    await cloudinary.uploader.destroy(publicId);
+    next();
   } catch (error) {
-    throw new APIError(error.message, 500, "Cloudinary Error");
+    next(new APIError(error.message, 500, "Cloudinary Error"));
   }
 };
+
+//! Delete Array of Images from Cloudinary
+exports.deleteArrayOfImagesFromCloudinary =
+  (publicIds) => async (req, res, next) => {
+    try {
+      await Promise.all(
+        publicIds.map((publicId) => cloudinary.uploader.destroy(publicId))
+      );
+    } catch (error) {
+      next(new APIError(error.message, 500, "Cloudinary Error"));
+    }
+  };

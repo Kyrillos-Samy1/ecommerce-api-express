@@ -327,38 +327,6 @@ exports.updateProductValidator = [
       return true;
     }),
   check("imageCover").optional(),
-  check("images")
-    .optional()
-    .isArray()
-    .withMessage("Product Images Must Be an Array!")
-    .custom((arrayOfImages) => {
-      if (arrayOfImages.length === 0) {
-        throw new Error("Product Images Cannot Be an Empty Array!");
-      }
-      const lowerCasedImages = arrayOfImages.map((image) =>
-        image.toLowerCase()
-      );
-
-      if (new Set(lowerCasedImages).size !== lowerCasedImages.length) {
-        const duplicates = lowerCasedImages.filter(
-          (image, index) => lowerCasedImages.indexOf(image) !== index
-        );
-        throw new Error(
-          `Duplicate 
-            ${
-              duplicates.length === 1
-                ? `${duplicates.length} image`
-                : `${duplicates.length} images`
-            } 
-            URLs are not allowed: ${[...new Set(duplicates)].join(", ")}`
-        );
-      }
-
-      if (arrayOfImages.some((image) => typeof image !== "string")) {
-        throw new Error("All colors must be strings.");
-      }
-      return true;
-    }),
   check("colors")
     .optional()
     .isArray()
@@ -520,6 +488,39 @@ exports.updateProductValidator = [
         }
       })
     ),
+  validatorMiddleware
+];
+
+exports.updateArrayOfImagesValidator = [
+  check("images")
+    .optional()
+    .isArray()
+    .withMessage("Product Images Must Be an Array!")
+    .custom((arrayOfImages) => {
+      if (arrayOfImages.length === 0) {
+        throw new Error("Product Images Cannot Be an Empty Array!");
+      }
+      const lowerCasedImages = arrayOfImages.map((image) =>
+        image.url.toLowerCase()
+      );
+
+      if (new Set(lowerCasedImages).size !== lowerCasedImages.length) {
+        const duplicates = lowerCasedImages.filter(
+          (image, index) => lowerCasedImages.indexOf(image) !== index
+        );
+        throw new Error(
+          `Duplicate ${duplicates.length === 1 ? `${duplicates.length} image` : `${duplicates.length} images`} URL${
+            duplicates.length === 1 ? " is" : "s are"
+          } not allowed: ${[...new Set(duplicates)].join(", ")}`
+        );
+      }
+
+      if (arrayOfImages.some((image) => typeof image.url !== "string")) {
+        throw new Error("All Images Must Be Strings.");
+      }
+
+      return true;
+    }),
   validatorMiddleware
 ];
 

@@ -12,7 +12,8 @@ const {
   getProductByIdValidator,
   updateProductValidator,
   deleteProductValidator,
-  getAllProductsValidator
+  getAllProductsValidator,
+  updateArrayOfImagesValidator
 } = require("../utils/validators/productValidator");
 const { protectRoutes, allowRoles } = require("../services/authServices");
 const ReviewsRoutes = require("./reviewRoute");
@@ -90,6 +91,7 @@ router
       "ecommerce-api-express-uploads/products/images",
       "images"
     ),
+    updateArrayOfImagesValidator,
     updateProduct
   );
 
