@@ -44,7 +44,7 @@ exports.resizeMultipleImagesWithSharp =
 
       const resizePromises = req.files.map(async (file) => {
         const originalName = file.originalname.split(".")[0];
-        const filename = `${originalName}}`;
+        const filename = `${originalName}`;
 
         const optimizedBuffer = await sharp(file.buffer)
           .resize(width)
