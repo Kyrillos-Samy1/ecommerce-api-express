@@ -10,32 +10,42 @@ const {
   updateLoggedUserPassword,
   logoutUser
 } = require("../services/userServices(For User)");
-const { protectRoutes } = require("../services/authServices");
+const { protectRoutes, allowRoles } = require("../services/authServices");
 const {
   getUserById,
-  uploadUserImage,
-  resizeUserImage,
   deleteUser
 } = require("../services/userServices(For Admin)");
+const {
+  uploadToCloudinary
+} = require("../middlewares/uplaodToCloudinaryMiddleware");
+const {
+  resizeImageWithSharp
+} = require("../middlewares/resizeImageWithSharpMiddleware");
+const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 
 //*================================================  CRUD For Current User  ============================================================
 
 const router = express.Router();
 
-router.use(protectRoutes); //! That way all routes below will be protected
+router.use(protectRoutes, allowRoles("user", "admin")); //! That way all routes below will be protected
 
 router.get("/getMe", getMe, getUserById);
 
-router.put(
+router.patch(
   "/changePassword",
   updateLoggedUserPasswordValidator,
   updateLoggedUserPassword
 );
 
-router.put(
+router.patch(
   "/updateMe",
-  uploadUserImage,
-  resizeUserImage,
+  uploadSingleImage("userPhoto"),
+  resizeImageWithSharp("userPhoto", 500, 95),
+  uploadToCloudinary(
+    "ecommerce-api-express-uploads/users",
+    (req) => req.body.userPhoto.tempFilename,
+    "userPhoto"
+  ),
   updateLoggedUserDataValidator,
   updateLoggedUserData
 );

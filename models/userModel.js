@@ -1,9 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
-const {
-  applyImageUrlMiddleware
-} = require("../middlewares/imageUrlBuilderMiddleware");
 const ReviewModel = require("./reviewModel");
 const OrderModel = require("./orderSchema");
 const ProductModel = require("./productModel");
@@ -29,7 +26,18 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       validate: [validator.isEmail, "Please provide a valid email!"]
     },
-    userPhoto: String,
+    userPhoto: {
+      url: {
+        type: String,
+        trim: true,
+        required: [true, "User photo url is required!"]
+      },
+      imagePublicId: {
+        type: String,
+        trim: true,
+        required: [true, "User photo public id is required!"]
+      }
+    },
     phone: String,
     role: {
       type: String,
@@ -88,9 +96,6 @@ userSchema.virtual("reviews", {
   foreignField: "user",
   localField: "_id"
 });
-
-//! Add image URL to the userPhoto field
-applyImageUrlMiddleware(userSchema, "users");
 
 //! Encrypt user password using bcryptjs
 userSchema.pre("save", async function (next) {

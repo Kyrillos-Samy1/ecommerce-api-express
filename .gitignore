@@ -3,3 +3,6 @@
 node_modules/
 config.env
 middlewares/dataCleanup.js
+middlewares/imageUrlBuilderMiddleware.js
+middlewares/checkIsActiveValue.js
+middlewares/corsOptions.js

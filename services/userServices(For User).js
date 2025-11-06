@@ -17,37 +17,30 @@ exports.getMe = (req, res, next) => {
 };
 
 //! @desc Update Current User Data
-//! @route PUT /api/v1/users/updateMe
+//! @route PATCH /api/v1/users/updateMe
 //! @access Private/Protected
 exports.updateLoggedUserData = async (req, res, next) => {
   try {
+    const updateData = {
+      email: req.body.email,
+      phone: req.body.phone,
+      userPhoto: req.body.userPhoto
+    };
+
+    if (req.body.name) {
+      updateData.name = req.body.name;
+      updateData.slug = slugify(req.body.name);
+    }
     const updatedDocument = await UserModel.findOneAndUpdate(
       { _id: req.user._id },
-      {
-        name: req.body.name,
-        slug: slugify(req.body.name),
-        email: req.body.email,
-        phone: req.body.phone,
-        userPhoto: req.body.userPhoto
-      },
+      updateData,
       { new: true, runValidators: true }
     )
       .select("-__v +password +active")
       .populate({ path: "reviews", select: "-__v" });
 
-    const token = createToken(updatedDocument._id);
-
-    //! Set Cookie (JWT) in Browser
-    res.cookie("jwt", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
     res.status(200).json({
       data: updatedDocument,
-      token,
       message: `User Updated Successfully!`
     });
   } catch (err) {
@@ -56,7 +49,7 @@ exports.updateLoggedUserData = async (req, res, next) => {
 };
 
 //! @desc Change Current User Password
-//! @route PUT /api/v1/users/changePassword
+//! @route PATCH /api/v1/users/changePassword
 //! @access Private/Protected
 exports.updateLoggedUserPassword = async (req, res, next) => {
   try {
@@ -71,8 +64,11 @@ exports.updateLoggedUserPassword = async (req, res, next) => {
       .select("-__v +password +active")
       .populate({ path: "reviews", select: "-__v" });
 
+    const token = createToken(updatedDocument._id);
+
     res.status(200).json({
       data: updatedDocument,
+      token,
       message: `Password Changed Successfully!`
     });
   } catch (err) {

@@ -15,7 +15,6 @@ const {
   updateCoupon,
   deleteCoupon
 } = require("../services/couponServices");
-// const { checkIsActiveValue } = require("../middlewares/checkIsActiveValue");
 
 const router = express.Router();
 

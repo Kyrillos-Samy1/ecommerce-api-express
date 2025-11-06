@@ -1,4 +1,3 @@
-const sharp = require("sharp");
 const CategoryModel = require("../models/categoryModel");
 
 const {
@@ -16,21 +15,6 @@ const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 exports.createCategory = createDocumnet(CategoryModel, "Category");
 
 exports.uploadCategoryImage = uploadSingleImage("image");
-
-//! Image Processing Using Sharp
-exports.resizeCategoryImage = async (req, res, next) => {
-  if (!req.file) return next();
-
-  req.body.image = `category-${Date.now()}.webp`;
-
-  await sharp(req.file.buffer)
-    .resize(600, 600)
-    .toFormat("webp")
-    .webp({ quality: 90 })
-    .toFile(`uploads/categories/${req.body.image}`);
-
-  next();
-};
 
 //! @desc Get All Categories With Pagination
 //! @route GET /api/v1/categories

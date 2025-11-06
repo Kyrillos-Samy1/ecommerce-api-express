@@ -18,10 +18,7 @@ exports.createBrandValidator = [
         return true;
       })
     ),
-  check("image")
-    .trim()
-    .notEmpty()
-    .withMessage("Brand Image is Required!"),
+  check("image").trim().notEmpty().withMessage("Brand Image is Required!"),
   validatorMiddleware
 ];
 
@@ -59,8 +56,7 @@ exports.updateBrandValidator = [
       })
     ),
   check("name")
-    .notEmpty()
-    .withMessage("Enter The New Brand Name To Update It!")
+    .optional()
     .isString()
     .withMessage("Brand Name Must Be a String!")
     .isLength({ min: 2, max: 32 })

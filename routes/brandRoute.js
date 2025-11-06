@@ -12,11 +12,16 @@ const {
   getAllBrands,
   getBrandById,
   updateBrand,
-  deleteBrand,
-  uploadBrandImage,
-  resizeBrandImage
+  deleteBrand
 } = require("../services/brandServices");
 const { protectRoutes, allowRoles } = require("../services/authServices");
+const {
+  resizeImageWithSharp
+} = require("../middlewares/resizeImageWithSharpMiddleware");
+const {
+  uploadToCloudinary
+} = require("../middlewares/uplaodToCloudinaryMiddleware");
+const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 
 const router = express.Router();
 
@@ -25,8 +30,13 @@ router
   .post(
     protectRoutes,
     allowRoles("admin", "manager"),
-    uploadBrandImage,
-    resizeBrandImage,
+    uploadSingleImage("image"),
+    resizeImageWithSharp("image", 600, 95),
+    uploadToCloudinary(
+      "ecommerce-api-express-uploads/brands",
+      (req) => req.body.image.tempFilename,
+      "image"
+    ),
     createBrandValidator,
     createBrand
   )
@@ -38,8 +48,13 @@ router
   .put(
     protectRoutes,
     allowRoles("admin", "manager"),
-    uploadBrandImage,
-    resizeBrandImage,
+    uploadSingleImage("image"),
+    resizeImageWithSharp("image", 600, 95),
+    uploadToCloudinary(
+      "ecommerce-api-express-uploads/brands",
+      (req) => req.body.image.tempFilename,
+      "image"
+    ),
     updateBrandValidator,
     updateBrand
   )

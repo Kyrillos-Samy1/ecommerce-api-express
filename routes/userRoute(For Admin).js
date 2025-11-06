@@ -8,8 +8,6 @@ const {
   deleteUserValidator
 } = require("../utils/validators/userValidator(For Admin)");
 const {
-  uploadUserImage,
-  resizeUserImage,
   createUser,
   getAllUsers,
   getUserById,
@@ -18,6 +16,13 @@ const {
   changeUserPassword
 } = require("../services/userServices(For Admin)");
 const { protectRoutes, allowRoles } = require("../services/authServices");
+const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
+const {
+  resizeImageWithSharp
+} = require("../middlewares/resizeImageWithSharpMiddleware");
+const {
+  uploadToCloudinary
+} = require("../middlewares/uplaodToCloudinaryMiddleware");
 
 //*================================================  CRUD For Admin  ================================================
 
@@ -33,13 +38,33 @@ router.put(
 
 router
   .route("/")
-  .post(uploadUserImage, resizeUserImage, createUserValidator, createUser)
+  .post(
+    uploadSingleImage("userPhoto"),
+    resizeImageWithSharp("userPhoto", 500, 95),
+    uploadToCloudinary(
+      "ecommerce-api-express-uploads/users",
+      (req) => req.body.userPhoto.tempFilename,
+      "userPhoto"
+    ),
+    createUserValidator,
+    createUser
+  )
   .get(getAllUsersValidator, getAllUsers);
 
 router
   .route("/:userId")
   .get(getUserByIdValidator, getUserById)
-  .put(uploadUserImage, resizeUserImage, updateUserValidator, updateUser)
+  .patch(
+    uploadSingleImage("userPhoto"),
+    resizeImageWithSharp("userPhoto", 500, 95),
+    uploadToCloudinary(
+      "ecommerce-api-express-uploads/users",
+      (req) => req.body.userPhoto.tempFilename,
+      "userPhoto"
+    ),
+    updateUserValidator,
+    updateUser
+  )
   .delete(deleteUserValidator, deleteUser);
 
 module.exports = router;

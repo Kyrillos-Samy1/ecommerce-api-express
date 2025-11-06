@@ -1,5 +1,4 @@
 // const asyncHandler = require("express-async-handler");
-const sharp = require("sharp");
 const BrandModel = require("../models/brandModel");
 const {
   deleteOneDocument,
@@ -16,21 +15,6 @@ const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 exports.createBrand = createDocumnet(BrandModel, "Brand");
 
 exports.uploadBrandImage = uploadSingleImage("image");
-
-//! Image Processing Using Sharp
-exports.resizeBrandImage = async (req, res, next) => {
-  if (!req.file) return next();
-
-  req.body.image = `brand-${Date.now()}.webp`;
-
-  await sharp(req.file.buffer)
-    .resize(600, 600)
-    .toFormat("webp")
-    .webp({ quality: 90 })
-    .toFile(`uploads/brands/${req.body.image}`);
-
-  next();
-};
 
 //! @desc Get All Brands With Pagination
 //! @route GET /api/v1/brands

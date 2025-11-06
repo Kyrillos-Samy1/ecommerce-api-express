@@ -1,7 +1,4 @@
 const sharp = require("sharp");
-const {
-  uploadMultipleImages
-} = require("../middlewares/uploadImageMiddleware");
 const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");
 const {
@@ -16,12 +13,6 @@ const {
 //! @route POST /api/v1/products
 //! @access Private/Admin | Manager
 exports.createProduct = createDocumnet(ProductModel, "Product");
-
-//! Upload Mixed Images (imageCover, images)
-exports.uploadMixedImages = uploadMultipleImages([
-  { name: "imageCover", maxCount: 1 },
-  { name: "images", maxCount: 5 }
-]);
 
 //! Image Processing Using Sharp
 exports.resizeProductImage = async (req, res, next) => {
@@ -115,6 +106,30 @@ exports.getProductById = getDocumentById(
 //! @route PUT /api/v1/products/:id
 //! @access Private/Admin | Manager
 exports.updateProduct = updateOneDocument(ProductModel, "Product", "productId");
+
+exports.updateArrayOfImages = (productId) => async (req, res, next) => {
+  try {
+    const product = await ProductModel.findById(productId);
+    if (!product) {
+      return next(
+        new APIError(`No Product Found For This ID: ${productId}`, 404)
+      );
+    }
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
+      productId,
+      { images: req.body.images },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "Product Images Updated Successfully",
+      data: updatedProduct
+    });
+  } catch (err) {
+    next(new APIError(err.message, 500));
+  }
+};
 
 //! @desc Delete Specific Product
 //! @route DELETE /api/v1/products/:id

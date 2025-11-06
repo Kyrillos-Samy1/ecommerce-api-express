@@ -1,7 +1,4 @@
 const mongoose = require("mongoose");
-const {
-  applyImageUrlMiddleware
-} = require("../middlewares/imageUrlBuilderMiddleware");
 
 const productSchema = new mongoose.Schema(
   {
@@ -51,12 +48,32 @@ const productSchema = new mongoose.Schema(
     colors: [String],
     sizes: [String],
     imageCover: {
-      type: String,
-      required: [true, "Product Cover Image is Required!"],
-      default: "https://via.placeholder.com/150",
-      trim: true
+      url: {
+        type: String,
+        required: [true, "Product Cover Image Url is Required!"],
+        default: "https://via.placeholder.com/150",
+        trim: true
+      },
+      imagePublicId: {
+        type: String,
+        trim: true,
+        required: [true, "Product Cover Image Public Id is Required!"]
+      }
     },
-    images: [String],
+    images: [
+      {
+        url: {
+          type: String,
+          trim: true,
+          required: [true, "Product Image Url is Required!"]
+        },
+        imagePublicId: {
+          type: String,
+          trim: true,
+          required: [true, "Product Image Public Id is Required!"]
+        }
+      }
+    ],
     category: {
       type: mongoose.Schema.ObjectId,
       ref: "Category",
@@ -99,9 +116,6 @@ productSchema.virtual("reviews", {
   foreignField: "product",
   localField: "_id"
 });
-
-//! Attach image URL to image fields
-applyImageUrlMiddleware(productSchema, "products", ["imageCover", "images"]);
 
 //! 2- Create Model
 const ProductModel = mongoose.model("Product", productSchema);

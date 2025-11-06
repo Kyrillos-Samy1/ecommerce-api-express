@@ -6,8 +6,6 @@ const {
   updateCategory,
   deleteCategory,
   createCategory,
-  uploadCategoryImage,
-  resizeCategoryImage
 } = require("../services/categoryServices");
 const {
   getCategoryByIdValidator,
@@ -19,6 +17,13 @@ const {
 
 const subCategoryRoutes = require("./subCategoryRoute");
 const { protectRoutes, allowRoles } = require("../services/authServices");
+const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
+const {
+  resizeImageWithSharp
+} = require("../middlewares/resizeImageWithSharpMiddleware");
+const {
+  uploadToCloudinary
+} = require("../middlewares/uplaodToCloudinaryMiddleware");
 
 const router = express.Router();
 
@@ -30,8 +35,13 @@ router
   .post(
     protectRoutes,
     allowRoles("admin", "manager"),
-    uploadCategoryImage,
-    resizeCategoryImage,
+    uploadSingleImage("image"),
+    resizeImageWithSharp("image", 600, 95),
+    uploadToCloudinary(
+      "ecommerce-api-express-uploads/categories",
+      (req) => req.body.image.tempFilename,
+      "image"
+    ),
     createCategoryValidator,
     createCategory
   )
@@ -43,8 +53,13 @@ router
   .put(
     protectRoutes,
     allowRoles("admin", "manager"),
-    uploadCategoryImage,
-    resizeCategoryImage,
+    uploadSingleImage("image"),
+    resizeImageWithSharp("image", 600, 95),
+    uploadToCloudinary(
+      "ecommerce-api-express-uploads/categories",
+      (req) => req.body.image.tempFilename,
+      "image"
+    ),
     updateCategoryValidator,
     updateCategory
   )

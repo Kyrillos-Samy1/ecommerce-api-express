@@ -1,5 +1,4 @@
 const { default: slugify } = require("slugify");
-const sharp = require("sharp");
 const bcrypt = require("bcryptjs");
 
 const UserModel = require("../models/userModel");
@@ -11,7 +10,6 @@ const {
   getAllDocuments,
   createDocumnet
 } = require("./handlersFactory");
-const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 
 //*=======================================  (CREATE, GET, PUT, DELETE) User Data For Admin  ==========================================
 
@@ -19,23 +17,6 @@ const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 //! @route POST /api/v1/user
 //! @access Private/Admin
 exports.createUser = createDocumnet(UserModel, "User");
-
-exports.uploadUserImage = uploadSingleImage("userPhoto");
-
-//! Image Processing Using Sharp
-exports.resizeUserImage = async (req, res, next) => {
-  if (!req.file) return next();
-
-  req.body.userPhoto = `user_photo-${Date.now()}.webp`;
-
-  await sharp(req.file.buffer)
-    .resize(600, 600)
-    .toFormat("webp")
-    .webp({ quality: 90 })
-    .toFile(`uploads/users/${req.body.userPhoto}`);
-
-  next();
-};
 
 //! @desc Get All user With Pagination
 //! @route GET /api/v1/users
@@ -60,7 +41,7 @@ exports.getUserById = getDocumentById(
 );
 
 //! @desc Update Specific User
-//! @route PUT /api/v1/users/:userId
+//! @route PATCH /api/v1/users/:userId
 //! @access Private/Admin
 exports.updateUser = async (req, res, next) => {
   const body = req.body;
@@ -96,7 +77,7 @@ exports.updateUser = async (req, res, next) => {
 };
 
 //! @desc Change User Password
-//! @route PUT /api/v1/users/change-password/:userId
+//! @route PATCH /api/v1/users/change-password/:userId
 //! @access Private
 exports.changeUserPassword = async (req, res, next) => {
   const body = req.body;

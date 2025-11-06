@@ -38,9 +38,13 @@ exports.updateLoggedUserDataValidator = [
   check("userPhoto")
     .optional()
     .custom((value) => {
-      if (typeof value !== "string") {
-        throw new Error("User photo must be a string file name.");
+      if (
+        typeof value.url !== "string" ||
+        typeof value.imagePublicId !== "string"
+      ) {
+        throw new Error("Invalid user photo format!");
       }
+
       return true;
     }),
   validatorMiddleware

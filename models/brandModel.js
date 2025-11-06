@@ -1,7 +1,4 @@
 const mongoose = require("mongoose");
-const {
-  applyImageUrlMiddleware
-} = require("../middlewares/imageUrlBuilderMiddleware");
 
 //! 1- Create Category Schema
 const BrandSchema = new mongoose.Schema(
@@ -15,9 +12,16 @@ const BrandSchema = new mongoose.Schema(
       maxLength: [32, "Too Long Brand Name!"]
     },
     image: {
-      type: String,
-      trim: true,
-      required: [true, "Brand Image is Required!"]
+      url: {
+        type: String,
+        trim: true,
+        required: [true, "Brand Image is Required!"]
+      },
+      imagePublicId: {
+        type: String,
+        trim: true,
+        required: [true, "Brand Image Public Id is Required!"]
+      }
     },
     //! A and B => shopping.com/a-and-b
     slug: {
@@ -27,9 +31,6 @@ const BrandSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-//! Attach image URL to image field
-applyImageUrlMiddleware(BrandSchema, "brands");
 
 //! 2- Create Model
 const BrandModel = mongoose.model("Brand", BrandSchema);
