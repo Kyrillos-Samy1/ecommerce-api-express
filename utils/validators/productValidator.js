@@ -496,10 +496,35 @@ exports.updateArrayOfImagesValidator = [
     .optional()
     .isArray()
     .withMessage("Product Images Must Be an Array!")
-    .custom((arrayOfImages) => {
+    .custom(async (arrayOfImages, { req }) => {
       if (arrayOfImages.length === 0) {
         throw new Error("Product Images Cannot Be an Empty Array!");
       }
+
+      const product = await ProductModel.findById(req.params.productId);
+
+      if (!product) {
+        throw new Error(
+          `No Product Found For This ID: ${req.params.productId}`
+        );
+      }
+
+      const images = product.images.map((image) => image.url);
+
+      const duplicatesImages = arrayOfImages.filter((image) =>
+        images.includes(image.url)
+      );
+
+      if (duplicatesImages.length > 0) {
+        const duplicateUrls = [...new Set(duplicatesImages.map((d) => d.url))];
+
+        throw new Error(
+          `Duplicate Image Name is not allowed: ${[
+            ...new Set(duplicateUrls)
+          ].join(", ")}`
+        );
+      }
+
       const lowerCasedImages = arrayOfImages.map((image) =>
         image.url.toLowerCase()
       );
