@@ -1,6 +1,13 @@
 const sharp = require("sharp");
 const APIError = require("../utils/apiError");
 
+const refacorFileName = (name) =>
+  name
+    .replace(/[%$#@! ]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .replace(/&/g, "and");
+
 //! Resize single image
 exports.resizeImageWithSharp =
   (imageName, width, quality, paramId, Model, docName) =>
@@ -17,16 +24,7 @@ exports.resizeImageWithSharp =
       }
 
       const name =
-        result.name
-          .replace(/[%$#@! ]+/g, "-")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, "")
-          .replace(/&/g, "and") ||
-        req.body.name
-          .replace(/[%$#@! ]+/g, "-")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, "")
-          .replace(/&/g, "and");
+        refacorFileName(result.name) || refacorFileName(req.body.name);
 
       const originalName = `${name}-logo-${docName}`.toLowerCase();
 
@@ -70,16 +68,7 @@ exports.resizeMultipleImagesWithSharp =
       req.body[imageFieldName] = [];
 
       const name =
-        result.title
-          .replace(/[%$#@! ]+/g, "-")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, "")
-          .replace(/&/g, "and") ||
-        req.body.title
-          .replace(/[%$#@! ]+/g, "-")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, "")
-          .replace(/&/g, "and");
+        refacorFileName(result.title) || refacorFileName(req.body.title);
 
       const resizePromises = req.files[imageFieldName].map(async (file) => {
         const originalName = `${name}-logo-${docName}`.toLowerCase();
