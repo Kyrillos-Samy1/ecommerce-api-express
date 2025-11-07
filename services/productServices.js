@@ -125,8 +125,9 @@ exports.deleteProductImage = async (req, res, next) => {
       (image) =>
         !bodyImages.some(
           (img) =>
-            img.tempFilename &&
-            image.imagePublicId.split("/")[3] === img.tempFilename
+            img.imagePublicId &&
+            image.imagePublicId.split("/")[3] ===
+              img.imagePublicId.split("/")[3]
         )
     );
 
