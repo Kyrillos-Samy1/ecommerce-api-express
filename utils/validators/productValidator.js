@@ -639,6 +639,61 @@ exports.deleteProductValidator = [
         throw new Error(`No Product Found For This ID: ${productId}`);
       }
     }),
+  check("images").custom(async (arrayOfImages, { req }) => {
+    if (arrayOfImages.length === 0) {
+      throw new Error("Product Images Cannot Be an Empty Array!");
+    }
+
+    if (arrayOfImages.length > 5) {
+      throw new Error("Product Images Cannot Be More Than 5!");
+    }
+
+    const arrayOfImagePublicIdsFromBody = arrayOfImages.map(
+      (image) => image.imagePublicId.split("/")[3]
+    );
+
+    const product = await ProductModel.findById(req.params.productId);
+
+    if (!product) {
+      throw new Error(`No Product Found For This ID: ${req.params.productId}`);
+    }
+
+    const duplicates = arrayOfImagePublicIdsFromBody.filter(
+      (image, index) => arrayOfImagePublicIdsFromBody.indexOf(image) !== index
+    );
+    if (duplicates.length > 0) {
+      throw new Error(
+        `Duplicate ${
+          duplicates.length === 1
+            ? `${duplicates.length} image`
+            : `${duplicates.length} images`
+        } are not allowed: ${[...new Set(duplicates)].join(", ")}`
+      );
+    }
+
+    const arrayOfImagePublicIdsFromProduct = product.images.map(
+      (image) => image.imagePublicId.split("/")[3]
+    );
+
+    if (product.imageCover)
+      arrayOfImagePublicIdsFromProduct.push(
+        product.imageCover.imagePublicId.split("/")[3]
+      );
+
+    const forgetToAddImages = arrayOfImagePublicIdsFromProduct.filter(
+      (imagePublicId) => !arrayOfImagePublicIdsFromBody.includes(imagePublicId)
+    );
+
+    if (forgetToAddImages.length > 0) {
+      throw new Error(
+        `Forget To Add ${
+          forgetToAddImages.length === 1 ? "This Image" : "These Images"
+        } To Delete All From Cloudinary: ${forgetToAddImages.join(", ")}`
+      );
+    }
+
+    return true;
+  }),
   validatorMiddleware
 ];
 

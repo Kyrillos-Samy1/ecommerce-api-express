@@ -17,12 +17,17 @@ exports.deleteImageFromCloudinary = (Model, id) => async (req, res, next) => {
 exports.deleteImagesFromCloudinary = async (req, res, next) => {
   try {
     if (req.body.images) {
-      req.body.images.forEach(async (image) => {
-        if (image.imagePublicId) {
-          await deleteFromCloudinary(image.imagePublicId);
-        }
-      });
+      await Promise.all(
+        req.body.images.map((image) => {
+          if (image.imagePublicId) {
+            return deleteFromCloudinary(image.imagePublicId);
+          }
+
+          return Promise.resolve();
+        })
+      );
     }
+
     next();
   } catch (error) {
     next(new APIError(error.message, 500, "Cloudinary Error"));

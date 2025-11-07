@@ -100,6 +100,7 @@ router
     protectRoutes,
     allowRoles("admin"),
     deleteProductValidator,
+    deleteImagesFromCloudinary,
     deleteProduct
   );
 
