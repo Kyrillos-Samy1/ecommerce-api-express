@@ -41,7 +41,7 @@ exports.addProductToCartValidator = [
     .withMessage("Color must be a string!")
     .custom(async (color, { req }) => {
       const product = await ProductModel.findById(req.body.productId);
-      if (product.colors && product.colors.length) {
+      if (product.colors && product.colors.length > 0) {
         const exists = product.colors.some(
           (item) => item.toLowerCase() === color.toLowerCase()
         );
@@ -50,6 +50,12 @@ exports.addProductToCartValidator = [
             `Oops! The color '${color}' isn’t available for this product. You can choose from: ${product.colors.join(", ")}.`
           );
         }
+      }
+
+      if (product.colors && product.colors.length === 0) {
+        throw new Error(
+          `Oops! The color '${color}' isn’t available for this product.`
+        );
       }
 
       return true;
@@ -71,6 +77,12 @@ exports.addProductToCartValidator = [
             `Oops! The size '${size}' isn’t available for this product. You can choose from: ${product.sizes.join(", ")}.`
           );
         }
+      }
+
+      if (product.sizes && product.sizes.length === 0) {
+        throw new Error(
+          `Oops! The size '${size}' isn’t available for this product.`
+        );
       }
 
       return true;

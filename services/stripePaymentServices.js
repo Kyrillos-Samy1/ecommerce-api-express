@@ -47,9 +47,7 @@ exports.checkoutSession = async (req, res, next) => {
           product_data: {
             name: item.title || "Product",
             description: `Color: ${item.color || "N/A"} | Size: ${item.size || "N/A"}`,
-            images: [
-              "https://assets-dubaiphone.dubaiphone.net/dp-prod/wp-content/uploads/2025/05/ASUS-ROG-Strix-SCAR-16-G635LX-AI264W-768x768.webp"
-            ]
+            images: [item.imageCover.url || item.images[0].url]
           },
           unit_amount: Math.round(
             (item.priceAfterDiscount && item.priceAfterDiscount > 0

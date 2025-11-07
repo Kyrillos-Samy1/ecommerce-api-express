@@ -40,9 +40,13 @@ const cartSchema = new mongoose.Schema(
           type: Number,
           required: [true, "Cart Item Must Have A Discounted Price!"]
         },
-        image: {
-          type: String,
-          required: [true, "Cart Item Must Have An Image!"]
+        images: {
+          type: [{ url: String, imagePublicId: String }],
+          required: [true, "Cart Item Must Have Images!"]
+        },
+        imageCover: {
+          type: { url: String, imagePublicId: String },
+          required: [true, "Cart Item Must Have A Cover Image!"]
         }
       }
     ],

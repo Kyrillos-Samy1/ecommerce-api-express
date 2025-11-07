@@ -37,7 +37,9 @@ const updateOrderQuantityAndClearCart = async (order, cart, userId) => {
         appliedCoupon: null,
         appliedCouponDiscount: 0,
         totalPriceAfterCouponApplied: 0,
-        totalItems: 0
+        totalItems: 0,
+        images: [],
+        imageCover: {}
       }
     },
     { new: true, runValidators: true }
@@ -285,6 +287,8 @@ exports.createCardOrder = async (session, next) => {
         email_address: session.customer_details.email
       },
       itemsPrice: cart.totalPrice,
+      images: cart.images,
+      imageCover: cart.imageCover,
       taxPrice,
       shippingPrice,
       totalOrderPriceBeforeDiscount: cart.totalPrice,

@@ -71,7 +71,8 @@ exports.addProductToCart = async (req, res, next) => {
             size,
             price,
             priceAfterDiscount: discountPrice,
-            image: product.imageCover
+            images: product.images,
+            imageCover: product.imageCover
           }
         ],
         totalQuantity: quantity,
@@ -98,7 +99,8 @@ exports.addProductToCart = async (req, res, next) => {
           size,
           price,
           priceAfterDiscount: discountPrice,
-          image: product.imageCover
+          images: product.images,
+          imageCover: product.imageCover
         });
       }
 
