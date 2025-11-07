@@ -16,8 +16,11 @@ exports.resizeImageWithSharp =
         return true;
       }
 
-      const originalName =
-        `${result.name || req.body.name}-logo-${docName}`.toLowerCase();
+      const name =
+        result.name.replace("/[&%$#@!]/g", "-") ||
+        req.body.name.replace("/[&%$#@!]/g", "-");
+
+      const originalName = `${name}-logo-${docName}`.toLowerCase();
 
       const optimizedBuffer = await sharp(file.buffer)
         .resize(width)
@@ -58,9 +61,12 @@ exports.resizeMultipleImagesWithSharp =
 
       req.body[imageFieldName] = [];
 
+      const name =
+        result.title.replace("/[&%$#@!]/g", "-") ||
+        req.body.title.replace("/[&%$#@!]/g", "-");
+
       const resizePromises = req.files[imageFieldName].map(async (file) => {
-        const originalName =
-          `${result.title || req.body.title}-logo-${docName}`.toLowerCase();
+        const originalName = `${name}-logo-${docName}`.toLowerCase();
 
         const optimizedBuffer = await sharp(file.buffer)
           .resize(width)
