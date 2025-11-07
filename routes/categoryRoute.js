@@ -13,7 +13,8 @@ const {
   deleteCategoryValidator,
   createCategoryValidator,
   getAllCategoryValidator,
-  updateImageCategoryValidator
+  updateImageCategoryValidator,
+  createImageCategoryValidator
 } = require("../utils/validators/categoryValidator");
 
 const subCategoryRoutes = require("./subCategoryRoute");
@@ -25,6 +26,10 @@ const {
 const {
   uploadToCloudinary
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
+const {
+  deleteImageFromCloudinary
+} = require("../middlewares/deleteImageFromCloudinaryMiddleware");
+const CategoryModel = require("../models/categoryModel");
 
 const router = express.Router();
 
@@ -38,6 +43,7 @@ router
     allowRoles("admin", "manager"),
     uploadSingleImage("image"),
     resizeImageWithSharp("image", 600, 95),
+    createImageCategoryValidator,
     uploadToCloudinary("ecommerce-api-express-uploads/categories", "image"),
     createCategoryValidator,
     createCategory
@@ -61,6 +67,7 @@ router
     protectRoutes,
     allowRoles("admin"),
     deleteCategoryValidator,
+    deleteImageFromCloudinary(CategoryModel, "categoryId"),
     deleteCategory
   );
 

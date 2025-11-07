@@ -24,6 +24,10 @@ const {
   uploadToCloudinary
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
 const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
+const {
+  deleteImageFromCloudinary
+} = require("../middlewares/deleteImageFromCloudinaryMiddleware");
+const BrandModel = require("../models/brandModel");
 
 const router = express.Router();
 
@@ -58,6 +62,7 @@ router
     protectRoutes,
     allowRoles("admin"),
     deleteBrandValidator,
+    deleteImageFromCloudinary(BrandModel, "brandId"),
     deleteBrand
   );
 

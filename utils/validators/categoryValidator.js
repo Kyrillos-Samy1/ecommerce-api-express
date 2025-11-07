@@ -35,12 +35,18 @@ exports.createImageCategoryValidator = [
       });
 
       if (category) {
-        return Promise.reject(new Error("Category Image Already Exists!"));
+        req.validationMessage = `Image With Name: ${originalName} Already Exists!`;
+        return true;
       }
 
       return true;
     }),
-  validatorMiddleware
+  (req, res, next) => {
+    if (req.validationMessage) {
+      return next(new APIError(req.validationMessage, 400, "ValidationError"));
+    }
+    next();
+  }
 ];
 
 exports.updateImageCategoryValidator = [
