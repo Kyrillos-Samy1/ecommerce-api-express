@@ -98,13 +98,7 @@ exports.updateUserValidator = [
       if (user && user._id.toString() !== req.params.userId) {
         throw new Error("Email already in use!");
       }
-      const passwordRegex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-      if (!passwordRegex.test(value)) {
-        throw new Error(
-          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-        );
-      }
+
       return true;
     }),
   check("phone")
