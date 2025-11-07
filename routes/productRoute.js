@@ -29,6 +29,9 @@ const {
 const {
   uploadMultipleImages
 } = require("../middlewares/uploadImageMiddleware");
+const {
+  deleteImagesFromCloudinary
+} = require("../middlewares/deleteImageFromCloudinaryMiddleware");
 
 const router = express.Router();
 
@@ -62,7 +65,12 @@ router
 
 router
   .route("/images/:productId")
-  .delete(protectRoutes, allowRoles("admin", "manager"), deleteProductImage);
+  .delete(
+    protectRoutes,
+    allowRoles("admin", "manager"),
+    deleteImagesFromCloudinary,
+    deleteProductImage
+  );
 
 router
   .route("/:productId")

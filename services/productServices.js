@@ -111,11 +111,7 @@ exports.deleteProductImage = async (req, res, next) => {
     if (notFoundImages.length > 0) {
       return next(
         new APIError(
-          `The ${
-            notFoundImages.length === 1 ? "image" : "images"
-          } you entered ${notFoundImages.length === 1 ? "is" : "are"} not exist: ${[
-            ...new Set(notFoundImages.map((img) => img.imagePublicId))
-          ].join(", ")}`,
+          `The imagePublicId you entered ${notFoundImages.length === 1 ? "is" : "are"} not exist: ${[...new Set(notFoundImages.map((img) => img.imagePublicId))].join(", ")}`,
           400
         )
       );
