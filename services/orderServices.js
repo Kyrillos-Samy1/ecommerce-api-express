@@ -37,9 +37,7 @@ const updateOrderQuantityAndClearCart = async (order, cart, userId) => {
         appliedCoupon: null,
         appliedCouponDiscount: 0,
         totalPriceAfterCouponApplied: 0,
-        totalItems: 0,
-        images: [],
-        imageCover: {}
+        totalItems: 0
       }
     },
     { new: true, runValidators: true }
@@ -287,8 +285,6 @@ exports.createCardOrder = async (session, next) => {
         email_address: session.customer_details.email
       },
       itemsPrice: cart.totalPrice,
-      images: cart.images,
-      imageCover: cart.imageCover,
       taxPrice,
       shippingPrice,
       totalOrderPriceBeforeDiscount: cart.totalPrice,
@@ -304,7 +300,7 @@ exports.createCardOrder = async (session, next) => {
 
     //! 4) Update Product Quantities & Sold Count + Clear Cart
     await updateOrderQuantityAndClearCart(order, cart, userId);
-
+    
     //! 5) Return Order
     return order;
   } catch (err) {
