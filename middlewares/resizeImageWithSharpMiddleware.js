@@ -17,8 +17,14 @@ exports.resizeImageWithSharp =
       }
 
       const name =
-        result.name.replace("/[&%$#@!]/g", "-") ||
-        req.body.name.replace("/[&%$#@!]/g", "-");
+        result.name
+          .replace(/[&%$#@! ]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "") ||
+        req.body.name
+          .replace(/[&%$#@! ]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
 
       const originalName = `${name}-logo-${docName}`.toLowerCase();
 
@@ -62,8 +68,14 @@ exports.resizeMultipleImagesWithSharp =
       req.body[imageFieldName] = [];
 
       const name =
-        result.title.replace("/[&%$#@!]/g", "-") ||
-        req.body.title.replace("/[&%$#@!]/g", "-");
+        result.title
+          .replace(/[&%$#@! ]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "") ||
+        req.body.title
+          .replace(/[&%$#@! ]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
 
       const resizePromises = req.files[imageFieldName].map(async (file) => {
         const originalName = `${name}-logo-${docName}`.toLowerCase();
