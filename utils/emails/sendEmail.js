@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-const path = require("path");
+// const path = require("path");
 
 const sendEmail = async (options, html) => {
   //! Create Transporter Service That Will Send E-mail Like ("gmail", "mailGun", "mailTrap", "sendGrid")
@@ -20,13 +20,13 @@ const sendEmail = async (options, html) => {
     to: options.email,
     subject: options.subject,
     html,
-    attachments: [
-      {
-        filename: "Kyrillos_Samy_LinkedIn.png",
-        path: path.join(__dirname, "images", "Kyrillos_Samy_LinkedIn.png"),
-        cid: "userphoto"
-      }
-    ]
+    // attachments: [
+    //   {
+    //     filename: "Kyrillos_Samy_LinkedIn.png",
+    //     path: path.join(__dirname, "images", "Kyrillos_Samy_LinkedIn.png"),
+    //     cid: "userphoto"
+    //   }
+    // ]
   };
 
   //! Send Email

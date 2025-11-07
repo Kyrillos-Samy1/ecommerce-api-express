@@ -89,7 +89,7 @@ const htmlTemplate = (
   <div class="container">
     <div class="header">
       <h1>Carlos Elmasry Empire</h1>
-      <img src="cid:userphoto" alt="User Photo" width="120" height="120" />
+      <img src=${user.userPhoto.url || "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-photo-183042379.jpg"} alt=${user.name} width="120" height="120" />
     </div>
     <div class="content">
       <h2>${h2Content}</h2>
