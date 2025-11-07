@@ -50,12 +50,6 @@ exports.signupValidator = [
   check("passwordConfirm")
     .notEmpty()
     .withMessage("Password confirmation is required"),
-  // check("userPhoto").custom(async (_value, { req }) => {
-  //   if (!req.file) {
-  //     throw new Error("User photo is required");
-  //   }
-  //   return true;
-  // }),
   validatorMiddleware
 ];
 
