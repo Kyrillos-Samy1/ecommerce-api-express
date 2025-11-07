@@ -70,6 +70,55 @@ exports.getProductById = getDocumentById(
 //! @access Private/Admin | Manager
 exports.updateProduct = updateOneDocument(ProductModel, "Product", "productId");
 
+//! @desc Update Specific Image From Array Of Images
+//! @route PUT /api/v1/products/images/:productId
+//! @access Private/Admin | Manager
+exports.updateSpecificImageFromArrayOfImages = async (req, res, next) => {
+  try {
+    const product = await ProductModel.findById(req.params.productId);
+
+    if (!product) {
+      return next(
+        new APIError(
+          `No Product Found For This ID: ${req.params.productId}`,
+          404
+        )
+      );
+    }
+    const imageId = req.body.imageId;
+    if (!imageId) {
+      return next(new APIError("No image id provided", 400));
+    }
+    const image = product.images.find((img) => img._id.toString() === imageId);
+    if (!image) {
+      return next(
+        new APIError(`No image found for this image id: ${imageId}`, 404)
+      );
+    }
+
+    product.images = product.images.map((img) => {
+      if (img._id.toString() === imageId) {
+        return {
+          ...img,
+          ...req.body
+        };
+      }
+      return img;
+    });
+
+    await product.save();
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        product
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 //! @desc Delete Image From Array Of Images
 //! @route DELETE /api/v1/products/images/:productId
 //! @access Private/Admin | Manager

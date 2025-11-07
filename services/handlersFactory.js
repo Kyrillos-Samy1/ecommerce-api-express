@@ -145,6 +145,15 @@ exports.updateOneDocument =
 
     if (body.name) body.slug = slugify(body.name);
     if (body.title) body.slug = slugify(body.title);
+    if (req.files.images) {
+      return next(
+        new APIError(
+          `Error updating ${FactoryName}: You can't update images with this route!`,
+          400,
+          "Bad Request"
+        )
+      );
+    }
 
     if (body.expireAt) body.expireAt = new Date(body.expireAt).toISOString();
 

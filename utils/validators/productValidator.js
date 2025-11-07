@@ -586,30 +586,28 @@ exports.updateArrayOfImagesValidator = [
         );
       }
 
+      const imageId = req.body.imageId;
+      if (!imageId) {
+        throw new Error("No image id provided");
+      }
+
+      if (product.images.length > 5) {
+        throw new Error("Product Images Cannot Be More Than 5!");
+      }
+
+      const image = product.images.find(
+        (img) => img._id.toString() === imageId
+      );
+      if (!image) {
+        throw new Error(`No image found for this image id: ${imageId}`);
+      }
+
       if (arrayOfImages.length > 5) {
         throw new Error("Product Images Cannot Be More Than 5!");
       }
 
       if (arrayOfImages.length === 0) {
         throw new Error("Product Images Cannot Be an Empty Array!");
-      }
-
-      const originalName = product.images.map(
-        (image) => image.imagePublicId.split("/")[3]
-      );
-
-      const duplicatesImages = arrayOfImages.filter((image) =>
-        originalName.includes(image.tempFilename)
-      );
-
-      if (duplicatesImages.length > 0) {
-        const duplicateUrls = [...new Set(duplicatesImages.map((d) => d.url))];
-
-        throw new Error(
-          `Duplicate Image Name is not allowed: ${[
-            ...new Set(duplicateUrls)
-          ].join(", ")}`
-        );
       }
 
       return true;

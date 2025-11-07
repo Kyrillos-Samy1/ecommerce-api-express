@@ -5,7 +5,8 @@ const {
   updateProduct,
   deleteProduct,
   getAllProducts,
-  deleteProductImage
+  deleteProductImage,
+  updateSpecificImageFromArrayOfImages
 } = require("../services/productServices");
 
 const {
@@ -15,7 +16,8 @@ const {
   deleteProductValidator,
   checkArrayOfImagesAndImageCoverFoundValidator,
   getAllProductsValidator,
-  checkArrayOfImagesAndImageCoverFoundValidatorForUpdate
+  checkArrayOfImagesAndImageCoverFoundValidatorForUpdate,
+  updateArrayOfImagesValidator
 } = require("../utils/validators/productValidator");
 const { protectRoutes, allowRoles } = require("../services/authServices");
 const ReviewsRoutes = require("./reviewRoute");
@@ -80,6 +82,25 @@ router
 
 router
   .route("/images/:productId")
+  .put(
+    protectRoutes,
+    allowRoles("admin", "manager"),
+    uploadMultipleImages([{ name: "images", maxCount: 5 }]),
+    resizeMultipleImagesWithSharp(
+      "images",
+      600,
+      95,
+      "productId",
+      ProductModel,
+      "Images"
+    ),
+    updateArrayOfImagesValidator,
+    uploadToCloudinaryArrayOfImages(
+      "ecommerce-api-express-uploads/products/images",
+      "images"
+    ),
+    updateSpecificImageFromArrayOfImages
+  )
   .delete(
     protectRoutes,
     allowRoles("admin", "manager"),
