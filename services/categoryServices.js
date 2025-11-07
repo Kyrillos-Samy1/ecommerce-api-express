@@ -7,14 +7,11 @@ const {
   getAllDocuments,
   createDocumnet
 } = require("./handlersFactory");
-const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 
 //! @desc Create Category
 //! @route POST /api/v1/categories
 //! @access Private/Admin | Manager
 exports.createCategory = createDocumnet(CategoryModel, "Category");
-
-exports.uploadCategoryImage = uploadSingleImage("image");
 
 //! @desc Get All Categories With Pagination
 //! @route GET /api/v1/categories
