@@ -51,8 +51,24 @@ exports.createUserValidator = [
     .withMessage("Password confirmation is required"),
   check("phone")
     .optional()
-    .isMobilePhone(["ar-EG"])
-    .withMessage("Invalid egyptian phone number"),
+    .isMobilePhone([
+      "ar-EG",
+      "en-EG",
+      "en-US",
+      "en-GB",
+      "en-CA",
+      "en-AU",
+      "en-NZ",
+      "en-IE",
+      "en-ZA",
+      "en-JM",
+      "ar-AE",
+      "ar-KW",
+      "ar-SA"
+    ])
+    .withMessage(
+      "You must enter a valid phone number in Egyptian, England, USA, Canada, Australia, New Zealand, Ireland, South Africa, Jamaica, UAE, Kuwait or Saudi Arabia format!"
+    ),
   check("role")
     .optional()
     .isIn(["user", "admin", "manager"])
