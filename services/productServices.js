@@ -95,14 +95,16 @@ exports.deleteProductImage = async (req, res, next) => {
       return next(new APIError("You cannot delete more than 5 images", 400));
     }
 
-    if (bodyImages.some((img) => !img.tempFilename)) {
-      return next(new APIError("All images must have a tempFilename", 400));
+    if (bodyImages.some((img) => !img.imagePublicId)) {
+      return next(new APIError("All images must have a imagePublicId", 400));
     }
 
     const notFoundImages = bodyImages.filter(
       (img) =>
         !product.images.some(
-          (image) => image.imagePublicId.split("/")[3] === img.tempFilename
+          (image) =>
+            image.imagePublicId.split("/")[3] ===
+            img.imagePublicId.split("/")[3]
         )
     );
 
@@ -112,7 +114,7 @@ exports.deleteProductImage = async (req, res, next) => {
           `The ${
             notFoundImages.length === 1 ? "image" : "images"
           } you entered ${notFoundImages.length === 1 ? "is" : "are"} not exist: ${[
-            ...new Set(notFoundImages.map((img) => img.tempFilename))
+            ...new Set(notFoundImages.map((img) => img.imagePublicId))
           ].join(", ")}`,
           400
         )
