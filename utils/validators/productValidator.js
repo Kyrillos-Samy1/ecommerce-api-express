@@ -20,7 +20,7 @@ exports.createProductValidator = [
     .custom(async (value) => {
       const existingProduct = await ProductModel.findOne({ title: value });
       if (existingProduct) {
-        throw new Error("Product title Already Exists!");
+        throw new Error("Product title Already Uloaded!");
       }
       return true;
     }),
@@ -248,7 +248,7 @@ exports.updateProductValidator = [
       });
       if (existingProduct) {
         throw new Error(
-          `${value} title Already Exists For This ID: ${req.params.productId}`
+          `${value} title Already Uloaded For This ID: ${req.params.productId}`
         );
       }
       return true;
@@ -260,7 +260,7 @@ exports.updateProductValidator = [
       });
 
       if (product) {
-        throw new Error(`${value} Name Already Exists For Another Product!`);
+        throw new Error(`${value} Name Already Uloaded For Another Product!`);
       }
 
       return true;
@@ -403,7 +403,7 @@ exports.updateProductValidator = [
       }
       return true;
     })
-    //! Check if each subCategory ID is valid
+    //! Check if each subCategory ID  is valid
     .custom((subCategoryIds) => {
       const invalidIDs = subCategoryIds.filter(
         (id) => !mongoose.Types.ObjectId.isValid(id)
@@ -479,6 +479,85 @@ exports.checkArrayOfImagesAndImageCoverFoundValidator = [
     if (!req.files.imageCover || req.files.imageCover.length === 0) {
       req.validationMessage = "Product Image Cover is required!";
       return true;
+    }
+
+    return true;
+  }),
+  (req, res, next) => {
+    if (req.validationMessage) {
+      return next(new APIError(req.validationMessage, 400, "ValidationError"));
+    }
+    next();
+  }
+];
+
+exports.checkArrayOfImagesAndImageCoverFoundValidatorForUpdate = [
+  body().custom(async (_, { req }) => {
+    const product = await ProductModel.findById(req.params.productId);
+
+    if (!product) {
+      req.validationMessage = `No Product Found For This ID: ${req.params.productId}`;
+
+      return true;
+    }
+
+    if (req.files.images) {
+      if (req.files.images.length > 5) {
+        req.validationMessage = "Product Images Cannot Be More Than 5!";
+
+        return true;
+      }
+
+      const arrayOfImageTempfileName = req.body.images.map(
+        (image) => image.tempFilename
+      );
+
+      if (
+        new Set(arrayOfImageTempfileName).size !==
+        arrayOfImageTempfileName.length
+      ) {
+        const duplicates = arrayOfImageTempfileName.filter(
+          (image, index) => arrayOfImageTempfileName.indexOf(image) !== index
+        );
+        req.validationMessage = `Duplicate ${
+          duplicates.length === 1
+            ? `${duplicates.length} size`
+            : `${duplicates.length} sizes`
+        } are not allowed: ${[...new Set(duplicates)].join(", ")}`;
+
+        return true;
+      }
+
+      const arrayOfImagePublicIdsFromDB = product.images.map(
+        (image) => image.imagePublicId.split("/")[3]
+      );
+
+      const matchedImages = arrayOfImagePublicIdsFromDB.filter(
+        (imagePublicId, index) => {
+          const bodyImages = req.body.images;
+          return (
+            Array.isArray(bodyImages) &&
+            bodyImages[index] &&
+            imagePublicId === bodyImages[index].tempFilename
+          );
+        }
+      );
+
+      if (matchedImages.length > 0) {
+        req.validationMessage = `${matchedImages.length === 1 ? "Image" : "Images"} Name Already Uloaded: ${matchedImages.join(", ")}`;
+
+        return true;
+      }
+    }
+
+    if (req.files.imageCover) {
+      const originalName = product.imageCover.imagePublicId.split("/")[3];
+
+      if (originalName === req.body.imageCover[0].tempFilename) {
+        req.validationMessage = `Image Cover Name Already Uloaded: ${originalName}`;
+
+        return true;
+      }
     }
 
     return true;

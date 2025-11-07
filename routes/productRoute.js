@@ -12,14 +12,13 @@ const {
   getProductByIdValidator,
   updateProductValidator,
   deleteProductValidator,
-  updateArrayOfImagesValidator,
   checkArrayOfImagesAndImageCoverFoundValidator,
-  getAllProductsValidator
+  getAllProductsValidator,
+  checkArrayOfImagesAndImageCoverFoundValidatorForUpdate
 } = require("../utils/validators/productValidator");
 const { protectRoutes, allowRoles } = require("../services/authServices");
 const ReviewsRoutes = require("./reviewRoute");
 const {
-  resizeImageWithSharp,
   resizeMultipleImagesWithSharp
 } = require("../middlewares/resizeImageWithSharpMiddleware");
 const {
@@ -27,7 +26,6 @@ const {
   uploadToCloudinaryArrayOfImages
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
 const {
-  uploadSingleImage,
   uploadMultipleImages
 } = require("../middlewares/uploadImageMiddleware");
 
@@ -35,21 +33,6 @@ const router = express.Router();
 
 //! To Access Params From Parent Router
 router.use("/:productId/reviews", ReviewsRoutes);
-
-// router
-// .route("/imageCover")
-// .post(
-//   protectRoutes,
-//   allowRoles("admin", "manager"),
-//   uploadSingleImage("imageCover"),
-//   resizeImageWithSharp("imageCover", 900, 95),
-//   uploadToCloudinary(
-//     "ecommerce-api-express-uploads/products/imageCover",
-//     "imageCover"
-//   ),
-//   createProductValidator,
-//   createProduct
-// )
 
 router
   .route("/")
@@ -88,6 +71,7 @@ router
     ]),
     resizeMultipleImagesWithSharp("images", 600, 95),
     resizeMultipleImagesWithSharp("imageCover", 900, 95),
+    checkArrayOfImagesAndImageCoverFoundValidatorForUpdate,
     uploadToCloudinaryArrayOfImages(
       "ecommerce-api-express-uploads/products/images",
       "images"
