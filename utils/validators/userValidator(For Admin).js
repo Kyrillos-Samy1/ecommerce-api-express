@@ -61,18 +61,12 @@ exports.createUserValidator = [
     .optional()
     .isBoolean()
     .withMessage("Active must be a boolean value"),
-  check("userPhoto")
-    .optional()
-    .trim()
-    .custom((value) => {
-      if (value) {
-        if (typeof value.url !== "string" || value.imagePublicId !== "string") {
-          throw new Error("Invalid user photo format!");
-        }
-      }
-
-      return true;
-    }),
+  check("userPhoto").custom(async (_value, { req }) => {
+    if (!req.file) {
+      throw new Error("User photo is required");
+    }
+    return true;
+  }),
   validatorMiddleware
 ];
 

@@ -36,28 +36,12 @@ exports.updateLoggedUserDataValidator = [
     .optional()
     .isMobilePhone(["ar-EG"])
     .withMessage("Invalid egyptian phone number"),
-  validatorMiddleware
-];
-
-exports.createUserPhotoValidator = [
-  check("userPhoto")
-    .notEmpty()
-    .withMessage("User Image is Required!")
-    .isObject()
-    .withMessage("User Image Must Be An Object")
-    .custom(async (value, { req }) => {
-      const originalName = req.body.userPhoto.tempFilename;
-
-      const user = await UserModel.findOne({
-        "userPhoto.imagePublicId": { $regex: `${originalName}$`, $options: "i" }
-      });
-
-      if (user) {
-        throw new Error(`User Image Already Exists: ${originalName}`);
-      }
-
-      return true;
-    }),
+  check("userPhoto").custom(async (_value, { req }) => {
+    if (!req.file) {
+      throw new Error("User photo is required");
+    }
+    return true;
+  }),
   validatorMiddleware
 ];
 

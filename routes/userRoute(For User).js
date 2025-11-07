@@ -9,7 +9,8 @@ const {
   getMe,
   updateLoggedUserData,
   updateLoggedUserPassword,
-  logoutUser
+  logoutUser,
+  deleteImageFromCloudinaryBeforeDeleteUser
 } = require("../services/userServices(For User)");
 const { protectRoutes, allowRoles } = require("../services/authServices");
 const {
@@ -50,6 +51,11 @@ router.patch(
 
 router.post("/logout", logoutUser);
 
-router.delete("/deleteMe", deleteMeUserValidator, deleteUser);
+router.delete(
+  "/deleteMe",
+  deleteMeUserValidator,
+  deleteImageFromCloudinaryBeforeDeleteUser,
+  deleteUser
+);
 
 module.exports = router;

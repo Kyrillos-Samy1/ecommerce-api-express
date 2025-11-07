@@ -5,8 +5,29 @@ const UserModel = require("../models/userModel");
 const APIError = require("../utils/apiError");
 
 const { createToken } = require("./authServices");
+const {
+  deleteFromCloudinary
+} = require("../middlewares/uplaodToCloudinaryMiddleware");
 
 //*===========================================  (GET, PUT, DELETE) User Data For User  ==============================================
+
+exports.deleteImageFromCloudinaryBeforeDeleteUser = async (req, res, next) => {
+  try {
+    if (req.user.userPhoto) {
+      await deleteFromCloudinary(req.user.userPhoto.imagePublicId);
+    }
+
+    if (req.params.userId) {
+      const user = await UserModel.findById(req.params.userId);
+      if (user.userPhoto) {
+        await deleteFromCloudinary(user.userPhoto.imagePublicId);
+      }
+    }
+    next();
+  } catch (err) {
+    next(new APIError(err.message, 500, err.name));
+  }
+};
 
 //! @desc Get Current User Data
 //! @route GET /api/v1/users/getMe

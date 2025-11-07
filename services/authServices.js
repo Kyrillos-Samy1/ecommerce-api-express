@@ -99,7 +99,8 @@ exports.signup = async (req, res, next) => {
       name: req.body.name,
       slug: slugify(req.body.name),
       email: req.body.email,
-      password: req.body.password
+      password: req.body.password,
+      userPhoto: req.body.userPhoto
     });
 
     const token = setCookiesInBrowser(req, res, user);

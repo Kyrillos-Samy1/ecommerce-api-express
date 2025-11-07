@@ -13,10 +13,24 @@ const {
   forgotPasswordValidator,
   verifyResetCodeValidator
 } = require("../utils/validators/authValidator");
+const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
+const {
+  resizeImageWithSharp
+} = require("../middlewares/resizeImageWithSharpMiddleware");
+const {
+  uploadToCloudinary
+} = require("../middlewares/uplaodToCloudinaryMiddleware");
 
 const router = express.Router();
 
-router.post("/signup", signupValidator, signup);
+router.post(
+  "/signup",
+  uploadSingleImage("userPhoto"),
+  resizeImageWithSharp("userPhoto", 500, 95),
+  uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
+  signupValidator,
+  signup
+);
 router.post("/login", loginValidator, login);
 router.post("/forgotPassword", forgotPasswordValidator, forgotPassword);
 router.post("/resetCode", verifyResetCodeValidator, verifyResetCode);

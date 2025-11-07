@@ -106,12 +106,12 @@ exports.uploadToCloudinaryArrayOfImages =
   };
 
 //! Delete from Cloudinary
-exports.deleteFromCloudinary = (publicId) => async (req, res, next) => {
+exports.deleteFromCloudinary = async (publicId) => {
   try {
-    await cloudinary.uploader.destroy(publicId);
-    next();
+    const result = await cloudinary.uploader.destroy(publicId);
+    return result;
   } catch (error) {
-    next(new APIError(error.message, 500, "Cloudinary Error"));
+    throw new APIError(error.message, 500, "Cloudinary Error");
   }
 };
 
