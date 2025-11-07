@@ -49,13 +49,6 @@ exports.updateImageCategoryValidator = [
       return true;
     }
 
-    const originalName = category.image.imagePublicId.split("/")[2];
-
-    if (originalName === req.body.image.tempFilename) {
-      req.validationMessage = `New Image Can't Be Same As Old Image: ${category.image.url}`;
-      return true;
-    }
-
     return true;
   }),
   (req, res, next) => {
