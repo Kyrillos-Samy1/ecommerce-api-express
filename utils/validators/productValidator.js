@@ -573,7 +573,6 @@ exports.checkArrayOfImagesAndImageCoverFoundValidatorForUpdate = [
 exports.updateArrayOfImagesValidator = [
   check("images")
     .optional()
-
     .custom(async (arrayOfImages, { req }) => {
       if (arrayOfImages.length === 0) {
         throw new Error("Product Images Cannot Be an Empty Array!");
@@ -585,6 +584,14 @@ exports.updateArrayOfImagesValidator = [
         throw new Error(
           `No Product Found For This ID: ${req.params.productId}`
         );
+      }
+
+      if (arrayOfImages.length > 5) {
+        throw new Error("Product Images Cannot Be More Than 5!");
+      }
+
+      if (arrayOfImages.length === 0) {
+        throw new Error("Product Images Cannot Be an Empty Array!");
       }
 
       const originalName = product.images.map(

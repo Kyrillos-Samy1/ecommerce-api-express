@@ -1,4 +1,6 @@
+const { default: slugify } = require("slugify");
 const sharp = require("sharp");
+
 const APIError = require("../utils/apiError");
 
 const refacorFileName = (name) =>
@@ -26,7 +28,7 @@ exports.resizeImageWithSharp =
       const name =
         refacorFileName(result.name) || refacorFileName(req.body.name);
 
-      const originalName = `${name}-logo-${docName}`.toLowerCase();
+      const originalName = slugify(`${name}-logo-${docName}`.toLowerCase());
 
       const optimizedBuffer = await sharp(file.buffer)
         .resize(width)
@@ -70,20 +72,31 @@ exports.resizeMultipleImagesWithSharp =
       const name =
         refacorFileName(result.title) || refacorFileName(req.body.title);
 
-      const resizePromises = req.files[imageFieldName].map(async (file) => {
-        const originalName = `${name}-logo-${docName}`.toLowerCase();
+      const resizePromises = req.files[imageFieldName].map(
+        async (file, index) => {
+          const originalName = slugify(`${name}-logo-${docName}`.toLowerCase());
 
-        const optimizedBuffer = await sharp(file.buffer)
-          .resize(width)
-          .toFormat("jpeg")
-          .jpeg({ quality })
-          .toBuffer();
+          let originalNameForImages = originalName;
 
-        req.body[imageFieldName].push({
-          tempFilename: originalName,
-          newBuffer: optimizedBuffer
-        });
-      });
+          if (imageFieldName === "images") {
+            originalNameForImages = `${originalName}-${index + 1}`;
+          }
+
+          const optimizedBuffer = await sharp(file.buffer)
+            .resize(width)
+            .toFormat("jpeg")
+            .jpeg({ quality })
+            .toBuffer();
+
+          req.body[imageFieldName].push({
+            tempFilename:
+              imageFieldName === "images"
+                ? originalNameForImages
+                : originalName,
+            newBuffer: optimizedBuffer
+          });
+        }
+      );
 
       await Promise.all(resizePromises);
       next();
