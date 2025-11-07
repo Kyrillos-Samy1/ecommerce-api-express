@@ -36,12 +36,6 @@ exports.updateLoggedUserDataValidator = [
     .optional()
     .isMobilePhone(["ar-EG"])
     .withMessage("Invalid egyptian phone number"),
-  // check("userPhoto").custom(async (_value, { req }) => {
-  //   if (!req.file) {
-  //     throw new Error("User photo is required");
-  //   }
-  //   return true;
-  // }),
   validatorMiddleware
 ];
 
@@ -56,13 +50,6 @@ exports.updateUserPhotoValidator = [
 
     if (!user.userPhoto) {
       req.validationMessage = "User Has No Image!";
-      return true;
-    }
-
-    const originalName = user.userPhoto.imagePublicId.split("/")[2];
-
-    if (originalName === req.body.userPhoto.tempFilename) {
-      req.validationMessage = `New Image Can't Be Same As Old Image: ${user.userPhoto.url}`;
       return true;
     }
 

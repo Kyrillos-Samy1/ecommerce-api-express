@@ -76,13 +76,6 @@ exports.updateBrandImageValidator = [
       return true;
     }
 
-    const originalName = brand.image.imagePublicId.split("/")[2];
-
-    if (originalName === req.body.image.tempFilename) {
-      req.validationMessage = `New Image Can't Be Same As Old Image: ${brand.image.url}`;
-      return true;
-    }
-
     return true;
   }),
   (req, res, next) => {

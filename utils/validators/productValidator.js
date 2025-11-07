@@ -298,7 +298,6 @@ exports.updateProductValidator = [
       }
       return true;
     }),
-  check("imageCover").optional(),
   check("colors")
     .optional()
     .isArray()
@@ -461,6 +460,7 @@ exports.updateProductValidator = [
       })
     ),
   check("images").optional(),
+  check("imageCover").optional(),
   validatorMiddleware
 ];
 
@@ -528,36 +528,36 @@ exports.checkArrayOfImagesAndImageCoverFoundValidatorForUpdate = [
         return true;
       }
 
-      const arrayOfImagePublicIdsFromDB = product.images.map(
-        (image) => image.imagePublicId.split("/")[3]
-      );
+      //   const arrayOfImagePublicIdsFromDB = product.images.map(
+      //     (image) => image.imagePublicId.split("/")[3]
+      //   );
 
-      const matchedImages = arrayOfImagePublicIdsFromDB.filter(
-        (imagePublicId, index) => {
-          const bodyImages = req.body.images;
-          return (
-            Array.isArray(bodyImages) &&
-            bodyImages[index] &&
-            imagePublicId === bodyImages[index].tempFilename
-          );
-        }
-      );
+      //   const matchedImages = arrayOfImagePublicIdsFromDB.filter(
+      //     (imagePublicId, index) => {
+      //       const bodyImages = req.body.images;
+      //       return (
+      //         Array.isArray(bodyImages) &&
+      //         bodyImages[index] &&
+      //         imagePublicId === bodyImages[index].tempFilename
+      //       );
+      //     }
+      //   );
 
-      if (matchedImages.length > 0) {
-        req.validationMessage = `${matchedImages.length === 1 ? "Image" : "Images"} Name Already Uloaded: ${matchedImages.join(", ")}`;
+      //   if (matchedImages.length > 0) {
+      //     req.validationMessage = `${matchedImages.length === 1 ? "Image" : "Images"} Name Already Uloaded: ${matchedImages.join(", ")}`;
 
-        return true;
-      }
-    }
+      //     return true;
+      //   }
+      // }
 
-    if (req.files.imageCover) {
-      const originalName = product.imageCover.imagePublicId.split("/")[3];
+      // if (req.files.imageCover) {
+      //   const originalName = product.imageCover.imagePublicId.split("/")[3];
 
-      if (originalName === req.body.imageCover[0].tempFilename) {
-        req.validationMessage = `Image Cover Name Already Uloaded: ${originalName}`;
+      //   if (originalName === req.body.imageCover[0].tempFilename) {
+      //     req.validationMessage = `Image Cover Name Already Uloaded: ${originalName}`;
 
-        return true;
-      }
+      //     return true;
+      //   }
     }
 
     return true;
@@ -568,23 +568,6 @@ exports.checkArrayOfImagesAndImageCoverFoundValidatorForUpdate = [
     }
     next();
   }
-];
-
-exports.updateImageCoverValidator = [
-  check("imageCover").custom(async (value, { req }) => {
-    const product = await ProductModel.findById(req.params.productId);
-
-    const originalName = product.imageCover.imagePublicId.split("/")[3];
-
-    if (originalName === req.body.imageCover.tempFilename) {
-      throw new Error(
-        `New Image Can't Be Same As Old Image: ${product.imageCover.url}`
-      );
-    }
-
-    return true;
-  }),
-  validatorMiddleware
 ];
 
 exports.updateArrayOfImagesValidator = [

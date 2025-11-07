@@ -26,21 +26,7 @@ exports.createImageCategoryValidator = [
     .notEmpty()
     .withMessage("Category Image is Required!")
     .isObject()
-    .withMessage("Category Image Must Be An Object")
-    .custom(async (value, { req }) => {
-      const originalName = req.body.image.tempFilename;
-
-      const category = await CategoryModel.findOne({
-        "image.imagePublicId": { $regex: `${originalName}$`, $options: "i" }
-      });
-
-      if (category) {
-        req.validationMessage = `Image With Name: ${originalName} Already Exists!`;
-        return true;
-      }
-
-      return true;
-    }),
+    .withMessage("Category Image Must Be An Object"),
   (req, res, next) => {
     if (req.validationMessage) {
       return next(new APIError(req.validationMessage, 400, "ValidationError"));
