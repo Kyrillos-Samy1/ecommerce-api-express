@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const { check } = require("express-validator");
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
 const UserModel = require("../../models/userModel");
+const APIError = require("../apiError");
 
 //*=================================================  For Logged User ==============================================
 
@@ -35,19 +36,60 @@ exports.updateLoggedUserDataValidator = [
     .optional()
     .isMobilePhone(["ar-EG"])
     .withMessage("Invalid egyptian phone number"),
+  validatorMiddleware
+];
+
+exports.createUserPhotoValidator = [
   check("userPhoto")
-    .optional()
-    .custom((value) => {
-      if (
-        typeof value.url !== "string" ||
-        typeof value.imagePublicId !== "string"
-      ) {
-        throw new Error("Invalid user photo format!");
+    .notEmpty()
+    .withMessage("User Image is Required!")
+    .isObject()
+    .withMessage("User Image Must Be An Object")
+    .custom(async (value, { req }) => {
+      const originalName = req.body.userPhoto.tempFilename;
+
+      const user = await UserModel.findOne({
+        "userPhoto.imagePublicId": { $regex: `${originalName}$`, $options: "i" }
+      });
+
+      if (user) {
+        throw new Error(`User Image Already Exists: ${originalName}`);
       }
 
       return true;
     }),
   validatorMiddleware
+];
+
+exports.updateUserPhotoValidator = [
+  check("userPhoto").custom(async (_value, { req }) => {
+    const user = await UserModel.findById(req.params.userId || req.user._id);
+
+    if (!user) {
+      req.validationMessage = `No User Found For This ID: ${req.user._id}`;
+      return true;
+    }
+
+    if (!user.userPhoto) {
+      req.validationMessage = "User Has No Image!";
+      return true;
+    }
+
+    const originalName = user.userPhoto.imagePublicId.split("/")[2];
+
+    if (originalName === req.body.userPhoto.tempFilename) {
+      req.validationMessage = `New Image Can't Be Same As Old Image: ${user.userPhoto.url}`;
+      return true;
+    }
+
+    return true;
+  }),
+  (req, res, next) => {
+    if (req.validationMessage) {
+      return next(new APIError(req.validationMessage, 400, "ValidationError"));
+    }
+    next();
+  }
 ];
 
 exports.updateLoggedUserPasswordValidator = [

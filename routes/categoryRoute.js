@@ -5,14 +5,15 @@ const {
   getCategoryById,
   updateCategory,
   deleteCategory,
-  createCategory,
+  createCategory
 } = require("../services/categoryServices");
 const {
   getCategoryByIdValidator,
   updateCategoryValidator,
   deleteCategoryValidator,
   createCategoryValidator,
-  getAllCategoryValidator
+  getAllCategoryValidator,
+  updateImageCategoryValidator
 } = require("../utils/validators/categoryValidator");
 
 const subCategoryRoutes = require("./subCategoryRoute");
@@ -37,11 +38,7 @@ router
     allowRoles("admin", "manager"),
     uploadSingleImage("image"),
     resizeImageWithSharp("image", 600, 95),
-    uploadToCloudinary(
-      "ecommerce-api-express-uploads/categories",
-      (req) => req.body.image.tempFilename,
-      "image"
-    ),
+    uploadToCloudinary("ecommerce-api-express-uploads/categories", "image"),
     createCategoryValidator,
     createCategory
   )
@@ -55,11 +52,8 @@ router
     allowRoles("admin", "manager"),
     uploadSingleImage("image"),
     resizeImageWithSharp("image", 600, 95),
-    uploadToCloudinary(
-      "ecommerce-api-express-uploads/categories",
-      (req) => req.body.image.tempFilename,
-      "image"
-    ),
+    updateImageCategoryValidator,
+    uploadToCloudinary("ecommerce-api-express-uploads/categories", "image"),
     updateCategoryValidator,
     updateCategory
   )

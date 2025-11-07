@@ -23,6 +23,10 @@ const {
 const {
   uploadToCloudinary
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
+const {
+  createUserPhotoValidator,
+  updateUserPhotoValidator
+} = require("../utils/validators/userValidator(For User)");
 
 //*================================================  CRUD For Admin  ================================================
 
@@ -41,11 +45,8 @@ router
   .post(
     uploadSingleImage("userPhoto"),
     resizeImageWithSharp("userPhoto", 500, 95),
-    uploadToCloudinary(
-      "ecommerce-api-express-uploads/users",
-      (req) => req.body.userPhoto.tempFilename,
-      "userPhoto"
-    ),
+    createUserPhotoValidator,
+    uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
     createUserValidator,
     createUser
   )
@@ -57,11 +58,8 @@ router
   .patch(
     uploadSingleImage("userPhoto"),
     resizeImageWithSharp("userPhoto", 500, 95),
-    uploadToCloudinary(
-      "ecommerce-api-express-uploads/users",
-      (req) => req.body.userPhoto.tempFilename,
-      "userPhoto"
-    ),
+    updateUserPhotoValidator,
+    uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
     updateUserValidator,
     updateUser
   )

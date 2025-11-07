@@ -39,7 +39,5 @@ const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 //? Upload Single Image
 exports.uploadSingleImage = (fieldName) => upload.single(fieldName);
 
-//? Upload Array of Images With Different Names and Different Max Count
-exports.uploadArrayOfImages = (fieldName, maxCount) =>
-  upload.array(fieldName, maxCount);
-
+//? Upload Multiple Images With Different Names and Different Max Count
+exports.uploadMultipleImages = (fieldNames) => upload.fields(fieldNames);

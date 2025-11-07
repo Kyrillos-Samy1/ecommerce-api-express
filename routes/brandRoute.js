@@ -5,7 +5,9 @@ const {
   getBrandByIdValidator,
   updateBrandValidator,
   deleteBrandValidator,
-  getAllBrandsValidator
+  getAllBrandsValidator,
+  updateBrandImageValidator,
+  creareBrandImageValidator
 } = require("../utils/validators/brandValidator");
 const {
   createBrand,
@@ -32,11 +34,8 @@ router
     allowRoles("admin", "manager"),
     uploadSingleImage("image"),
     resizeImageWithSharp("image", 600, 95),
-    uploadToCloudinary(
-      "ecommerce-api-express-uploads/brands",
-      (req) => req.body.image.tempFilename,
-      "image"
-    ),
+    creareBrandImageValidator,
+    uploadToCloudinary("ecommerce-api-express-uploads/brands", "image"),
     createBrandValidator,
     createBrand
   )
@@ -50,11 +49,8 @@ router
     allowRoles("admin", "manager"),
     uploadSingleImage("image"),
     resizeImageWithSharp("image", 600, 95),
-    uploadToCloudinary(
-      "ecommerce-api-express-uploads/brands",
-      (req) => req.body.image.tempFilename,
-      "image"
-    ),
+    updateBrandImageValidator,
+    uploadToCloudinary("ecommerce-api-express-uploads/brands", "image"),
     updateBrandValidator,
     updateBrand
   )

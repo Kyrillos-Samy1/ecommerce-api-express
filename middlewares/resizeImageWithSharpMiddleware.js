@@ -10,7 +10,6 @@ exports.resizeImageWithSharp =
       if (!file) return next();
 
       const originalName = file.originalname.split(".")[0];
-      const filename = `${originalName}}`;
 
       const optimizedBuffer = await sharp(file.buffer)
         .resize(width)
@@ -18,8 +17,10 @@ exports.resizeImageWithSharp =
         .jpeg({ quality })
         .toBuffer();
 
-      req[`${imageName}Buffer`] = optimizedBuffer;
-      req.body[imageName] = { tempFilename: filename };
+      req.body[imageName] = {
+        buffer: optimizedBuffer,
+        tempFilename: originalName
+      };
 
       next();
     } catch (err) {
@@ -38,13 +39,12 @@ exports.resizeMultipleImagesWithSharp =
   (imageFieldName, width = 800, quality = 95) =>
   async (req, res, next) => {
     try {
-      if (!req.files || !req.files.length) return next();
+      if (!req.files || !req.files[imageFieldName]) return next();
 
       req.body[imageFieldName] = [];
 
-      const resizePromises = req.files.map(async (file) => {
+      const resizePromises = req.files[imageFieldName].map(async (file) => {
         const originalName = file.originalname.split(".")[0];
-        const filename = `${originalName}`;
 
         const optimizedBuffer = await sharp(file.buffer)
           .resize(width)
@@ -53,12 +53,13 @@ exports.resizeMultipleImagesWithSharp =
           .toBuffer();
 
         req.body[imageFieldName].push({
-          tempFilename: filename,
-          buffer: optimizedBuffer
+          tempFilename: originalName,
+          newBuffer: optimizedBuffer
         });
       });
 
       await Promise.all(resizePromises);
+      console.log(req.body);
       next();
     } catch (err) {
       next(

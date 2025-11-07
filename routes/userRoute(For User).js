@@ -2,7 +2,8 @@ const express = require("express");
 const {
   updateLoggedUserDataValidator,
   updateLoggedUserPasswordValidator,
-  deleteMeUserValidator
+  deleteMeUserValidator,
+  updateUserPhotoValidator
 } = require("../utils/validators/userValidator(For User)");
 const {
   getMe,
@@ -41,11 +42,8 @@ router.patch(
   "/updateMe",
   uploadSingleImage("userPhoto"),
   resizeImageWithSharp("userPhoto", 500, 95),
-  uploadToCloudinary(
-    "ecommerce-api-express-uploads/users",
-    (req) => req.body.userPhoto.tempFilename,
-    "userPhoto"
-  ),
+  updateUserPhotoValidator,
+  uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
   updateLoggedUserDataValidator,
   updateLoggedUserData
 );

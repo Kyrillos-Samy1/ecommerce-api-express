@@ -1,4 +1,4 @@
-const { check } = require("express-validator");
+const { check, body } = require("express-validator");
 const mongoose = require("mongoose");
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
 const CategoryModel = require("../../models/categoryModel");
@@ -60,35 +60,6 @@ exports.createProductValidator = [
         throw new Error(
           "Product Price After Discount Must Be Less Than Price!"
         );
-      }
-      return true;
-    }),
-  check("imageCover")
-    .notEmpty()
-    .withMessage("Product Cover Image is Required!"),
-  check("images")
-    .optional()
-    .isArray()
-    .withMessage("Product Images Must Be an Array!")
-    .custom((arrayOfImages) => {
-      if (arrayOfImages.length === 0) {
-        throw new Error("Product Images Cannot Be an Empty Array!");
-      }
-      const lowerCasedImages = arrayOfImages.map((image) =>
-        image.toLowerCase()
-      );
-
-      if (new Set(lowerCasedImages).size !== lowerCasedImages.length) {
-        const duplicates = lowerCasedImages.filter(
-          (image, index) => lowerCasedImages.indexOf(image) !== index
-        );
-        throw new Error(
-          `Duplicate ${duplicates.length === 1 ? `${duplicates.length} image URL is not allowed` : `${duplicates.length} images URLs are not allowed`}: ${[...new Set(duplicates)].join(", ")}`
-        );
-      }
-
-      if (arrayOfImages.some((image) => typeof image !== "string")) {
-        throw new Error("All colors must be strings.");
       }
       return true;
     }),
@@ -491,11 +462,46 @@ exports.updateProductValidator = [
   validatorMiddleware
 ];
 
+exports.checkArrayOfImagesAndImageCoverFoundValidator = [
+  body().custom((_, { req }) => {
+    if (!req.files || !req.files.images || req.files.images.length === 0) {
+      throw new Error("Product Images are required and cannot be empty!");
+    }
+
+    if (req.files.images.length > 5) {
+      throw new Error("Product Images cannot be more than 5!");
+    }
+
+    if (!req.files.imageCover || req.files.imageCover.length === 0) {
+      throw new Error("Product Image Cover is required!");
+    }
+
+    return true;
+  }),
+  validatorMiddleware
+];
+
+exports.updateImageCoverValidator = [
+  check("imageCover").custom(async (value, { req }) => {
+    const product = await ProductModel.findById(req.params.productId);
+
+    const originalName = product.imageCover.imagePublicId.split("/")[3];
+
+    if (originalName === req.body.imageCover.tempFilename) {
+      throw new Error(
+        `New Image Can't Be Same As Old Image: ${product.imageCover.url}`
+      );
+    }
+
+    return true;
+  }),
+  validatorMiddleware
+];
+
 exports.updateArrayOfImagesValidator = [
   check("images")
     .optional()
-    .isArray()
-    .withMessage("Product Images Must Be an Array!")
+
     .custom(async (arrayOfImages, { req }) => {
       if (arrayOfImages.length === 0) {
         throw new Error("Product Images Cannot Be an Empty Array!");
@@ -509,10 +515,12 @@ exports.updateArrayOfImagesValidator = [
         );
       }
 
-      const images = product.images.map((image) => image.url);
+      const originalName = product.images.map(
+        (image) => image.imagePublicId.split("/")[3]
+      );
 
       const duplicatesImages = arrayOfImages.filter((image) =>
-        images.includes(image.url)
+        originalName.includes(image.tempFilename)
       );
 
       if (duplicatesImages.length > 0) {
@@ -523,25 +531,6 @@ exports.updateArrayOfImagesValidator = [
             ...new Set(duplicateUrls)
           ].join(", ")}`
         );
-      }
-
-      const lowerCasedImages = arrayOfImages.map((image) =>
-        image.url.toLowerCase()
-      );
-
-      if (new Set(lowerCasedImages).size !== lowerCasedImages.length) {
-        const duplicates = lowerCasedImages.filter(
-          (image, index) => lowerCasedImages.indexOf(image) !== index
-        );
-        throw new Error(
-          `Duplicate ${duplicates.length === 1 ? `${duplicates.length} image` : `${duplicates.length} images`} URL${
-            duplicates.length === 1 ? " is" : "s are"
-          } not allowed: ${[...new Set(duplicates)].join(", ")}`
-        );
-      }
-
-      if (arrayOfImages.some((image) => typeof image.url !== "string")) {
-        throw new Error("All Images Must Be Strings.");
       }
 
       return true;

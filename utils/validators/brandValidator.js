@@ -1,6 +1,7 @@
 const { check } = require("express-validator");
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
 const BrandModel = require("../../models/brandModel");
+const APIError = require("../apiError");
 
 exports.createBrandValidator = [
   check("name")
@@ -13,7 +14,7 @@ exports.createBrandValidator = [
     .custom((brandName) =>
       BrandModel.findOne({ name: brandName }).then((brand) => {
         if (brand) {
-          return Promise.reject(new Error("Brand Name Already Exists!"));
+          throw new Error("Brand Name Already Exists!")();
         }
         return true;
       })
@@ -31,12 +32,65 @@ exports.getBrandByIdValidator = [
     .custom((value) =>
       BrandModel.findById(value).then((brand) => {
         if (!brand) {
-          return Promise.reject(new Error(`No Brands For This ID: ${value}`));
+          throw new Error(`No Brands For This ID: ${value}`)();
         }
         return true;
       })
     ),
   validatorMiddleware
+];
+
+exports.creareBrandImageValidator = [
+  check("image")
+    .notEmpty()
+    .withMessage("Brand Image is Required!")
+    .isObject()
+    .withMessage("Brand Image Must Be An Object")
+    .custom(async (value, { req }) => {
+      const originalName = req.body.image.tempFilename;
+
+      const brand = await BrandModel.findOne({
+        "image.imagePublicId": { $regex: `${originalName}$`, $options: "i" }
+      });
+
+      if (brand) {
+        throw new Error("Brand Image Already Exists!");
+      }
+
+      return true;
+    }),
+  validatorMiddleware
+];
+
+exports.updateBrandImageValidator = [
+  check("image").custom(async (_value, { req }) => {
+    const brand = await BrandModel.findById(req.params.brandId);
+
+    if (!brand) {
+      req.validationMessage = `No Brand Found For This ID: ${req.params.brandId}`;
+      return true;
+    }
+
+    if (!brand.image) {
+      req.validationMessage = "Brand Has No Image!";
+      return true;
+    }
+
+    const originalName = brand.image.imagePublicId.split("/")[2];
+
+    if (originalName === req.body.image.tempFilename) {
+      req.validationMessage = `New Image Can't Be Same As Old Image: ${brand.image.url}`;
+      return true;
+    }
+
+    return true;
+  }),
+  (req, res, next) => {
+    if (req.validationMessage) {
+      return next(new APIError(req.validationMessage, 400, "ValidationError"));
+    }
+    next();
+  }
 ];
 
 exports.updateBrandValidator = [
@@ -48,9 +102,7 @@ exports.updateBrandValidator = [
     .custom((brandId) =>
       BrandModel.findById(brandId).then((brand) => {
         if (!brand) {
-          return Promise.reject(
-            new Error(`No Brand Found For This ID: ${brandId}`)
-          );
+          throw new Error(`No Brand Found For This ID: ${brandId}`)();
         }
         return true;
       })
@@ -65,11 +117,9 @@ exports.updateBrandValidator = [
       const brand = await BrandModel.findOne({ name: value });
 
       if (brand && brand._id.toString() === req.params.brandId) {
-        return Promise.reject(
-          new Error(
-            `${value} Name Already Exists For This ID: ${req.params.brandId}`
-          )
-        );
+        throw new Error(
+          `${value} Name Already Exists For This ID: ${req.params.brandId}`
+        )();
       }
       return true;
     })
@@ -80,9 +130,7 @@ exports.updateBrandValidator = [
       });
 
       if (brand) {
-        return Promise.reject(
-          new Error(`${value} Name Already Exists For Another Brand!`)
-        );
+        throw new Error(`${value} Name Already Exists For Another Brand!`)();
       }
 
       return true;
@@ -99,9 +147,7 @@ exports.deleteBrandValidator = [
     .custom(async (brandId) => {
       const brand = await BrandModel.findById(brandId);
       if (!brand) {
-        return Promise.reject(
-          new Error(`No Brand Found For This ID: ${brandId}`)
-        );
+        throw new Error(`No Brand Found For This ID: ${brandId}`)();
       }
       return true;
     }),
@@ -128,7 +174,7 @@ exports.getAllBrandsValidator = [
     .toInt()
     .custom((value) => {
       if (value < 1) {
-        return Promise.reject(new Error("Page Must Be Greater Than 0!"));
+        throw new Error("Page Must Be Greater Than 0!")();
       }
       return true;
     }),
@@ -141,12 +187,10 @@ exports.getAllBrandsValidator = [
     .toInt()
     .custom((value) => {
       if (value < 5) {
-        return Promise.reject(new Error("Limit Must Be Greater Than 5!"));
+        throw new Error("Limit Must Be Greater Than 5!")();
       }
       if (value > 30) {
-        return Promise.reject(
-          new Error("Limit Must Be Less Than Or Equal To 30!")
-        );
+        throw new Error("Limit Must Be Less Than Or Equal To 30!")();
       }
       return true;
     }),

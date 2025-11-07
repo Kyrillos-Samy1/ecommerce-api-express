@@ -1,35 +1,56 @@
 const cloudinary = require("../config/cloudinaryConfig");
 const APIError = require("../utils/apiError");
 
+//! Upload Image to Cloudinary
+const uploadImageToCloudinary = async (folder, fileType, buffer) =>
+  await new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        public_id: fileType
+      },
+      (error, result) => {
+        if (error)
+          return reject(
+            new APIError("Cloudinary Upload Failed", 500, "Upload Error")
+          );
+        resolve({
+          url: result.secure_url,
+          imagePublicId: result.public_id
+        });
+      }
+    );
+    uploadStream.end(buffer);
+  });
+
 //! Process Image and Upload to Cloudinary
 exports.uploadToCloudinary =
   (folder, fieldImageName) => async (req, res, next) => {
     try {
-      if (!req.file) {
-        return next(new APIError("No file uploaded", 400, "Upload Error"));
+      const imagesData = req.body[fieldImageName];
+      if (!imagesData || imagesData.length === 0) {
+        return next(
+          new APIError("No images found for upload", 400, "Upload Error")
+        );
       }
 
-      const results = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder, public_id: req.body[fieldImageName].tempFilename },
-          (error, result) => {
-            if (error)
-              return reject(
-                new APIError("Cloudinary Upload Failed", 500, "Upload Error")
-              );
-            resolve({
-              secure_url: result.secure_url,
-              public_id: result.public_id
-            });
-          }
+      if (req.files) {
+        const result = await uploadImageToCloudinary(
+          folder,
+          imagesData[0].tempFilename,
+          imagesData[0].newBuffer
         );
-        uploadStream.end(req.file.buffer);
-      });
+        req.body[fieldImageName] = result;
+      }
 
-      req.body[fieldImageName] = {
-        url: results.secure_url,
-        imagePublicId: results.public_id
-      };
+      if (req.file) {
+        const result = await uploadImageToCloudinary(
+          folder,
+          req.body[fieldImageName].tempFilename,
+          req.body[fieldImageName].buffer
+        );
+        req.body[fieldImageName] = result;
+      }
 
       next();
     } catch (error) {
@@ -42,10 +63,17 @@ exports.uploadToCloudinaryArrayOfImages =
   (folder, fieldImageName) => async (req, res, next) => {
     try {
       const imagesData = req.body[fieldImageName];
-      if (!imagesData || !Array.isArray(imagesData) || imagesData.length === 0)
+      if (!imagesData || imagesData.length === 0) {
+        console.log(
+          "No images found for upload",
+          req.body[fieldImageName],
+          fieldImageName,
+          req.body
+        );
         return next(
           new APIError("No images found for upload", 400, "Upload Error")
         );
+      }
 
       const uploadPromises = imagesData.map(
         (img) =>
@@ -53,7 +81,7 @@ exports.uploadToCloudinaryArrayOfImages =
             const uploadStream = cloudinary.uploader.upload_stream(
               {
                 folder,
-                public_id: `${img.tempFilename}`
+                public_id: img.tempFilename
               },
               (error, result) => {
                 if (error)
@@ -70,11 +98,12 @@ exports.uploadToCloudinaryArrayOfImages =
                 });
               }
             );
-            uploadStream.end(img.buffer);
+            uploadStream.end(img.newBuffer);
           })
       );
 
       const uploadedImages = await Promise.all(uploadPromises);
+
       req.body[fieldImageName] = uploadedImages;
       next();
     } catch (error) {

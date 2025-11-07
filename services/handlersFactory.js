@@ -16,7 +16,7 @@ exports.createDocumnet =
 
       res.status(201).json({
         message: `${FactoryName} Created Successfully!`,
-        data: createdDocument,
+        data: createdDocument
       });
     } catch (err) {
       return next(
@@ -87,7 +87,7 @@ exports.getAllDocuments =
         paginationResult,
         results: documents.length,
         message: `${FactoryName} Fetched Successfully!`,
-        data: documents,
+        data: documents
       });
     } catch (err) {
       return next(
@@ -123,7 +123,7 @@ exports.getDocumentById =
 
       res.status(200).json({
         message: `${FactoryName} Fetched Successfully!`,
-        data: fetchedDocument,
+        data: fetchedDocument
       });
     } catch (err) {
       console.error(err);
@@ -157,7 +157,7 @@ exports.updateOneDocument =
 
       res.status(200).json({
         message: `${FactoryName} Updated Successfully!`,
-        data: updatedDocument,
+        data: updatedDocument
       });
     } catch (err) {
       next(
@@ -180,7 +180,7 @@ exports.deleteOneDocument =
 
       res.status(200).json({
         message: `${FactoryName} Deleted Successfully!`,
-        data: deletedDocument,
+        data: deletedDocument
       });
     } catch (err) {
       console.error(err);

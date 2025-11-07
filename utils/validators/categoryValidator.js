@@ -1,6 +1,7 @@
 const { check } = require("express-validator");
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
 const CategoryModel = require("../../models/categoryModel");
+const APIError = require("../apiError");
 
 exports.createCategoryValidator = [
   check("name")
@@ -17,11 +18,60 @@ exports.createCategoryValidator = [
         return Promise.reject(new Error("Category Name Already Exists!"));
       }
     }),
-  check("image")
-    .trim()
-    .notEmpty()
-    .withMessage("Category Image is Required!"),
   validatorMiddleware
+];
+
+exports.createImageCategoryValidator = [
+  check("image")
+    .notEmpty()
+    .withMessage("Category Image is Required!")
+    .isObject()
+    .withMessage("Category Image Must Be An Object")
+    .custom(async (value, { req }) => {
+      const originalName = req.body.image.tempFilename;
+
+      const category = await CategoryModel.findOne({
+        "image.imagePublicId": { $regex: `${originalName}$`, $options: "i" }
+      });
+
+      if (category) {
+        return Promise.reject(new Error("Category Image Already Exists!"));
+      }
+
+      return true;
+    }),
+  validatorMiddleware
+];
+
+exports.updateImageCategoryValidator = [
+  check("image").custom(async (_value, { req }) => {
+    const category = await CategoryModel.findById(req.params.categoryId);
+
+    if (!category) {
+      req.validationMessage = `No Category Found For This ID: ${req.params.categoryId}`;
+      return true;
+    }
+
+    if (!category.image) {
+      req.validationMessage = "Category Has No Image!";
+      return true;
+    }
+
+    const originalName = category.image.imagePublicId.split("/")[2];
+
+    if (originalName === req.body.image.tempFilename) {
+      req.validationMessage = `New Image Can't Be Same As Old Image: ${category.image.url}`;
+      return true;
+    }
+
+    return true;
+  }),
+  (req, res, next) => {
+    if (req.validationMessage) {
+      return next(new APIError(req.validationMessage, 400, "ValidationError"));
+    }
+    next();
+  }
 ];
 
 exports.getCategoryByIdValidator = [
@@ -54,9 +104,8 @@ exports.updateCategoryValidator = [
       }
     }),
   check("name")
+    .optional()
     .trim()
-    .notEmpty()
-    .withMessage("Enter The New Category Name To Update It!")
     .isString()
     .withMessage("Category Name Must Be a String!")
     .isLength({ min: 2, max: 32 })
