@@ -32,6 +32,7 @@ const {
 const {
   deleteImagesFromCloudinary
 } = require("../middlewares/deleteImageFromCloudinaryMiddleware");
+const ProductModel = require("../models/productModel");
 
 const router = express.Router();
 
@@ -47,8 +48,22 @@ router
       { name: "images", maxCount: 5 },
       { name: "imageCover", maxCount: 1 }
     ]),
-    resizeMultipleImagesWithSharp("images", 600, 95),
-    resizeMultipleImagesWithSharp("imageCover", 900, 95),
+    resizeMultipleImagesWithSharp(
+      "images",
+      600,
+      95,
+      "",
+      ProductModel,
+      "Images"
+    ),
+    resizeMultipleImagesWithSharp(
+      "imageCover",
+      900,
+      95,
+      "",
+      ProductModel,
+      "Image Cover"
+    ),
     checkArrayOfImagesAndImageCoverFoundValidator,
     uploadToCloudinaryArrayOfImages(
       "ecommerce-api-express-uploads/products/images",
@@ -82,8 +97,22 @@ router
       { name: "images", maxCount: 5 },
       { name: "imageCover", maxCount: 1 }
     ]),
-    resizeMultipleImagesWithSharp("images", 600, 95),
-    resizeMultipleImagesWithSharp("imageCover", 900, 95),
+    resizeMultipleImagesWithSharp(
+      "images",
+      600,
+      95,
+      "productId",
+      ProductModel,
+      "Images"
+    ),
+    resizeMultipleImagesWithSharp(
+      "imageCover",
+      900,
+      95,
+      "productId",
+      ProductModel,
+      "Image Cover"
+    ),
     checkArrayOfImagesAndImageCoverFoundValidatorForUpdate,
     uploadToCloudinaryArrayOfImages(
       "ecommerce-api-express-uploads/products/images",

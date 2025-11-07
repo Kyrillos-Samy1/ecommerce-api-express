@@ -20,13 +20,14 @@ const {
 const {
   uploadToCloudinary
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
+const UserModel = require("../models/userModel");
 
 const router = express.Router();
 
 router.post(
   "/signup",
   uploadSingleImage("userPhoto"),
-  resizeImageWithSharp("userPhoto", 500, 95),
+  resizeImageWithSharp("userPhoto", 500, 95, "userPhoto", UserModel, "User"),
   uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
   signupValidator,
   signup

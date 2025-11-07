@@ -24,6 +24,7 @@ const {
   resizeImageWithSharp
 } = require("../middlewares/resizeImageWithSharpMiddleware");
 const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
+const UserModel = require("../models/userModel");
 
 //*================================================  CRUD For Current User  ============================================================
 
@@ -42,7 +43,7 @@ router.patch(
 router.patch(
   "/updateMe",
   uploadSingleImage("userPhoto"),
-  resizeImageWithSharp("userPhoto", 500, 95),
+  resizeImageWithSharp("userPhoto", 500, 95, "", UserModel, "User"),
   updateUserPhotoValidator,
   uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
   updateLoggedUserDataValidator,

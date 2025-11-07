@@ -26,7 +26,10 @@ const {
 const {
   updateUserPhotoValidator
 } = require("../utils/validators/userValidator(For User)");
-const { deleteImageFromCloudinaryBeforeDeleteUser } = require("../services/userServices(For User)");
+const {
+  deleteImageFromCloudinaryBeforeDeleteUser
+} = require("../services/userServices(For User)");
+const UserModel = require("../models/userModel");
 
 //*================================================  CRUD For Admin  ================================================
 
@@ -44,7 +47,7 @@ router
   .route("/")
   .post(
     uploadSingleImage("userPhoto"),
-    resizeImageWithSharp("userPhoto", 500, 95),
+    resizeImageWithSharp("userPhoto", 500, 95, "", UserModel, "User"),
     uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
     createUserValidator,
     createUser
@@ -56,7 +59,7 @@ router
   .get(getUserByIdValidator, getUserById)
   .patch(
     uploadSingleImage("userPhoto"),
-    resizeImageWithSharp("userPhoto", 500, 95),
+    resizeImageWithSharp("userPhoto", 500, 95, "userId", UserModel, "User"),
     updateUserPhotoValidator,
     uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
     updateUserValidator,

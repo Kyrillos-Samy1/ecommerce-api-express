@@ -3,13 +3,21 @@ const APIError = require("../utils/apiError");
 
 //! Resize single image
 exports.resizeImageWithSharp =
-  (imageName, width = 800, quality = 95) =>
+  (imageName, width, quality, paramId, Model, docName) =>
   async (req, res, next) => {
     try {
       const file = req.file;
       if (!file) return next();
 
-      const originalName = file.originalname.split(".")[0];
+      const result = await Model.findById(req.params[paramId] || req.user._id);
+
+      if (!result) {
+        req.validationMessage = `No ${docName} Found For This ID: ${req.params.brandId}`;
+        return true;
+      }
+
+      const originalName =
+        `${result.name || req.body.name}-logo-${docName}`.toLowerCase();
 
       const optimizedBuffer = await sharp(file.buffer)
         .resize(width)
@@ -36,15 +44,23 @@ exports.resizeImageWithSharp =
 
 //! Resize multiple images
 exports.resizeMultipleImagesWithSharp =
-  (imageFieldName, width = 800, quality = 95) =>
+  (imageFieldName, width, quality, paramId, Model, docName) =>
   async (req, res, next) => {
     try {
       if (!req.files || !req.files[imageFieldName]) return next();
 
+      const result = await Model.findById(req.params[paramId]);
+
+      if (!result) {
+        req.validationMessage = `No ${docName} Found For This ID: ${req.params.brandId}`;
+        return true;
+      }
+
       req.body[imageFieldName] = [];
 
       const resizePromises = req.files[imageFieldName].map(async (file) => {
-        const originalName = file.originalname.split(".")[0];
+        const originalName =
+          `${result.title || req.body.title}-logo-${docName}`.toLowerCase();
 
         const optimizedBuffer = await sharp(file.buffer)
           .resize(width)
