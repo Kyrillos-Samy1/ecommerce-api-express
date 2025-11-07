@@ -36,12 +36,12 @@ exports.updateLoggedUserDataValidator = [
     .optional()
     .isMobilePhone(["ar-EG"])
     .withMessage("Invalid egyptian phone number"),
-  check("userPhoto").custom(async (_value, { req }) => {
-    if (!req.file) {
-      throw new Error("User photo is required");
-    }
-    return true;
-  }),
+  // check("userPhoto").custom(async (_value, { req }) => {
+  //   if (!req.file) {
+  //     throw new Error("User photo is required");
+  //   }
+  //   return true;
+  // }),
   validatorMiddleware
 ];
 

@@ -110,15 +110,3 @@ exports.deleteFromCloudinary = async (publicId) => {
     throw new APIError(error.message, 500, "Cloudinary Error");
   }
 };
-
-//! Delete Array of Images from Cloudinary
-exports.deleteArrayOfImagesFromCloudinary =
-  (publicIds) => async (req, res, next) => {
-    try {
-      await Promise.all(
-        publicIds.map((publicId) => cloudinary.uploader.destroy(publicId))
-      );
-    } catch (error) {
-      next(new APIError(error.message, 500, "Cloudinary Error"));
-    }
-  };

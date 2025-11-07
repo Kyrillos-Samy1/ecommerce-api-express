@@ -61,12 +61,12 @@ exports.createUserValidator = [
     .optional()
     .isBoolean()
     .withMessage("Active must be a boolean value"),
-  check("userPhoto").custom(async (_value, { req }) => {
-    if (!req.file) {
-      throw new Error("User photo is required");
-    }
-    return true;
-  }),
+  // check("userPhoto").custom(async (_value, { req }) => {
+  //   if (!req.file) {
+  //     throw new Error("User photo is required");
+  //   }
+  //   return true;
+  // }),
   validatorMiddleware
 ];
 
