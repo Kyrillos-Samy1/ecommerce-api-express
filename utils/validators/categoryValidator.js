@@ -96,18 +96,6 @@ exports.updateCategoryValidator = [
     .isLength({ min: 2, max: 32 })
     .withMessage("Category Name Must Be Between 2 & 32 Characters!")
     .custom(async (value, { req }) => {
-      const category = await CategoryModel.findOne({ name: value });
-
-      if (category && category._id.toString() === req.params.categoryId) {
-        return Promise.reject(
-          new Error(
-            `${value} Name Already Exists For This ID: ${req.params.categoryId}`
-          )
-        );
-      }
-      return true;
-    })
-    .custom(async (value, { req }) => {
       const Category = await CategoryModel.findOne({
         name: value,
         _id: { $ne: req.params.categoryId }

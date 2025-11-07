@@ -107,16 +107,6 @@ exports.updateBrandValidator = [
     .isLength({ min: 2, max: 32 })
     .withMessage("Brand Name Must Be Between 2 & 32 Characters!")
     .custom(async (value, { req }) => {
-      const brand = await BrandModel.findOne({ name: value });
-
-      if (brand && brand._id.toString() === req.params.brandId) {
-        throw new Error(
-          `${value} Name Already Exists For This ID: ${req.params.brandId}`
-        )();
-      }
-      return true;
-    })
-    .custom(async (value, { req }) => {
       const brand = await BrandModel.findOne({
         name: value,
         _id: { $ne: req.params.brandId }
