@@ -4,7 +4,8 @@ const {
   getProductById,
   updateProduct,
   deleteProduct,
-  getAllProducts
+  getAllProducts,
+  deleteProductImage
 } = require("../services/productServices");
 
 const {
@@ -58,6 +59,10 @@ router
     createProduct
   )
   .get(getAllProductsValidator, getAllProducts);
+
+router
+  .route("/images/:productId")
+  .delete(protectRoutes, allowRoles("admin", "manager"), deleteProductImage);
 
 router
   .route("/:productId")
