@@ -59,7 +59,6 @@ exports.resizeMultipleImagesWithSharp =
       });
 
       await Promise.all(resizePromises);
-      console.log(req.body);
       next();
     } catch (err) {
       next(

@@ -159,7 +159,6 @@ userSchema.pre("findOneAndDelete", async function (next) {
       );
     }
 
-    console.log(`Cascade delete completed for user: ${userId}`);
     next();
   } catch (err) {
     console.error("Error during user cascade delete:", err);

@@ -64,12 +64,6 @@ exports.uploadToCloudinaryArrayOfImages =
     try {
       const imagesData = req.body[fieldImageName];
       if (!imagesData || imagesData.length === 0) {
-        console.log(
-          "No images found for upload",
-          req.body[fieldImageName],
-          fieldImageName,
-          req.body
-        );
         return next(
           new APIError("No images found for upload", 400, "Upload Error")
         );
