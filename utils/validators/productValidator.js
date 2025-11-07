@@ -5,6 +5,7 @@ const CategoryModel = require("../../models/categoryModel");
 const SubCategoryModel = require("../../models/subCategoryModel");
 const BrandModel = require("../../models/brandModel");
 const ProductModel = require("../../models/productModel");
+const APIError = require("../apiError");
 
 exports.createProductValidator = [
   check("title")
@@ -459,26 +460,35 @@ exports.updateProductValidator = [
         }
       })
     ),
+  check("images").optional(),
   validatorMiddleware
 ];
 
 exports.checkArrayOfImagesAndImageCoverFoundValidator = [
   body().custom((_, { req }) => {
     if (!req.files || !req.files.images || req.files.images.length === 0) {
-      throw new Error("Product Images are required and cannot be empty!");
+      req.validationMessage = "Product Images are required!";
+      return true;
     }
 
     if (req.files.images.length > 5) {
-      throw new Error("Product Images cannot be more than 5!");
+      req.validationMessage = "Product Images Cannot Be More Than 5!";
+      return true;
     }
 
     if (!req.files.imageCover || req.files.imageCover.length === 0) {
-      throw new Error("Product Image Cover is required!");
+      req.validationMessage = "Product Image Cover is required!";
+      return true;
     }
 
     return true;
   }),
-  validatorMiddleware
+  (req, res, next) => {
+    if (req.validationMessage) {
+      return next(new APIError(req.validationMessage, 400, "ValidationError"));
+    }
+    next();
+  }
 ];
 
 exports.updateImageCoverValidator = [
