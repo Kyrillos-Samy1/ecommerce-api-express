@@ -16,7 +16,7 @@ const {
   updateProductValidator,
   deleteProductValidator,
   getAllProductsValidator,
-  checkImageCoverFoundValidatorForUpdate,
+  checkImageCoverFoundValidatorForUpdateValidator,
   updateArrayOfImagesValidator,
   AddSpecificImageToArrayOfImagesValidator,
   checkImagesInFilesForUpdateProductValidator,
@@ -156,7 +156,7 @@ router
       ProductModel,
       "Image Cover"
     ),
-    checkImageCoverFoundValidatorForUpdate,
+    checkImageCoverFoundValidatorForUpdateValidator,
     uploadToCloudinary(
       "ecommerce-api-express-uploads/products/imageCover",
       "imageCover"

@@ -116,26 +116,11 @@ exports.updateSpecificImageFromArrayOfImages = async (req, res, next) => {
   try {
     const product = await ProductModel.findById(req.params.productId);
 
-    if (!product) {
-      return next(
-        new APIError(
-          `No Product Found For This ID: ${req.params.productId}`,
-          404
-        )
-      );
-    }
     const imageId = req.body.imageId;
-    if (!imageId) {
-      return next(new APIError("No image id provided", 400));
-    }
+
     const imageIndex = product.images.findIndex(
       (img) => img._id.toString() === imageId
     );
-    if (imageIndex === -1) {
-      return next(
-        new APIError(`No image found for this image id: ${imageId}`, 404)
-      );
-    }
 
     product.images[imageIndex] = {
       ...req.body.images[0]

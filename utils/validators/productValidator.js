@@ -676,6 +676,23 @@ exports.getAllProductsValidator = [
 
 //*================================================= For Images & Image Cover ==================================================
 
+exports.checkImagesInFilesForUpdateProductValidator = [
+  body().custom((_, { req }) => {
+    if (req.files && req.files.images) {
+      req.validationMessages = "You can't update images with this route!";
+      return true;
+    }
+
+    return true;
+  }),
+  (req, res, next) => {
+    if (req.validationMessages) {
+      return next(new APIError(req.validationMessages, 400, "ValidationError"));
+    }
+    next();
+  }
+];
+
 exports.AddSpecificImageToArrayOfImagesValidator = [
   check("images").custom((arrayOfImages, { req }) => {
     if (arrayOfImages.length === 0) {
@@ -696,10 +713,28 @@ exports.AddSpecificImageToArrayOfImagesValidator = [
   validatorMiddleware
 ];
 
-exports.checkImagesInFilesForUpdateProductValidator = [
-  body().custom((_, { req }) => {
-    if (req.files && req.files.images) {
-      req.validationMessages = "You can't update images with this route!";
+exports.updateSpecificImageFromArrayOfImagesValidator = [
+  body().custom(async (_, { req }) => {
+    const product = await ProductModel.findById(req.params.productId);
+
+    if (!product) {
+      req.validationMessages = `No Product Found For This ID: ${req.params.productId}`;
+      return true;
+    }
+
+    const imageId = req.body.imageId;
+
+    if (!imageId) {
+      req.validationMessages = "No image id provided";
+      return true;
+    }
+
+    const imageIndex = product.images.findIndex(
+      (img) => img._id.toString() === imageId
+    );
+
+    if (imageIndex === -1) {
+      req.validationMessages = `No image found for this image id: ${imageId}`;
       return true;
     }
 
@@ -795,7 +830,7 @@ exports.checkImageCoverInFilesForUpdateAndAddImagesValidator = [
   }
 ];
 
-exports.checkImageCoverFoundValidatorForUpdate = [
+exports.checkImageCoverFoundValidatorForUpdateValidator = [
   body().custom((_, { req }) => {
     if (!req.files.imageCover) {
       throw new Error("Product Image Cover Not Found!");
