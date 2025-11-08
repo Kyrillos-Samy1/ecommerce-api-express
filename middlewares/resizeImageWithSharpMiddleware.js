@@ -26,8 +26,7 @@ exports.resizeImageWithSharp =
         return true;
       }
 
-      const name =
-        refacorFileName(result.name) || refacorFileName(req.body.name);
+      const name = refacorFileName(result.name || req.body.name);
 
       const originalName = slugify(`${name}-logo-${docName}`.toLowerCase());
 
@@ -65,25 +64,22 @@ exports.resizeMultipleImagesWithSharp =
         "images title"
       );
 
-      if (!product) {
+      const productTitle = product ? product.title : req.body.title;
+
+      if (!productTitle) {
         return next(
-          new APIError(
-            `No ${docName} Found For This ID: ${req.params.productId}`,
-            404
-          )
+          new APIError("Product title is required for image processing", 400)
         );
       }
 
-      req.body[imageFieldName] = [];
+      const name = refacorFileName(productTitle);
 
-      const name =
-        refacorFileName(product.title) || refacorFileName(req.body.title);
+      req.body[imageFieldName] = [];
 
       const originalName = slugify(`${name}-logo-${docName}`.toLowerCase());
 
-      const existingImagesCount = Array.isArray(product.images)
-        ? product.images.length
-        : 0;
+      const existingImagesCount =
+        product && Array.isArray(product.images) ? product.images.length : 0;
 
       if (
         req.method === "POST" &&

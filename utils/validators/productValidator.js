@@ -489,8 +489,8 @@ exports.deleteProductValidator = [
       throw new Error("Product Images Cannot Be an Empty Array!");
     }
 
-    if (arrayOfImages.length > 5) {
-      throw new Error("Product Images Cannot Be More Than 5!");
+    if (arrayOfImages.length > 6) {
+      throw new Error("Product Images Cannot Be More Than 6!");
     }
 
     const arrayOfImagePublicIdsFromBody = arrayOfImages.map(
