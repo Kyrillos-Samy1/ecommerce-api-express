@@ -6,7 +6,8 @@ const {
   deleteProduct,
   getAllProducts,
   deleteProductImage,
-  updateSpecificImageFromArrayOfImages
+  updateSpecificImageFromArrayOfImages,
+  addSpecificImageToArrayOfImages
 } = require("../services/productServices");
 
 const {
@@ -82,6 +83,24 @@ router
 
 router
   .route("/images/:productId")
+  .post(
+    protectRoutes,
+    allowRoles("admin", "manager"),
+    uploadMultipleImages([{ name: "images", maxCount: 5 }]),
+    resizeMultipleImagesWithSharp(
+      "images",
+      600,
+      95,
+      "productId",
+      ProductModel,
+      "Images"
+    ),
+    uploadToCloudinaryArrayOfImages(
+      "ecommerce-api-express-uploads/products/images",
+      "images"
+    ),
+    addSpecificImageToArrayOfImages
+  )
   .put(
     protectRoutes,
     allowRoles("admin", "manager"),

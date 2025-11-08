@@ -7,7 +7,8 @@ const uploadImageToCloudinary = async (folder, fileType, buffer) =>
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
-        public_id: fileType
+        public_id: fileType,
+        overwrite: true
       },
       (error, result) => {
         if (error)
@@ -71,7 +72,8 @@ exports.uploadToCloudinaryArrayOfImages =
             const uploadStream = cloudinary.uploader.upload_stream(
               {
                 folder,
-                public_id: img.tempFilename
+                public_id: img.tempFilename,
+                overwrite: true
               },
               (error, result) => {
                 if (error)

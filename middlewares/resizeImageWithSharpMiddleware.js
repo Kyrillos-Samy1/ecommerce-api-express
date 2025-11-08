@@ -2,6 +2,7 @@ const { default: slugify } = require("slugify");
 const sharp = require("sharp");
 
 const APIError = require("../utils/apiError");
+const ProductModel = require("../models/productModel");
 
 const refacorFileName = (name) =>
   name
@@ -63,7 +64,7 @@ exports.resizeMultipleImagesWithSharp =
       const result = await Model.findById(req.params[paramId]);
 
       if (!result) {
-        req.validationMessage = `No ${docName} Found For This ID: ${req.params.brandId}`;
+        req.validationMessage = `No ${docName} Found For This ID: ${req.params[paramId]}`;
         return true;
       }
 
@@ -78,8 +79,32 @@ exports.resizeMultipleImagesWithSharp =
 
           let originalNameForImages = originalName;
 
-          if (imageFieldName === "images") {
+          if (imageFieldName === "images" && req.method === "POST") {
             originalNameForImages = `${originalName}-${index + 1}`;
+          }
+
+          if (imageFieldName === "images" && req.method === "PUT") {
+            const product = await ProductModel.findById(
+              req.params.productId
+            ).select("images");
+
+            const images = product.images;
+
+            if (!images) {
+              return next(
+                new APIError(
+                  `No ${docName} Found For This ID: ${req.params.productId}`,
+                  404,
+                  "Not Found"
+                )
+              );
+            }
+
+            images.forEach((img, idx) => {
+              if (img._id.toString() === req.body.imageId) {
+                originalNameForImages = `${originalName}-${idx + 1}`;
+              }
+            });
           }
 
           const optimizedBuffer = await sharp(file.buffer)

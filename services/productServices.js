@@ -70,6 +70,44 @@ exports.getProductById = getDocumentById(
 //! @access Private/Admin | Manager
 exports.updateProduct = updateOneDocument(ProductModel, "Product", "productId");
 
+//! @desk Add Specific Image To Array Of Images
+//! @route POST /api/v1/products/images/:productId
+//! @access Private/Admin | Manager
+exports.addSpecificImageToArrayOfImages = async (req, res, next) => {
+  try {
+    const product = await ProductModel.findById(req.params.productId);
+
+    if (!product) {
+      return next(
+        new APIError(
+          `No Product Found For This ID: ${req.params.productId}`,
+          404
+        )
+      );
+    }
+
+    if (product.images.length > 5) {
+      return next(new APIError("Product Images Cannot Be More Than 5!", 400));
+    }
+
+    if (product.images.length + req.body.images.length > 5) {
+      return next(new APIError("Product Images Cannot Be More Than 5!", 400));
+    }
+
+    product.images.push(...req.body.images);
+    await product.save();
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        product
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 //! @desc Update Specific Image From Array Of Images
 //! @route PUT /api/v1/products/images/:productId
 //! @access Private/Admin | Manager
@@ -89,22 +127,18 @@ exports.updateSpecificImageFromArrayOfImages = async (req, res, next) => {
     if (!imageId) {
       return next(new APIError("No image id provided", 400));
     }
-    const image = product.images.find((img) => img._id.toString() === imageId);
-    if (!image) {
+    const imageIndex = product.images.findIndex(
+      (img) => img._id.toString() === imageId
+    );
+    if (imageIndex === -1) {
       return next(
         new APIError(`No image found for this image id: ${imageId}`, 404)
       );
     }
 
-    product.images = product.images.map((img) => {
-      if (img._id.toString() === imageId) {
-        return {
-          ...img,
-          ...req.body
-        };
-      }
-      return img;
-    });
+    product.images[imageIndex] = {
+      ...req.body.images[0]
+    };
 
     await product.save();
 
