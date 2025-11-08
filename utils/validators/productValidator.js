@@ -459,7 +459,15 @@ exports.updateProductValidator = [
         }
       })
     ),
-  check("images").optional(),
+  check("images").custom(async (arrayOfImages, { req }) => {
+    if (req.files.images) {
+      return new APIError(
+        `Error updating product: You can't update images with this route!`,
+        400,
+        "Bad Request"
+      );
+    }
+  }),
   check("imageCover").optional(),
   validatorMiddleware
 ];
