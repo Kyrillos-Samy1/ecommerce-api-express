@@ -713,7 +713,7 @@ exports.checkImagesInFilesForUpdateProductValidator = [
   }
 ];
 
-exports.updateSpecificImageFromArrayOfImagesValidator = [
+exports.updateArrayOfImagesValidator = [
   check("images")
     .optional()
     .custom(async (arrayOfImages, { req }) => {
