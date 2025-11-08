@@ -85,14 +85,7 @@ exports.resizeMultipleImagesWithSharp =
         req.method === "POST" &&
         existingImagesCount + req.files[imageFieldName].length > 5
       ) {
-        return next(
-          new APIError(
-            `Product Images Cannot Be More Than 5! You Can Add Just: ${
-              5 - existingImagesCount
-            }`,
-            400
-          )
-        );
+        return next(new APIError(`Product Images Cannot Be More Than 5!`, 400));
       }
 
       const optimizedImages = await Promise.all(
