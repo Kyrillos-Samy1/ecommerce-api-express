@@ -32,7 +32,6 @@ const orderSchema = new mongoose.Schema(
         },
         priceAfterDiscount: {
           type: Number,
-          required: [true, "Order Item Must Have A Price After Discount!"]
         },
         images: {
           type: [{ url: String, imagePublicId: String }],
@@ -115,7 +114,6 @@ const orderSchema = new mongoose.Schema(
     },
     totalPriceAfterDiscount: {
       type: Number,
-      required: [true, "Order Must Have A Total Price After Discount!"],
       default: 0.0
     },
     totalPriceAfterCouponApplied: {

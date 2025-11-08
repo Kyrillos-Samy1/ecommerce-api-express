@@ -37,8 +37,7 @@ const cartSchema = new mongoose.Schema(
           required: [true, "Cart Item Must Have A Price!"]
         },
         priceAfterDiscount: {
-          type: Number,
-          required: [true, "Cart Item Must Have A Discounted Price!"]
+          type: Number
         },
         images: {
           type: [{ url: String, imagePublicId: String }],
@@ -55,8 +54,7 @@ const cartSchema = new mongoose.Schema(
       required: [true, "Cart Must Have A Total Price!"]
     },
     totalPriceAfterDiscount: {
-      type: Number,
-      required: [true, "Cart Must Have A Discounted Total Price!"]
+      type: Number
     },
     totalPriceAfterCouponApplied: {
       type: Number

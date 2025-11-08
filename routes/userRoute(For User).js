@@ -18,7 +18,7 @@ const {
   deleteUser
 } = require("../services/userServices(For Admin)");
 const {
-  uploadToCloudinary
+  uploadImageToCloudinary
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
 const {
   resizeImageWithSharp
@@ -45,7 +45,7 @@ router.patch(
   uploadSingleImage("userPhoto"),
   resizeImageWithSharp("userPhoto", 500, 95, "", UserModel, "User"),
   updateUserPhotoValidator,
-  uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
+  uploadImageToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
   updateLoggedUserDataValidator,
   updateLoggedUserData
 );

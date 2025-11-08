@@ -21,7 +21,7 @@ const {
   resizeImageWithSharp
 } = require("../middlewares/resizeImageWithSharpMiddleware");
 const {
-  uploadToCloudinary
+  uploadImageToCloudinary
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
 const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 const {
@@ -39,7 +39,7 @@ router
     uploadSingleImage("image"),
     resizeImageWithSharp("image", 600, 95, "", BrandModel, "Brand"),
     creareBrandImageValidator,
-    uploadToCloudinary("ecommerce-api-express-uploads/brands", "image"),
+    uploadImageToCloudinary("ecommerce-api-express-uploads/brands", "image"),
     createBrandValidator,
     createBrand
   )
@@ -54,7 +54,7 @@ router
     uploadSingleImage("image"),
     resizeImageWithSharp("image", 600, 95, "brandId", BrandModel, "Brand"),
     updateBrandImageValidator,
-    uploadToCloudinary("ecommerce-api-express-uploads/brands", "image"),
+    uploadImageToCloudinary("ecommerce-api-express-uploads/brands", "image"),
     updateBrandValidator,
     updateBrand
   )

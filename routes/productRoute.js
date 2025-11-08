@@ -29,7 +29,7 @@ const {
   resizeMultipleImagesWithSharp
 } = require("../middlewares/resizeImageWithSharpMiddleware");
 const {
-  uploadToCloudinary,
+  uploadImageToCloudinary,
   uploadToCloudinaryArrayOfImages
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
 const {
@@ -74,7 +74,7 @@ router
       "ecommerce-api-express-uploads/products/images",
       "images"
     ),
-    uploadToCloudinary(
+    uploadImageToCloudinary(
       "ecommerce-api-express-uploads/products/imageCover",
       "imageCover"
     ),
@@ -158,7 +158,7 @@ router
       "Image Cover"
     ),
     checkImageCoverFoundValidatorForUpdateValidator,
-    uploadToCloudinary(
+    uploadImageToCloudinary(
       "ecommerce-api-express-uploads/products/imageCover",
       "imageCover"
     ),

@@ -1,11 +1,9 @@
-const path = require("path");
 
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
 
 dotenv.config({ path: "./config.env" });
 const compression = require("compression");
@@ -24,7 +22,7 @@ const app = express();
 //! Stripe Webhook to handle post-payment actions
 app.post(
   "/webhook-checkout",
-  bodyParser.raw({ type: "application/json" }),
+  express.raw({ type: "application/json" }),
   webhookCheckout
 );
 

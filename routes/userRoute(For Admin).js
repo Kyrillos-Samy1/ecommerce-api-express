@@ -21,7 +21,7 @@ const {
   resizeImageWithSharp
 } = require("../middlewares/resizeImageWithSharpMiddleware");
 const {
-  uploadToCloudinary
+  uploadImageToCloudinary
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
 const {
   updateUserPhotoValidator
@@ -48,7 +48,7 @@ router
   .post(
     uploadSingleImage("userPhoto"),
     resizeImageWithSharp("userPhoto", 500, 95, "", UserModel, "User"),
-    uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
+    uploadImageToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
     createUserValidator,
     createUser
   )
@@ -61,7 +61,7 @@ router
     uploadSingleImage("userPhoto"),
     resizeImageWithSharp("userPhoto", 500, 95, "userId", UserModel, "User"),
     updateUserPhotoValidator,
-    uploadToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
+    uploadImageToCloudinary("ecommerce-api-express-uploads/users", "userPhoto"),
     updateUserValidator,
     updateUser
   )

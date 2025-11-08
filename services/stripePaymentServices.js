@@ -5,7 +5,7 @@ const APIError = require("../utils/apiError");
 const { createCardOrder } = require("./orderServices");
 
 //! @desc Get Checkout Session From Stripe and Send it as a Response
-//! @route POST /api/v1/stripe/checkout/:cartId
+//! @route POST /api/v1/stripe/checkout-session/:cartId
 //! @access Private/Protected/User
 exports.checkoutSession = async (req, res, next) => {
   try {
@@ -110,11 +110,11 @@ exports.checkoutSession = async (req, res, next) => {
         discountAmount,
         shippingAddress: JSON.stringify({
           FullName: req.user.name,
-          Address: req.user.addresses[0].details || "N/A",
-          City: req.user.addresses[0].city || "N/A",
-          PostalCode: req.user.addresses[0].zipCode || "N/A",
-          Country: req.user.addresses[0].country || "N/A",
-          Phone: req.user.addresses[0].phone || "N/A"
+          Address: req.user.addresses?.[0]?.details || "N/A",
+          City: req.user.addresses?.[0]?.city || "N/A",
+          PostalCode: req.user.addresses?.[0]?.zipCode || "N/A",
+          Country: req.user.addresses?.[0]?.country || "N/A",
+          Phone: req.user.addresses?.[0]?.phone || req.user.phone || "N/A"
         })
       },
 

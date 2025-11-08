@@ -24,7 +24,7 @@ const {
   resizeImageWithSharp
 } = require("../middlewares/resizeImageWithSharpMiddleware");
 const {
-  uploadToCloudinary
+  uploadImageToCloudinary
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
 const {
   deleteImageFromCloudinary
@@ -44,7 +44,7 @@ router
     uploadSingleImage("image"),
     resizeImageWithSharp("image", 600, 95, "", CategoryModel, "Category"),
     createImageCategoryValidator,
-    uploadToCloudinary("ecommerce-api-express-uploads/categories", "image"),
+    uploadImageToCloudinary("ecommerce-api-express-uploads/categories", "image"),
     createCategoryValidator,
     createCategory
   )
@@ -66,7 +66,7 @@ router
       "Category"
     ),
     updateImageCategoryValidator,
-    uploadToCloudinary("ecommerce-api-express-uploads/categories", "image"),
+    uploadImageToCloudinary("ecommerce-api-express-uploads/categories", "image"),
     updateCategoryValidator,
     updateCategory
   )

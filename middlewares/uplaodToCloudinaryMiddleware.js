@@ -25,7 +25,7 @@ const uploadImageToCloudinary = async (folder, fileType, buffer) =>
   });
 
 //! Process Image and Upload to Cloudinary
-exports.uploadToCloudinary =
+exports.uploadImageToCloudinary =
   (folder, fieldImageName) => async (req, res, next) => {
     try {
       const imagesData = req.body[fieldImageName];

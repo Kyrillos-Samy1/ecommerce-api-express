@@ -4,7 +4,7 @@ const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");
 
 //! @desc Update Cart After Adding Product
-const updateCartAfterAddingProduct = async (cart) => {
+const updateCartPricingAfterAddingProduct = async (cart) => {
   cart.totalItems = cart.cartItems.length;
 
   cart.totalPrice = cart.cartItems.reduce(
@@ -49,7 +49,7 @@ exports.addProductToCart = async (req, res, next) => {
 
     const price = Number(product.price);
 
-    const discountPrice = Number(product.priceAfterDiscount);
+    const discountPrice = product.priceAfterDiscount;
 
     let cart = await CartModel.findOne({ user: req.user._id });
 
@@ -104,7 +104,7 @@ exports.addProductToCart = async (req, res, next) => {
         });
       }
 
-      updateCartAfterAddingProduct(cart);
+      updateCartPricingAfterAddingProduct(cart);
 
       await cart.save();
     }
@@ -139,7 +139,7 @@ exports.getUserCart = async (req, res, next) => {
       return next(new APIError("Cart is empty!", 404, "NotFoundError"));
     }
 
-    await updateCartAfterAddingProduct(cart);
+    await updateCartPricingAfterAddingProduct(cart);
 
     await cart.save();
 
@@ -164,7 +164,7 @@ exports.removeProductFromCart = async (req, res, next) => {
       { new: true, runValidators: true }
     ).select("-__v");
 
-    updateCartAfterAddingProduct(cart);
+    updateCartPricingAfterAddingProduct(cart);
 
     if (cart.cartItems.length === 0) {
       cart.appliedCouponDiscount = 0;
@@ -203,7 +203,7 @@ exports.updateCartQuantity = async (req, res, next) => {
       { new: true, runValidators: true }
     ).select("-__v");
 
-    updateCartAfterAddingProduct(cart);
+    updateCartPricingAfterAddingProduct(cart);
 
     await cart.save();
 
