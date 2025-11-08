@@ -99,43 +99,40 @@ exports.resizeMultipleImagesWithSharp =
         );
       }
 
-      const resizePromises = req.files[imageFieldName].map(
-        async (file, index) => {
-          let originalNameForImages = originalName;
+     const optimizedImages = await Promise.all(
+       req.files[imageFieldName].map(async (file, index) => {
+         let originalNameForImages = originalName;
 
-          if (imageFieldName === "images" && req.method === "POST") {
-            const baseIndex = existingImagesCount > 0 ? existingImagesCount : 0;
-            originalNameForImages = `${originalName}-${baseIndex + index + 1}`;
-          }
+         if (imageFieldName === "images" && req.method === "POST") {
+           originalNameForImages = `${originalName}-${existingImagesCount + 1 + index}`;
+         }
 
-          if (imageFieldName === "images" && req.method === "PATCH") {
-            const imgIndex = product.images.findIndex(
-              (img) => img._id.toString() === req.body.imageId
-            );
-            
-            if (imgIndex !== -1) {
-              originalNameForImages = `${originalName}-${imgIndex + 1}`;
-            }
-          }
+         if (imageFieldName === "images" && req.method === "PATCH") {
+           const imgIndex = product.images.findIndex(
+             (img) => img._id.toString() === req.body.imageId
+           );
 
-          const optimizedBuffer = await sharp(file.buffer)
-            .resize(width)
-            .toFormat("jpeg")
-            .jpeg({ quality })
-            .toBuffer();
+           if (imgIndex !== -1) {
+             originalNameForImages = `${originalName}-${imgIndex + 1}`;
+           }
+         }
 
-          req.body[imageFieldName].push({
-            tempFilename:
-              imageFieldName === "images"
-                ? originalNameForImages
-                : originalName,
-            newBuffer: optimizedBuffer
-          });
-        }
-      );
+         const optimizedBuffer = await sharp(file.buffer)
+           .resize(width)
+           .toFormat("jpeg")
+           .jpeg({ quality })
+           .toBuffer();
 
-      await Promise.all(resizePromises);
-      next();
+         return {
+           tempFilename:
+             imageFieldName === "images" ? originalNameForImages : originalName,
+           newBuffer: optimizedBuffer
+         };
+       })
+     );
+
+     req.body[imageFieldName] = optimizedImages;
+     next();
     } catch (err) {
       next(
         new APIError(
