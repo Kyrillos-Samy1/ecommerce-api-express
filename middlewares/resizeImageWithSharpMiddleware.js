@@ -9,7 +9,7 @@ const refacorFileName = (name) =>
     .replace(/[%$#@! ]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "")
-    .replace(/&/g, "and");
+    .replace(/&/g, "-and-");
 
 //! Resize single image
 exports.resizeImageWithSharp =
