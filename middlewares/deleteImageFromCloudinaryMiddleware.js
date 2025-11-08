@@ -16,7 +16,7 @@ exports.deleteImageFromCloudinary = (Model, id) => async (req, res, next) => {
 
 exports.deleteImagesFromCloudinary = async (req, res, next) => {
   try {
-    if (req.body.images) {
+    if (req.body.images && req.body.images.length > 0 && !req.body.imageCover) {
       await Promise.all(
         req.body.images.map((image) => {
           if (image.imagePublicId) {

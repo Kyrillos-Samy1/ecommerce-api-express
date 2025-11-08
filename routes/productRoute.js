@@ -17,7 +17,10 @@ const {
   deleteProductValidator,
   getAllProductsValidator,
   checkImageCoverFoundValidatorForUpdate,
-  updateArrayOfImagesValidator
+  updateArrayOfImagesValidator,
+  AddSpecificImageToArrayOfImagesValidator,
+  checkImagesInFilesForUpdateProductValidator,
+  checkImageCoverInFilesForUpdateAndAddImagesValidator
 } = require("../utils/validators/productValidator");
 const { protectRoutes, allowRoles } = require("../services/authServices");
 const ReviewsRoutes = require("./reviewRoute");
@@ -84,7 +87,11 @@ router
   .post(
     protectRoutes,
     allowRoles("admin", "manager"),
-    uploadMultipleImages([{ name: "images", maxCount: 5 }]),
+    uploadMultipleImages([
+      { name: "images", maxCount: 5 },
+      { name: "imageCover", maxCount: 1 }
+    ]),
+    checkImageCoverInFilesForUpdateAndAddImagesValidator,
     resizeMultipleImagesWithSharp(
       "images",
       600,
@@ -93,6 +100,7 @@ router
       ProductModel,
       "Images"
     ),
+    AddSpecificImageToArrayOfImagesValidator,
     uploadToCloudinaryArrayOfImages(
       "ecommerce-api-express-uploads/products/images",
       "images"
@@ -102,7 +110,11 @@ router
   .put(
     protectRoutes,
     allowRoles("admin", "manager"),
-    uploadMultipleImages([{ name: "images", maxCount: 5 }]),
+    uploadMultipleImages([
+      { name: "images", maxCount: 5 },
+      { name: "imageCover", maxCount: 1 }
+    ]),
+    checkImageCoverInFilesForUpdateAndAddImagesValidator,
     resizeMultipleImagesWithSharp(
       "images",
       600,
@@ -131,7 +143,11 @@ router
   .put(
     protectRoutes,
     allowRoles("admin", "manager"),
-    uploadMultipleImages([{ name: "imageCover", maxCount: 1 }]),
+    uploadMultipleImages([
+      { name: "imageCover", maxCount: 1 },
+      { name: "images", maxCount: 5 }
+    ]),
+    checkImagesInFilesForUpdateProductValidator,
     resizeMultipleImagesWithSharp(
       "imageCover",
       900,
