@@ -61,50 +61,60 @@ exports.resizeMultipleImagesWithSharp =
     try {
       if (!req.files || !req.files[imageFieldName]) return next();
 
-      const result = await Model.findById(req.params[paramId]);
+      const product = await ProductModel.findById(req.params.productId).select(
+        "images title"
+      );
 
-      if (!result) {
-        req.validationMessage = `No ${docName} Found For This ID: ${req.params[paramId]}`;
-        return true;
+      if (!product) {
+        return next(
+          new APIError(
+            `No ${docName} Found For This ID: ${req.params.productId}`,
+            404
+          )
+        );
       }
 
       req.body[imageFieldName] = [];
 
       const name =
-        refacorFileName(result.title) || refacorFileName(req.body.title);
+        refacorFileName(product.title) || refacorFileName(req.body.title);
+
+      const originalName = slugify(`${name}-logo-${docName}`.toLowerCase());
+
+      const existingImagesCount = Array.isArray(product.images)
+        ? product.images.length
+        : 0;
+
+      if (
+        req.method === "POST" &&
+        existingImagesCount + req.files[imageFieldName].length > 5
+      ) {
+        return next(
+          new APIError(
+            `Product Images Cannot Be More Than 5! You Can Add Just: ${
+              5 - existingImagesCount
+            }`,
+            400
+          )
+        );
+      }
 
       const resizePromises = req.files[imageFieldName].map(
         async (file, index) => {
-          const originalName = slugify(`${name}-logo-${docName}`.toLowerCase());
-
           let originalNameForImages = originalName;
 
           if (imageFieldName === "images" && req.method === "POST") {
-            originalNameForImages = `${originalName}-${index + 1}`;
+            const baseIndex = existingImagesCount > 0 ? existingImagesCount : 0;
+            originalNameForImages = `${originalName}-${baseIndex + index + 1}`;
           }
 
           if (imageFieldName === "images" && req.method === "PUT") {
-            const product = await ProductModel.findById(
-              req.params.productId
-            ).select("images");
-
-            const images = product.images;
-
-            if (!images) {
-              return next(
-                new APIError(
-                  `No ${docName} Found For This ID: ${req.params.productId}`,
-                  404,
-                  "Not Found"
-                )
-              );
+            const imgIndex = product.images.findIndex(
+              (img) => img._id.toString() === req.body.imageId
+            );
+            if (imgIndex !== -1) {
+              originalNameForImages = `${originalName}-${imgIndex + 1}`;
             }
-
-            images.forEach((img, idx) => {
-              if (img._id.toString() === req.body.imageId) {
-                originalNameForImages = `${originalName}-${idx + 1}`;
-              }
-            });
           }
 
           const optimizedBuffer = await sharp(file.buffer)

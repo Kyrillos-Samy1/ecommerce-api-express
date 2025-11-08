@@ -15,9 +15,8 @@ const {
   getProductByIdValidator,
   updateProductValidator,
   deleteProductValidator,
-  checkArrayOfImagesAndImageCoverFoundValidator,
   getAllProductsValidator,
-  checkArrayOfImagesAndImageCoverFoundValidatorForUpdate,
+  checkImageCoverFoundValidatorForUpdate,
   updateArrayOfImagesValidator
 } = require("../utils/validators/productValidator");
 const { protectRoutes, allowRoles } = require("../services/authServices");
@@ -67,7 +66,6 @@ router
       ProductModel,
       "Image Cover"
     ),
-    checkArrayOfImagesAndImageCoverFoundValidator,
     uploadToCloudinaryArrayOfImages(
       "ecommerce-api-express-uploads/products/images",
       "images"
@@ -133,18 +131,7 @@ router
   .put(
     protectRoutes,
     allowRoles("admin", "manager"),
-    uploadMultipleImages([
-      { name: "images", maxCount: 5 },
-      { name: "imageCover", maxCount: 1 }
-    ]),
-    resizeMultipleImagesWithSharp(
-      "images",
-      600,
-      95,
-      "productId",
-      ProductModel,
-      "Images"
-    ),
+    uploadMultipleImages([{ name: "imageCover", maxCount: 1 }]),
     resizeMultipleImagesWithSharp(
       "imageCover",
       900,
@@ -153,11 +140,7 @@ router
       ProductModel,
       "Image Cover"
     ),
-    checkArrayOfImagesAndImageCoverFoundValidatorForUpdate,
-    uploadToCloudinaryArrayOfImages(
-      "ecommerce-api-express-uploads/products/images",
-      "images"
-    ),
+    checkImageCoverFoundValidatorForUpdate,
     uploadToCloudinary(
       "ecommerce-api-express-uploads/products/imageCover",
       "imageCover"

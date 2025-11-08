@@ -75,7 +75,9 @@ exports.updateProduct = updateOneDocument(ProductModel, "Product", "productId");
 //! @access Private/Admin | Manager
 exports.addSpecificImageToArrayOfImages = async (req, res, next) => {
   try {
-    const product = await ProductModel.findById(req.params.productId);
+    const product = await ProductModel.findById(req.params.productId).select(
+      "images title"
+    );
 
     if (!product) {
       return next(
@@ -86,11 +88,10 @@ exports.addSpecificImageToArrayOfImages = async (req, res, next) => {
       );
     }
 
-    if (product.images.length > 5) {
-      return next(new APIError("Product Images Cannot Be More Than 5!", 400));
-    }
-
-    if (product.images.length + req.body.images.length > 5) {
+    if (
+      product.images.length > 5 ||
+      product.images.length + req.body.images.length > 5
+    ) {
       return next(new APIError("Product Images Cannot Be More Than 5!", 400));
     }
 

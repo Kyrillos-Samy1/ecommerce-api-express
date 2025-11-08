@@ -50,14 +50,14 @@ const productSchema = new mongoose.Schema(
     imageCover: {
       url: {
         type: String,
-        required: [true, "Product Cover Image Url is Required!"],
+        required: [true, "Product Image Cover Url is Required!"],
         default: "https://via.placeholder.com/150",
         trim: true
       },
       imagePublicId: {
         type: String,
         trim: true,
-        required: [true, "Product Cover Image Public Id is Required!"]
+        required: [true, "Product Image Cover Public Id is Required!"]
       }
     },
     images: [
