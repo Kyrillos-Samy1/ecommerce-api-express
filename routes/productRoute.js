@@ -17,10 +17,10 @@ const {
   deleteProductValidator,
   getAllProductsValidator,
   checkImageCoverFoundValidatorForUpdate,
-  updateArrayOfImagesValidator,
   AddSpecificImageToArrayOfImagesValidator,
   checkImagesInFilesForUpdateProductValidator,
-  checkImageCoverInFilesForUpdateAndAddImagesValidator
+  checkImageCoverInFilesForUpdateAndAddImagesValidator,
+  updateSpecificImageFromArrayOfImagesValidator
 } = require("../utils/validators/productValidator");
 const { protectRoutes, allowRoles } = require("../services/authServices");
 const ReviewsRoutes = require("./reviewRoute");
@@ -123,7 +123,7 @@ router
       ProductModel,
       "Images"
     ),
-    updateArrayOfImagesValidator,
+    updateSpecificImageFromArrayOfImagesValidator,
     uploadToCloudinaryArrayOfImages(
       "ecommerce-api-express-uploads/products/images",
       "images"
