@@ -70,30 +70,19 @@ exports.getProductById = getDocumentById(
 //! @access Private/Admin | Manager
 exports.updateProduct = updateOneDocument(ProductModel, "Product", "productId");
 
+//! @desc Delete Specific Product
+//! @route DELETE /api/v1/products/:id
+//! @access Private/Admin
+exports.deleteProduct = deleteOneDocument(ProductModel, "Product", "productId");
+
+//*===================================================== For Images ==================================================
+
 //! @desk Add Specific Image To Array Of Images
 //! @route POST /api/v1/products/images/:productId
 //! @access Private/Admin | Manager
 exports.addSpecificImageToArrayOfImages = async (req, res, next) => {
   try {
-    const product = await ProductModel.findById(req.params.productId).select(
-      "images title"
-    );
-
-    if (!product) {
-      return next(
-        new APIError(
-          `No Product Found For This ID: ${req.params.productId}`,
-          404
-        )
-      );
-    }
-
-    if (
-      product.images.length > 5 ||
-      product.images.length + req.body.images.length > 5
-    ) {
-      return next(new APIError("Product Images Cannot Be More Than 5!", 400));
-    }
+    const product = await ProductModel.findById(req.params.productId);
 
     product.images.push(...req.body.images);
     await product.save();
@@ -110,7 +99,7 @@ exports.addSpecificImageToArrayOfImages = async (req, res, next) => {
 };
 
 //! @desc Update Specific Image From Array Of Images
-//! @route PUT /api/v1/products/images/:productId
+//! @route PATCH /api/v1/products/images/:productId
 //! @access Private/Admin | Manager
 exports.updateSpecificImageFromArrayOfImages = async (req, res, next) => {
   try {
@@ -122,7 +111,12 @@ exports.updateSpecificImageFromArrayOfImages = async (req, res, next) => {
       (img) => img._id.toString() === imageId
     );
 
+    const oldImage = product.images[imageIndex];
+
     product.images[imageIndex] = {
+      _id: oldImage._id,
+      url: req.body.images[0].url,
+      imagePublicId: req.body.images[0].imagePublicId,
       ...req.body.images[0]
     };
 
@@ -142,48 +136,14 @@ exports.updateSpecificImageFromArrayOfImages = async (req, res, next) => {
 //! @desc Delete Image From Array Of Images
 //! @route DELETE /api/v1/products/images/:productId
 //! @access Private/Admin | Manager
-exports.deleteProductImage = async (req, res, next) => {
+exports.deleteSpecificImagesFromArrayOfImages = async (req, res, next) => {
   try {
     const product = await ProductModel.findById(req.params.productId);
 
-    if (!product) {
-      return next(
-        new APIError(
-          `No Product Found For This ID: ${req.params.productId}`,
-          404
-        )
-      );
-    }
-
     const bodyImages = req.body.images || [];
-    if (!bodyImages.length) {
-      return next(new APIError("No images provided for deletion", 400));
-    }
-
-    if (bodyImages.length > 5) {
-      return next(new APIError("You cannot delete more than 5 images", 400));
-    }
 
     if (bodyImages.some((img) => !img.imagePublicId)) {
       return next(new APIError("All images must have a imagePublicId", 400));
-    }
-
-    const notFoundImages = bodyImages.filter(
-      (img) =>
-        !product.images.some(
-          (image) =>
-            image.imagePublicId.split("/")[3] ===
-            img.imagePublicId.split("/")[3]
-        )
-    );
-
-    if (notFoundImages.length > 0) {
-      return next(
-        new APIError(
-          `The imagePublicId you entered ${notFoundImages.length === 1 ? "is" : "are"} not exist: ${[...new Set(notFoundImages.map((img) => img.imagePublicId))].join(", ")}`,
-          400
-        )
-      );
     }
 
     const filteredImages = product.images.filter(
@@ -209,8 +169,3 @@ exports.deleteProductImage = async (req, res, next) => {
     next(new APIError(err.message, 500, err.name));
   }
 };
-
-//! @desc Delete Specific Product
-//! @route DELETE /api/v1/products/:id
-//! @access Private/Admin
-exports.deleteProduct = deleteOneDocument(ProductModel, "Product", "productId");

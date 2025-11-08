@@ -108,10 +108,11 @@ exports.resizeMultipleImagesWithSharp =
             originalNameForImages = `${originalName}-${baseIndex + index + 1}`;
           }
 
-          if (imageFieldName === "images" && req.method === "PUT") {
+          if (imageFieldName === "images" && req.method === "PATCH") {
             const imgIndex = product.images.findIndex(
               (img) => img._id.toString() === req.body.imageId
             );
+            
             if (imgIndex !== -1) {
               originalNameForImages = `${originalName}-${imgIndex + 1}`;
             }

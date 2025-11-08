@@ -1,4 +1,4 @@
-const { check, body } = require("express-validator");
+const { check } = require("express-validator");
 const mongoose = require("mongoose");
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
 const CategoryModel = require("../../models/categoryModel");
@@ -676,36 +676,41 @@ exports.getAllProductsValidator = [
 
 //*================================================= For Images & Image Cover ==================================================
 
-exports.checkImagesInFilesForUpdateProductValidator = [
-  body().custom((_, { req }) => {
-    if (req.files && req.files.images) {
-      req.validationMessages = "You can't update images with this route!";
-      return true;
+exports.addSpecificImageToArrayOfImagesValidator = [
+  check("productId")
+    .isMongoId()
+    .withMessage("Invalid Product Id Format")
+    .notEmpty()
+    .withMessage("Product ID is Required!"),
+  check("imageCover").custom((_, { req }) => {
+    if (req.files && req.files.imageCover) {
+      throw new Error(
+        `You can't ${req.method === "POST" ? "add" : "update"} image Cover with this route!`
+      );
     }
 
     return true;
   }),
-  (req, res, next) => {
-    if (req.validationMessages) {
-      return next(new APIError(req.validationMessages, 400, "ValidationError"));
-    }
-    next();
-  }
-];
-
-exports.AddSpecificImageToArrayOfImagesValidator = [
-  check("images").custom((arrayOfImages, { req }) => {
-    if (arrayOfImages.length === 0) {
+  check("images").custom(async (_, { req }) => {
+    if (!req.files || !req.files.images || req.files.images.length === 0) {
       throw new Error("Product Images Cannot Be an Empty Array!");
     }
 
-    if (arrayOfImages.length > 5) {
+    if (req.files.images.length > 5) {
       throw new Error("Product Images Cannot Be More Than 5!");
     }
 
-    if (req.files.imageCover) {
-      req.validationMessages = "You can't update image cover with this route!";
-      return true;
+    const product = await ProductModel.findById(req.params.productId);
+
+    if (!product) {
+      throw new Error(`No Product Found For This ID: ${req.params.productId}`);
+    }
+
+    if (
+      product.images.length > 5 ||
+      product.images.length + req.files.images.length > 5
+    ) {
+      throw new Error("Product Images Cannot Be More Than 5!");
     }
 
     return true;
@@ -714,19 +719,22 @@ exports.AddSpecificImageToArrayOfImagesValidator = [
 ];
 
 exports.updateSpecificImageFromArrayOfImagesValidator = [
-  body().custom(async (_, { req }) => {
+  check("productId")
+    .isMongoId()
+    .withMessage("Invalid Product Id Format")
+    .notEmpty()
+    .withMessage("Product ID is Required!"),
+  check("imageId").custom(async (_, { req }) => {
     const product = await ProductModel.findById(req.params.productId);
 
     if (!product) {
-      req.validationMessages = `No Product Found For This ID: ${req.params.productId}`;
-      return true;
+      throw new Error(`No Product Found For This ID: ${req.params.productId}`);
     }
 
     const imageId = req.body.imageId;
 
     if (!imageId) {
-      req.validationMessages = "No image id provided";
-      return true;
+      throw new Error("No image id provided");
     }
 
     const imageIndex = product.images.findIndex(
@@ -734,114 +742,130 @@ exports.updateSpecificImageFromArrayOfImagesValidator = [
     );
 
     if (imageIndex === -1) {
-      req.validationMessages = `No image found for this image id: ${imageId}`;
-      return true;
+      throw new Error(`No image found for this image id: ${imageId}`);
     }
 
     return true;
   }),
-  (req, res, next) => {
-    if (req.validationMessages) {
-      return next(new APIError(req.validationMessages, 400, "ValidationError"));
-    }
-    next();
-  }
+  validatorMiddleware
 ];
 
 exports.updateArrayOfImagesValidator = [
-  check("images")
-    .optional()
-    .custom(async (arrayOfImages, { req }) => {
-      if (arrayOfImages.length === 0) {
-        req.validationMessages = "Product Images Cannot Be an Empty Array!";
-        return true;
-      }
+  check("productId")
+    .isMongoId()
+    .withMessage("Invalid Product Id Format")
+    .notEmpty()
+    .withMessage("Product ID is Required!"),
+  check("imageId").custom(async (_, { req }) => {
+    const imageId = req.body.imageId;
 
-      if (req.body.imageCover) {
-        req.validationMessages =
-          "You can't update image cover with this route!";
-        return true;
-      }
-
-      const product = await ProductModel.findById(req.params.productId);
-
-      if (!product) {
-        req.validationMessages = `No Product Found For This ID: ${req.params.productId}`;
-        return true;
-      }
-
-      const imageId = req.body.imageId;
-      if (!imageId) {
-        req.validationMessages = "No image id provided";
-        return true;
-      }
-
-      if (
-        product.images.length > 5 ||
-        product.images.length + req.body.images.length > 5
-      ) {
-        req.validationMessages = "Product Images Cannot Be More Than 5!";
-        return true;
-      }
-
-      const image = product.images.find(
-        (img) => img._id.toString() === imageId
-      );
-
-      if (!image) {
-        req.validationMessages = `No image found for this image id: ${imageId}`;
-        return true;
-      }
-
-      if (arrayOfImages.length > 5) {
-        req.validationMessages = "Product Images Cannot Be More Than 5!";
-        return true;
-      }
-
-      if (arrayOfImages.length === 0) {
-        req.validationMessages = "Product Images Cannot Be an Empty Array!";
-        return true;
-      }
-
-      return true;
-    }),
-  (req, res, next) => {
-    if (req.validationMessages) {
-      return next(new APIError(req.validationMessages, 400, "ValidationError"));
+    if (!imageId) {
+      throw new Error("No imageId provided!");
     }
-    next();
-  }
-];
 
-exports.checkImageCoverInFilesForUpdateAndAddImagesValidator = [
-  body().custom((_, { req }) => {
-    if (req.files && req.files.imageCover) {
-      req.validationMessages = `You can't ${req.method === "POST" ? "add" : "update"} image Cover with this route!`;
-      return true;
+    const product = await ProductModel.findById(req.params.productId);
+
+    const image = product.images.find((img) => img._id.toString() === imageId);
+
+    if (!image) {
+      throw new Error(`No image found for this imageId: ${imageId}`);
     }
 
     return true;
   }),
-  (req, res, next) => {
-    if (req.validationMessages) {
-      return next(new APIError(req.validationMessages, 400, "ValidationError"));
+  check("imageCover").custom((_, { req }) => {
+    if (req.files && req.files.imageCover) {
+      throw new Error(
+        `You can't ${req.method === "POST" ? "add" : "update"} image Cover with this route!`
+      );
     }
-    next();
-  }
+
+    return true;
+  }),
+  check("images").custom(async (_, { req }) => {
+    if (req.files.imageCover) {
+      throw new Error("You can't update image cover with this route!");
+    }
+
+    if (!req.files || !req.files.images || req.files.images.length === 0) {
+      throw new Error("No images uploaded!");
+    }
+
+    if (req.files.images.length > 1) {
+      throw new Error("You can only update one image at a time!");
+    }
+
+    const product = await ProductModel.findById(req.params.productId);
+    if (!product) {
+      throw new Error(`No product found for this ID: ${req.params.productId}`);
+    }
+
+    return true;
+  }),
+  validatorMiddleware
+];
+
+exports.deleteSpecificImagesFromArrayOfImagesValidator = [
+  check("productId")
+    .isMongoId()
+    .withMessage("Invalid Product Id Format")
+    .notEmpty()
+    .withMessage("Product ID is Required!"),
+  check("images").custom(async (_, { req }) => {
+    const product = await ProductModel.findById(req.params.productId);
+
+    if (!product) {
+      throw new Error(`No Product Found For This ID: ${req.params.productId}`);
+    }
+
+    const bodyImages = req.body.images || [];
+
+    if (!bodyImages.length) {
+      throw new Error("No images provided for deletion");
+    }
+
+    if (bodyImages.length > 5) {
+      throw new Error("You cannot delete more than 5 images");
+    }
+
+    const notFoundImages = bodyImages.filter(
+      (img) =>
+        !product.images.some(
+          (image) =>
+            image.imagePublicId.split("/")[3] ===
+            img.imagePublicId.split("/")[3]
+        )
+    );
+
+    if (notFoundImages.length > 0) {
+      throw new Error(
+        `The imagePublicId you entered ${notFoundImages.length === 1 ? "is" : "are"} not exist: ${[...new Set(notFoundImages.map((img) => img.imagePublicId))].join(", ")}`
+      );
+    }
+
+    return true;
+  }),
+  validatorMiddleware
+];
+
+exports.checkImagesInFilesForUpdateProductValidator = [
+  check("images").custom((_, { req }) => {
+    if (req.files && req.files.images) {
+      throw new Error("You can't update images with this route!");
+    }
+
+    return true;
+  }),
+  validatorMiddleware
 ];
 
 exports.checkImageCoverFoundValidatorForUpdateValidator = [
-  body().custom((_, { req }) => {
+  check("imageCover").custom((_, { req }) => {
     if (!req.files.imageCover) {
       throw new Error("Product Image Cover Not Found!");
     }
 
     return true;
   }),
-  (req, res, next) => {
-    if (req.validationMessage) {
-      return next(new APIError(req.validationMessage, 400, "ValidationError"));
-    }
-    next();
-  }
+  validatorMiddleware
 ];

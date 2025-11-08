@@ -5,9 +5,9 @@ const {
   updateProduct,
   deleteProduct,
   getAllProducts,
-  deleteProductImage,
   updateSpecificImageFromArrayOfImages,
-  addSpecificImageToArrayOfImages
+  addSpecificImageToArrayOfImages,
+  deleteSpecificImagesFromArrayOfImages
 } = require("../services/productServices");
 
 const {
@@ -18,9 +18,10 @@ const {
   getAllProductsValidator,
   checkImageCoverFoundValidatorForUpdateValidator,
   updateArrayOfImagesValidator,
-  AddSpecificImageToArrayOfImagesValidator,
+  addSpecificImageToArrayOfImagesValidator,
   checkImagesInFilesForUpdateProductValidator,
-  checkImageCoverInFilesForUpdateAndAddImagesValidator
+  deleteSpecificImagesFromArrayOfImagesValidator,
+  updateSpecificImageFromArrayOfImagesValidator
 } = require("../utils/validators/productValidator");
 const { protectRoutes, allowRoles } = require("../services/authServices");
 const ReviewsRoutes = require("./reviewRoute");
@@ -91,7 +92,7 @@ router
       { name: "images", maxCount: 5 },
       { name: "imageCover", maxCount: 1 }
     ]),
-    checkImageCoverInFilesForUpdateAndAddImagesValidator,
+    addSpecificImageToArrayOfImagesValidator,
     resizeMultipleImagesWithSharp(
       "images",
       600,
@@ -100,21 +101,20 @@ router
       ProductModel,
       "Images"
     ),
-    AddSpecificImageToArrayOfImagesValidator,
     uploadToCloudinaryArrayOfImages(
       "ecommerce-api-express-uploads/products/images",
       "images"
     ),
     addSpecificImageToArrayOfImages
   )
-  .put(
+  .patch(
     protectRoutes,
     allowRoles("admin", "manager"),
     uploadMultipleImages([
       { name: "images", maxCount: 5 },
       { name: "imageCover", maxCount: 1 }
     ]),
-    checkImageCoverInFilesForUpdateAndAddImagesValidator,
+    updateArrayOfImagesValidator,
     resizeMultipleImagesWithSharp(
       "images",
       600,
@@ -123,18 +123,19 @@ router
       ProductModel,
       "Images"
     ),
-    updateArrayOfImagesValidator,
     uploadToCloudinaryArrayOfImages(
       "ecommerce-api-express-uploads/products/images",
       "images"
     ),
+    updateSpecificImageFromArrayOfImagesValidator,
     updateSpecificImageFromArrayOfImages
   )
   .delete(
     protectRoutes,
     allowRoles("admin", "manager"),
     deleteImagesFromCloudinary,
-    deleteProductImage
+    deleteSpecificImagesFromArrayOfImagesValidator,
+    deleteSpecificImagesFromArrayOfImages
   );
 
 router
