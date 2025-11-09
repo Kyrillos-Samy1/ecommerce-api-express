@@ -85,7 +85,7 @@ exports.addSpecificImageToArrayOfImages = async (req, res, next) => {
     const product = await ProductModel.findById(req.params.productId);
 
     product.images.push(...req.body.images);
-    await product.save();
+    await product.save({ new: true, validateBeforeSave: false });
 
     res.status(200).json({
       status: "success",
