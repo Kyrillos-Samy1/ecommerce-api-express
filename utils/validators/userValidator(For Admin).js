@@ -287,9 +287,7 @@ exports.getAllUsersValidator = [
     .isString()
     .withMessage("Search must be a string")
     .isLength({ min: 3 })
-    .withMessage("Search must be at least 3 characters long")
-    .matches(/^[a-zA-Z0-9\s]+$/)
-    .withMessage("Search must not contain special characters"),
+    .withMessage("Search must be at least 3 characters long"),
   check("fields")
     .optional()
     .custom((value) => {

@@ -236,7 +236,6 @@ exports.getAllBrandsValidator = [
     .withMessage("Search must be a string")
     .notEmpty()
     .withMessage("Search query cannot be empty.")
-    .matches(/^[a-zA-Z0-9\s]+$/)
-    .withMessage("Search can only contain letters, numbers, and spaces"),
+    ,
   validatorMiddleware
 ];
