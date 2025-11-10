@@ -5,7 +5,7 @@ exports.orderEmailTemplate = async (
   req,
   res,
   next,
-  htmlForVerifyCode,
+  htmlForOrderConfirmation,
   subject = ""
 ) => {
   try {
@@ -18,7 +18,7 @@ exports.orderEmailTemplate = async (
             ? process.env.EMAIL_FROM_PROD
             : process.env.EMAIL_FROM_DEV
       },
-      htmlForVerifyCode
+      htmlForOrderConfirmation
     );
 
     res.status(200).json({

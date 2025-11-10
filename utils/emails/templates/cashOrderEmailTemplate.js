@@ -1,4 +1,4 @@
-//! Cash Order Email Template - Gray Theme with Coupon + Original Price (Fixed for All Email Clients)
+//! Cash Order Email Template - Gray Theme with Fixed Header Alignment
 const cashOrderTemplate = (user = {}, order = {}) => {
   const {
     orderItems = [],
@@ -15,9 +15,7 @@ const cashOrderTemplate = (user = {}, order = {}) => {
     .map(
       (item) => `
     <tr style="border-bottom:1px solid #ccc;">
-      <td style="padding:10px;">
-        <img src="${item.imageCover?.url || item.images[0]?.url}" alt="${item.title}" width="80" style="display:block;border-radius:8px;" />
-      </td>
+      <td style="padding:10px;"><img src="${item.imageCover?.url || item.images[0]?.url}" alt="${item.title}" width="80" /></td>
       <td style="padding:10px;">${item.title}</td>
       <td style="padding:10px;">${item.color}</td>
       <td style="padding:10px;">${item.size}</td>
@@ -32,7 +30,7 @@ const cashOrderTemplate = (user = {}, order = {}) => {
     totalPriceAfterCouponApplied !== 0 &&
     (totalPriceAfterCouponApplied < totalPriceAfterDiscount ||
       totalPriceAfterCouponApplied < totalOrderPriceBeforeDiscount)
-      ? `<p style="margin-top:10px;font-weight:bold;color:#444;text-align:left;">
+      ? `<p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">
            Coupon Applied: ${couponApplied} &nbsp;
            Discounted Price: $${totalPriceAfterCouponApplied.toFixed(2)}
          </p>`
@@ -59,29 +57,11 @@ const cashOrderTemplate = (user = {}, order = {}) => {
       overflow: hidden;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     }
-    .content {
-      padding: 30px;
-      text-align: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background-color: #bfbfbf;
-      color: #333;
-    }
-    .total {
-      margin-top: 20px;
-      font-size: 20px;
-      font-weight: bold;
-      text-align: left;
-    }
+    .content { padding: 30px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; text-align: center; }
+    th { background-color: #bfbfbf; color: #333; }
+    .total { margin-top: 20px; font-size: 20px; font-weight: bold; text-align: left;}
     .footer {
       background-color: #d0d0d0;
       color: #555;
@@ -93,19 +73,19 @@ const cashOrderTemplate = (user = {}, order = {}) => {
 </head>
 <body>
   <div class="container">
-    <div class="header" style="background:#b0b0b0;color:#fff;padding:20px 10px;">
-      <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+    <div class="header" style="background:#b0b0b0;color:#fff;">
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">
         <tr>
-          <td align="left" style="vertical-align:middle;">
-            <h1 style="margin:0;font-size:22px;font-family:'Segoe UI',Arial,sans-serif;">Carlos Elmasry Empire</h1>
+          <td align="left" style="padding:0 0 0 15px;vertical-align:middle;">
+            <h1 style="margin:0;padding:0;font-size:22px;font-family:'Segoe UI',Arial,sans-serif;">Carlos Elmasry Empire</h1>
           </td>
-          <td align="right" style="vertical-align:middle;">
+          <td align="right" style="padding:0 15px 0 0;vertical-align:middle;">
             <img 
               src="${user.userPhoto?.url || "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-photo-183042379.jpg"}" 
-              alt="${user.name || "User"}" 
+              alt="${user.name}" 
               width="120" 
               height="120" 
-              style="border-radius:50%;border:2px solid #fff;display:block;"
+              style="display:block;border-radius:50%;border:2px solid #fff;margin:0;"
             />
           </td>
         </tr>
@@ -129,7 +109,7 @@ const cashOrderTemplate = (user = {}, order = {}) => {
         ${itemsHtml}
       </table>
 
-      <p style="margin-top:10px;font-weight:bold;color:#444;text-align:left;">
+      <p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">
         Price Before Tax & Shipping Added ${couponApplied ? "& Coupon Applied" : ""}: $${
           totalPriceAfterDiscount
             ? totalPriceAfterDiscount.toFixed(2)
@@ -137,17 +117,18 @@ const cashOrderTemplate = (user = {}, order = {}) => {
         }
       </p>
 
-      <p style="margin-top:10px;font-weight:bold;color:#444;text-align:left;">
+      ${couponAppliedHtml}
+
+      <p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">
         Tax: $${taxPrice.toFixed(2)}
       </p>
 
-      <p style="margin-top:10px;font-weight:bold;color:#444;text-align:left;">
+      <p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">
         Shipping Price: $${shippingPrice.toFixed(2)}
       </p>
 
-      ${couponAppliedHtml}
-
       <p class="total">Total Amount to Pay: $${finalTotalPriceAfterTaxAndShippingAdded.toFixed(2)}</p>
+
       <p>Please pay at the time of delivery. Thank you for shopping with us!</p>
     </div>
 

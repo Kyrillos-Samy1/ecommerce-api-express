@@ -7,7 +7,7 @@ require("dotenv").config();
 
 const UserModel = require("../models/userModel");
 const APIError = require("../utils/apiError");
-const verifyCodeTemplate = require("../utils/emails/templates/htmlTemplateForForgotPassword");
+const forgotPasswordTemplate = require("../utils/emails/templates/ForgotPasswordEmailTemplate");
 const { emailAuthTemplate } = require("../utils/emails/authEmail");
 
 const createToken = (payload) =>
@@ -221,7 +221,7 @@ exports.forgotPassword = async (req, res, next) => {
     )}/api/v1/auth/resetPassword`;
 
     //! HTML Code For Verify Code For Forgot Password
-    const htmlForVerifyCode = verifyCodeTemplate(
+    const htmlForVerifyCode = forgotPasswordTemplate(
       user,
       resetCode,
       resetURL,
