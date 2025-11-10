@@ -5,7 +5,7 @@ exports.sendOrderConfirmationEmail = async (email, htmlContent, subject) => {
   try {
     await sendEmail(
       {
-        email: email,
+        email,
         subject,
         from:
           process.env.NODE_ENV === "production"
