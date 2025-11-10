@@ -2,6 +2,8 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const CartModel = require("../models/cartModel");
 const APIError = require("../utils/apiError");
+const { sendOrderConfirmationEmail } = require("../utils/emails/ordersEmail");
+const orderConfirmationTemplate = require("../utils/emails/templates/cashOrderEmailTemplate");
 const { createCardOrder } = require("./orderServices");
 
 //! @desc Get Checkout Session From Stripe and Send it as a Response
@@ -104,6 +106,8 @@ exports.checkoutSession = async (req, res, next) => {
       metadata: {
         cartId: req.params.cartId.toString(),
         userId: req.user._id.toString(),
+        userPhoto: req.user.userPhoto?.url,
+        userName: req.user.name,
         finalTotalPrice,
         taxPrice,
         shippingPrice,
@@ -179,37 +183,43 @@ exports.checkoutSession = async (req, res, next) => {
 //! @route POST /webhook-checkout
 //! @access Public
 exports.webhookCheckout = async (req, res, next) => {
-  try {
-    const sig = req.headers["stripe-signature"];
+  const sig = req.headers["stripe-signature"];
 
-    let event;
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
 
     try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET
+      const order = await createCardOrder(session, next);
+
+      await sendOrderConfirmationEmail(
+        session.customer_details.email,
+        orderConfirmationTemplate(
+          {
+            userName: session.metadata.userName,
+            userPhoto: session.metadata.userPhoto
+          },
+          order
+        ),
+        "Order Confirmation - FastCart Inc"
       );
+
+      console.log("Order confirmation email sent successfully!");
     } catch (err) {
-      return res.status(400).send(`Webhook Error: ${err.message}`);
+      console.error("Error in sending confirmation email:", err.message);
     }
-
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-
-      const order = await createCardOrder(session);
-
-      res.status(200).json({
-        status: "success",
-        message: "Order Payment Status Updated Successfully!",
-        data: order
-      });
-    }
-
-    res.status(200).json({ received: true });
-  } catch (err) {
-    next(new APIError(err.message, 500, err.name));
   }
+  res.status(200).json({ received: true });
 };
 
 //! @desc Get Checkout Session From Stripe and Send it as a Response

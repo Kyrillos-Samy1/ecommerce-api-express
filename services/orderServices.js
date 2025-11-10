@@ -2,8 +2,8 @@ const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");
-const { orderEmailTemplate } = require("../utils/emails/ordersEmail");
-const cashOrderTemplate = require("../utils/emails/templates/cashOrderEmailTemplate");
+const { sendOrderConfirmationEmail } = require("../utils/emails/ordersEmail");
+const orderConfirmationTemplate = require("../utils/emails/templates/cashOrderEmailTemplate");
 
 //! @ desc Helper Function to Update Product Quantities & Clear Cart
 const updateOrderQuantityAndClearCart = async (order, cart, userId) => {
@@ -109,8 +109,15 @@ exports.createCashOrder = async (req, res, next) => {
     //! 4) Update Product Quantities & Sold Count + Clear Cart
     await updateOrderQuantityAndClearCart(order, cart, req.user._id);
 
-    //! 5) Send Email 
-    await orderEmailTemplate(req, res, next, cashOrderTemplate(req.user, order), "Cash Order Confirmation");
+    //! 5) Send Email
+    await sendOrderConfirmationEmail(
+      req,
+      res,
+      next,
+      orderConfirmationTemplate(req.user, order),
+      "Order created successfully! Please proceed to pay at delivery time.",
+      "Cash Order Confirmation"
+    );
 
     //! 6) Send Response
     res.status(201).json({
@@ -291,12 +298,13 @@ exports.createCardOrder = async (session, next) => {
         update_time: new Date().toISOString(),
         email_address: session.customer_details.email
       },
-      itemsPrice: cart.totalPrice,
       taxPrice,
       shippingPrice,
       totalOrderPriceBeforeDiscount: cart.totalPrice,
       totalPriceAfterDiscount: cart.totalPriceAfterDiscount,
       totalPriceAfterCouponApplied: cart.totalPriceAfterCouponApplied || 0.0,
+      couponApplied: cart.appliedCoupon,
+      couponDiscount: cart.appliedCouponDiscount,
       finalTotalPriceAfterTaxAndShippingAdded,
       isPaid: true,
       paidAt: Date.now(),

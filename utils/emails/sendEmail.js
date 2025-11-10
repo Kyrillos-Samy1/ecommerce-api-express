@@ -16,7 +16,7 @@ const sendEmail = async (options, html) => {
 
   //! Define Email Options like ("From", "To", "Subject", "HTMLFormat")
   const mailOptions = {
-    from: `"Carlos Empire" <${options.from}>`,
+    from: `"FastCart" <${options.from}>`,
     to: options.email,
     subject: options.subject,
     html,
