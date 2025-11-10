@@ -4,6 +4,7 @@ const validator = require("validator");
 const ReviewModel = require("./reviewModel");
 const OrderModel = require("./orderSchema");
 const ProductModel = require("./productModel");
+const CartModel = require("./cartModel");
 
 //! 1- Create User Schema
 const userSchema = new mongoose.Schema(
@@ -145,7 +146,8 @@ userSchema.pre("findOneAndDelete", async function (next) {
     //! Delete reviews & orders concurrently
     await Promise.all([
       ReviewModel.deleteMany({ user: userId }),
-      OrderModel.deleteMany({ user: userId })
+      OrderModel.deleteMany({ user: userId }),
+      CartModel.deleteMany({ user: userId })
     ]);
 
     //! Recalculate ratings for affected products

@@ -14,6 +14,10 @@ const orderSchema = new mongoose.Schema(
           ref: "Product",
           required: [true, "Order Item Must Belong To A Product!"]
         },
+        title: {
+          type: String,
+          required: [true, "Order Item Must Have A Title!"]
+        },
         quantity: {
           type: Number,
           required: [true, "Order Item Must Have A Quantity!"]
@@ -31,7 +35,7 @@ const orderSchema = new mongoose.Schema(
           required: [true, "Order Item Must Have A Price!"]
         },
         priceAfterDiscount: {
-          type: Number,
+          type: Number
         },
         images: {
           type: [{ url: String, imagePublicId: String }],
@@ -120,6 +124,9 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Order Must Have A Total Price After Coupon Applied!"],
       default: 0.0
+    },
+    couponApplied: {
+      type: String
     },
     finalTotalPriceAfterTaxAndShippingAdded: {
       type: Number,

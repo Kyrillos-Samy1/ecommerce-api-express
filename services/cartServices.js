@@ -69,7 +69,7 @@ exports.addProductToCart = async (req, res, next) => {
             quantity,
             color,
             size,
-            price,
+            price: itemPriceAfterDiscount,
             priceAfterDiscount: discountPrice,
             images: product.images,
             imageCover: product.imageCover

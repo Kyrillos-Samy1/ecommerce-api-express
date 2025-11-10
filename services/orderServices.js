@@ -2,6 +2,8 @@ const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");
+const { orderEmailTemplate } = require("../utils/emails/ordersEmail");
+const cashOrderTemplate = require("../utils/emails/templates/cashOrderEmailTemplate");
 
 //! @ desc Helper Function to Update Product Quantities & Clear Cart
 const updateOrderQuantityAndClearCart = async (order, cart, userId) => {
@@ -95,6 +97,8 @@ exports.createCashOrder = async (req, res, next) => {
       totalPriceAfterDiscount: cart.totalPriceAfterDiscount,
       totalPriceAfterCouponApplied: cart.totalPriceAfterCouponApplied || 0.0,
       finalTotalPriceAfterTaxAndShippingAdded,
+      couponApplied: cart.appliedCoupon,
+      couponDiscount: cart.appliedCouponDiscount,
       isPaid: false,
       paidAt: null,
       isDelivered: false,
@@ -105,7 +109,10 @@ exports.createCashOrder = async (req, res, next) => {
     //! 4) Update Product Quantities & Sold Count + Clear Cart
     await updateOrderQuantityAndClearCart(order, cart, req.user._id);
 
-    //! 5) Send Response
+    //! 5) Send Email 
+    await orderEmailTemplate(req, res, next, cashOrderTemplate(req.user, order), "Cash Order Confirmation");
+
+    //! 6) Send Response
     res.status(201).json({
       status: "success",
       message:
@@ -300,7 +307,7 @@ exports.createCardOrder = async (session, next) => {
 
     //! 4) Update Product Quantities & Sold Count + Clear Cart
     await updateOrderQuantityAndClearCart(order, cart, userId);
-    
+
     //! 5) Return Order
     return order;
   } catch (err) {
