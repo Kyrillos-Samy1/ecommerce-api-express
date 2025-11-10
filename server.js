@@ -11,6 +11,7 @@ const APIError = require("./utils/apiError");
 const globalErrorHandler = require("./middlewares/errorMiddleware");
 const { Routes } = require("./routes");
 const { webhookCheckout } = require("./services/stripePaymentServices");
+const { limiter } = require("./middlewares/limiterMiddleware");
 
 //! Connect with DB
 dbConnection();
@@ -26,7 +27,7 @@ app.post(
 );
 
 //! Logging middleware for development environment
-app.use(express.json({ limit: "50kb" })); //! Middleware to parse JSON bodies
+app.use(express.json({ limit: "50kb" })); //! Middleware to parse JSON request bodies up to 50kb in size
 app.use(cookieParser()); //! Middleware to parse Cookies
 app.use(cors()); //! Middleware to enable any domain to access your APIs
 app.options("*", cors()); //! Enable pre-flight across-the-board requests
@@ -37,6 +38,8 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
   console.log(`Node Environment: ${process.env.NODE_ENV}`);
 }
+
+app.use("/api", limiter);
 
 //! Mount Routes to handle requests
 Routes(app);

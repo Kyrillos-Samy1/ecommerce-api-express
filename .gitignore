@@ -10,3 +10,5 @@ middlewares/imageUrlBuilderMiddleware.js
 middlewares/checkIsActiveValue.js
 
 middlewares/corsOptions.js
+
+generate_commit.py
