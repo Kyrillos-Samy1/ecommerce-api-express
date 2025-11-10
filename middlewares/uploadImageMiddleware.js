@@ -34,7 +34,11 @@ const multerFilter = (req, file, cb) => {
 };
 
 //! Initialize Multer
-const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+  limits: { fileSize: 1 * 1024 * 1024 } //! 1MB Max Size
+});
 
 //? Upload Single Image
 exports.uploadSingleImage = (fieldName) => upload.single(fieldName);

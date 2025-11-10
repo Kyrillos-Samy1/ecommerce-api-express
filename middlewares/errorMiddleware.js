@@ -14,18 +14,31 @@ const sendErrorForProdMode = (err, res) =>
     message: err.message
   });
 
-const handleJWTInvalidError = (err) =>
-  new APIError("Invalid token. Please login again!", 401, err.name);
-
-const handleJWTExpiredError = (err) =>
-  new APIError("Your token has expired! Please login again.", 401, err.name);
+const handleInvalidError = (message, statusCode, name) =>
+  new APIError(message, statusCode, name);
 
 const globalErrorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
-  if (err.name === "JsonWebTokenError") err = handleJWTInvalidError(err);
-  if (err.name === "TokenExpiredError") err = handleJWTExpiredError(err);
+  if (err.name === "JsonWebTokenError")
+    err = handleInvalidError(
+      "Invalid token. Please login again!",
+      401,
+      err.name
+    );
+  if (err.name === "TokenExpiredError")
+    err = handleInvalidError(
+      "Your token has expired! Please login again.",
+      401,
+      err.name
+    );
+  if (err.code === "LIMIT_FILE_SIZE")
+    err = handleInvalidError(
+      "File size is too large. Please upload a file less than 1MB.",
+      400,
+      err.name
+    );
 
   if (process.env.NODE_ENV === "development") {
     sendErrorForDevMode(err, res);
