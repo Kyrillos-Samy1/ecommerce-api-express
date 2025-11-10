@@ -26,7 +26,7 @@ app.post(
 );
 
 //! Logging middleware for development environment
-app.use(express.json()); //! Middleware to parse JSON bodies
+app.use(express.json({ limit: "50kb" })); //! Middleware to parse JSON bodies
 app.use(cookieParser()); //! Middleware to parse Cookies
 app.use(cors()); //! Middleware to enable any domain to access your APIs
 app.options("*", cors()); //! Enable pre-flight across-the-board requests
