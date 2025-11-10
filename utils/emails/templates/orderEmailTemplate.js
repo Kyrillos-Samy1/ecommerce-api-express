@@ -69,32 +69,37 @@ const orderConfirmationTemplate = (user = {}, order = {}) => {
       <table role="presentation">
         <tr>
           <td align="left" style="padding:10px 0;">
-            <h1>Welcome ${user.name || user.userName}</h1>
+            <h1>Welcome ${user.userName}</h1>
           </td>
           <td align="right" style="padding:10px 0;">
-            <img src="${user.userPhoto?.url || user.userphoto || "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-photo-183042379.jpg"}" alt="${user.name || user.userName}" width="120" height="120" />
+            <img src="${user.photo || "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-photo-183042379.jpg"}" alt="${user.userName}" width="120" height="120" />
           </td>
         </tr>
       </table>
     </div>
     <div class="content">
       <h2>Order Confirmation</h2>
-      <p>Dear <strong>${user.name || user.userName || ""}</strong>,</p>
+      <p>Dear <strong>${user.userName || ""}</strong>,</p>
       <p>Thank you for placing an order with FastCart Inc. Please find the details of your purchase below:</p>
       <table>
         <tr>
-          <th>Image</th><th>Title</th><th>Color</th><th>Size</th><th>Quantity</th><th>Price</th>
+          <th>Image</th>
+          <th>Title</th>
+          <th>Color</th>
+          <th>Size</th>
+          <th>Quantity</th>
+          <th>Price</th>
         </tr>
         ${itemsHtml}
       </table>
       <p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">
-        Total Order Price Before Tax & Shipping${couponApplied ? " & (Coupon Applied)" : ""}: $${totalPriceAfterDiscount ? totalPriceAfterDiscount.toFixed(2) : totalOrderPriceBeforeDiscount.toFixed(2)}
+        Total Order Price Before ${taxPrice > 0 ? "Tax &" : ""} Shipping${couponApplied ? " & (Coupon Applied)" : ""}: $${totalPriceAfterDiscount ? totalPriceAfterDiscount.toFixed(2) : totalOrderPriceBeforeDiscount.toFixed(2)}
       </p>
       ${couponAppliedHtml}
       ${taxPrice > 0 ? `<p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">Tax Cost: $${taxPrice.toFixed(2)}</p>` : ""}
       <p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">Shipping Cost: $${shippingPrice.toFixed(2)}</p>
       <p class="total">Total Amount Payable: $${finalTotalPriceAfterTaxAndShippingAdded.toFixed(2)}</p>
-      <p style="margin-top:10px; font-weight:bold; color:#444; text-align: center;">Best regards,<br />FastCart Inc.</p>
+      <p style="margin-top:10px; font-weight:bold; color:#444; text-align: center;">Best regards, FastCart Inc.</p>
     </div>
     <div class="footer">
       <p>© 2025 FastCart Inc. All Rights Reserved.</p>

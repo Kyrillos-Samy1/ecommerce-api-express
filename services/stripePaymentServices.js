@@ -3,7 +3,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const CartModel = require("../models/cartModel");
 const APIError = require("../utils/apiError");
 const { sendOrderConfirmationEmail } = require("../utils/emails/ordersEmail");
-const orderConfirmationTemplate = require("../utils/emails/templates/cashOrderEmailTemplate");
+const orderConfirmationTemplate = require("../utils/emails/templates/orderEmailTemplate");
 const { createCardOrder } = require("./orderServices");
 
 //! @desc Get Checkout Session From Stripe and Send it as a Response
@@ -199,25 +199,19 @@ exports.webhookCheckout = async (req, res, next) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
-    try {
-      const order = await createCardOrder(session, next);
+    const order = await createCardOrder(session, next);
 
-      await sendOrderConfirmationEmail(
-        session.customer_details.email,
-        orderConfirmationTemplate(
-          {
-            userName: session.metadata.userName,
-            userPhoto: session.metadata.userPhoto
-          },
-          order
-        ),
-        "Order Confirmation - FastCart Inc"
-      );
-
-      console.log("Order confirmation email sent successfully!");
-    } catch (err) {
-      console.error("Error in sending confirmation email:", err.message);
-    }
+    await sendOrderConfirmationEmail(
+      session.customer_details.email,
+      orderConfirmationTemplate(
+        {
+          userName: session.metadata.userName,
+          photo: session.metadata.userPhoto,
+        },
+        order
+      ),
+      "Order Confirmation - FastCart Inc"
+    );
   }
   res.status(200).json({ received: true });
 };

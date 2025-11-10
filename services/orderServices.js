@@ -3,7 +3,7 @@ const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");
 const { sendOrderConfirmationEmail } = require("../utils/emails/ordersEmail");
-const orderConfirmationTemplate = require("../utils/emails/templates/cashOrderEmailTemplate");
+const orderConfirmationTemplate = require("../utils/emails/templates/orderEmailTemplate");
 
 //! @ desc Helper Function to Update Product Quantities & Clear Cart
 const updateOrderQuantityAndClearCart = async (order, cart, userId) => {
@@ -111,12 +111,12 @@ exports.createCashOrder = async (req, res, next) => {
 
     //! 5) Send Email
     await sendOrderConfirmationEmail(
-      req,
-      res,
-      next,
-      orderConfirmationTemplate(req.user, order),
-      "Order created successfully! Please proceed to pay at delivery time.",
-      "Cash Order Confirmation"
+      req.user.email,
+      orderConfirmationTemplate(
+        { userName: req.user.name, photo: req.user.userPhoto?.url },
+        order
+      ),
+      "Order Confirmation - FastCart Inc"
     );
 
     //! 6) Send Response
