@@ -15,5 +15,6 @@ exports.sanitizeUserForLogin = (user) => ({
   addresses: user.addresses
 });
 
-exports.sanitizeUserForUpdate = exports.sanitizeUserForLogin;
+exports.sanitizeUserForUpdate = (user) => baseSanitizeUser(user);
+
 exports.sanitizeUserForGet = exports.sanitizeUserForLogin;
