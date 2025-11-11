@@ -2,6 +2,7 @@ const slugify = require("slugify");
 const mongoose = require("mongoose");
 const APIError = require("../utils/apiError");
 const APIFeatures = require("../utils/apiFeatures");
+const { sanitizeUserForSignUp } = require("../utils/sanitizeData");
 
 //! Handler To Create One Document
 exports.createDocumnet =
@@ -16,7 +17,10 @@ exports.createDocumnet =
 
       res.status(201).json({
         message: `${FactoryName} Created Successfully!`,
-        data: createdDocument
+        data:
+          FactoryName === "User"
+            ? sanitizeUserForSignUp(createdDocument)
+            : createdDocument
       });
     } catch (err) {
       return next(
