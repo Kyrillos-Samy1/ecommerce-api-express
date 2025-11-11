@@ -5,6 +5,12 @@ const ExpressMongoSanitize = require("express-mongo-sanitize");
 const { limiter, xssProtection } = require("./securityMiddleware");
 
 exports.mountSecurityMiddlewares = (app) => {
+  //! Prevent SQL injection attacks
+  app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+
+  //! Prevent NoSQL injection attacks
+  app.use(ExpressMongoSanitize());
+
   //! Set security HTTP headers
   app.use(helmet());
 
@@ -29,12 +35,6 @@ exports.mountSecurityMiddlewares = (app) => {
 
   //! Rate limiting middleware
   app.use("/api", limiter);
-
-  //! Prevent SQL injection attacks
-  app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-
-  //! Prevent NoSQL injection attacks
-  app.use(ExpressMongoSanitize());
 
   return app;
 };
