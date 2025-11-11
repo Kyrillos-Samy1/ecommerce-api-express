@@ -9,7 +9,7 @@ exports.limiter = rateLimit({
 });
 
 //! Prevent XSS attacks and clickjacking vulnerabilities by setting the X-XSS-Protection header
-exports.xssProtection = () =>
+exports.customXssProtection = () =>
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
