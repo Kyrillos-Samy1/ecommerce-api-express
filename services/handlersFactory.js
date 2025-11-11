@@ -37,7 +37,8 @@ exports.getAllDocuments =
     FactoryName,
     ListOfPopulate,
     ListOfSearchedFields,
-    ParamName
+    ParamName,
+    sanitizeData
   ) =>
   async (req, res, next) => {
     const filteredSubDocuments = {};
@@ -88,7 +89,7 @@ exports.getAllDocuments =
         paginationResult,
         results: documents.length,
         message: `${FactoryName} Fetched Successfully!`,
-        data: documents
+        data: sanitizeData ? sanitizeData(documents) : documents
       });
     } catch (err) {
       return next(
@@ -141,7 +142,8 @@ exports.getDocumentById =
 
 //! Handler To Update One Document
 exports.updateOneDocument =
-  (UpdatingModel, FactoryName, ParamName) => async (req, res, next) => {
+  (UpdatingModel, FactoryName, ParamName, sanitizeData) =>
+  async (req, res, next) => {
     const body = req.body;
     const documentId = req.params[ParamName];
 
@@ -159,7 +161,7 @@ exports.updateOneDocument =
 
       res.status(200).json({
         message: `${FactoryName} Updated Successfully!`,
-        data: updatedDocument
+        data: sanitizeData ? sanitizeData(updatedDocument) : updatedDocument
       });
     } catch (err) {
       next(
