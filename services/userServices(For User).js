@@ -11,6 +11,7 @@ const {
 
 //*===========================================  (GET, PUT, DELETE) User Data For User  ==============================================
 
+//! @desc Delete Image From Cloudinary Before Delete User
 exports.deleteImageFromCloudinaryBeforeDeleteUser = async (req, res, next) => {
   try {
     if (req.user.userPhoto) {
@@ -57,7 +58,7 @@ exports.updateLoggedUserData = async (req, res, next) => {
       updateData,
       { new: true, runValidators: true }
     )
-      .select("-__v +password +active")
+      .select("-__v")
       .populate({ path: "reviews", select: "-__v" });
 
     res.status(200).json({
@@ -82,7 +83,7 @@ exports.updateLoggedUserPassword = async (req, res, next) => {
       },
       { new: true, runValidators: true }
     )
-      .select("-__v +password +active")
+      .select("-__v")
       .populate({ path: "reviews", select: "-__v" });
 
     const token = createToken(updatedDocument._id);
