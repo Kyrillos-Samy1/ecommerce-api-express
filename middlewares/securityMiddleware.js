@@ -9,13 +9,14 @@ exports.limiter = rateLimit({
 });
 
 //! Prevent XSS attacks and clickjacking vulnerabilities by setting the X-XSS-Protection header
-exports.xssProtection = () =>
+exports.contentSecurityPolicy = () =>
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
       scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"]
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'"]
     }
   });
