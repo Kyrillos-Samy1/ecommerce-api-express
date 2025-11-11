@@ -120,7 +120,7 @@ exports.login = async (req, res, next) => {
   try {
     //! Find the user by email
     const user = await UserModel.findOne({ email: req.body.email })
-      .select("+password -__v")
+      .select("-__v")
       .populate([
         { path: "reviews", select: "-__v" },
         { path: "wishlist", select: "-__v" }
