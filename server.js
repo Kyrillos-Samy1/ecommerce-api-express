@@ -6,14 +6,14 @@ const cookieParser = require("cookie-parser");
 
 dotenv.config({ path: "./config.env" });
 const compression = require("compression");
-const hpp = require("hpp");
-const helmet = require("helmet");
-const { limiter, xssProtection } = require("./middlewares/securityMiddleware");
 const APIError = require("./utils/apiError");
 const globalErrorHandler = require("./middlewares/errorMiddleware");
 const { Routes } = require("./routes");
 const { webhookCheckout } = require("./services/stripePaymentServices");
 const dbConnection = require("./config/databaseConnection");
+const {
+  mountSecurityMiddlewares
+} = require("./middlewares/mountSecurityMiddlewares");
 
 //! Connect with DB
 dbConnection();
@@ -42,16 +42,7 @@ if (process.env.NODE_ENV === "development") {
 
 //? Security Middlewares
 //! Set security HTTP headers
-app.use(helmet());
-
-//! Prevent XSS attacks and clickjacking vulnerabilities by setting the X-XSS-Protection header
-app.use(xssProtection());
-
-//! Prevent HTTP parameter pollution
-app.use(hpp());
-
-//! Rate limiting middleware
-app.use("/api", limiter);
+mountSecurityMiddlewares(app);
 
 //! Mount Routes to handle requests
 Routes(app);
