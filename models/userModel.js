@@ -30,13 +30,13 @@ const userSchema = new mongoose.Schema(
     userPhoto: {
       url: {
         type: String,
-        trim: true
-        // required: [true, "User photo url is required!"]
+        trim: true,
+        required: [true, "User photo url is required!"]
       },
       imagePublicId: {
         type: String,
-        trim: true
-        // required: [true, "User photo public id is required!"]
+        trim: true,
+        required: [true, "User photo public id is required!"]
       }
     },
     phone: String,
