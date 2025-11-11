@@ -40,7 +40,7 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Node Environment: ${process.env.NODE_ENV}`);
 }
 
-//? Security Middleware
+//? Security Middlewares
 //! Set security HTTP headers
 app.use(helmet());
 
