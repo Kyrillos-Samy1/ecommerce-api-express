@@ -68,7 +68,6 @@ const userSchema = new mongoose.Schema(
     ],
     addresses: [
       {
-        id: { type: mongoose.Schema.Types.ObjectId },
         addressType: {
           type: String,
           enum: ["home", "office", "work", "billing", "shipping", "other"],
