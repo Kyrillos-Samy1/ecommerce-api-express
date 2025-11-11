@@ -9,6 +9,10 @@ const UserModel = require("../models/userModel");
 const APIError = require("../utils/apiError");
 const forgotPasswordTemplate = require("../utils/emails/templates/ForgotPasswordEmailTemplate");
 const { emailAuthTemplate } = require("../utils/emails/authEmail");
+const {
+  sanitizeUserForSignUp,
+  sanitizeUserForLogin
+} = require("../utils/sanitizeData");
 
 const createToken = (payload) =>
   jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY, {
@@ -105,9 +109,11 @@ exports.signup = async (req, res, next) => {
 
     const token = setCookiesInBrowser(req, res, user);
 
-    res
-      .status(201)
-      .json({ data: user, token, message: "Account created successfully!" });
+    res.status(201).json({
+      data: sanitizeUserForSignUp(user),
+      token,
+      message: "Account created successfully!"
+    });
   } catch (error) {
     next(new APIError(error.message, 500));
   }
@@ -128,7 +134,11 @@ exports.login = async (req, res, next) => {
 
     const token = setCookiesInBrowser(req, res, user);
 
-    res.status(200).json({ data: user, token, message: "Login successful!" });
+    res.status(200).json({
+      data: sanitizeUserForLogin(user),
+      token,
+      message: "Login successful!"
+    });
   } catch (error) {
     next(new APIError(error.message, 500, error.name));
   }
