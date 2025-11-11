@@ -1,15 +1,14 @@
-const express = require("express");
 const { default: helmet } = require("helmet");
 const hpp = require("hpp");
 const ExpressMongoSanitize = require("express-mongo-sanitize");
+const { xss } = require("express-xss-sanitizer");
+
 const { limiter, xssProtection } = require("./securityMiddleware");
 
 exports.mountSecurityMiddlewares = (app) => {
-  //! Prevent SQL injection attacks
-  app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-
   //! Prevent NoSQL injection attacks
   app.use(ExpressMongoSanitize());
+  app.use(xss())
 
   //! Set security HTTP headers
   app.use(helmet());
