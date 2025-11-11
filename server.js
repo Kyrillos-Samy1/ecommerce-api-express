@@ -40,8 +40,7 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Node Environment: ${process.env.NODE_ENV}`);
 }
 
-//? Security Middlewares
-//! Set security HTTP headers
+//! Mount Security Middlewares to protect APIs
 mountSecurityMiddlewares(app);
 
 //! Mount Routes to handle requests
