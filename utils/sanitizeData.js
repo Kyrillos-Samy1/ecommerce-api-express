@@ -1,5 +1,5 @@
 const baseSanitizeUser = (user) => ({
-  _id: user._id,
+  userId: user._id,
   name: user.name,
   slug: user.slug,
   email: user.email,
