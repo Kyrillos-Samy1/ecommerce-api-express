@@ -10,13 +10,17 @@ const {
   getAllDocuments,
   createDocumnet
 } = require("./handlersFactory");
+const {
+  sanitizeUserForSignUp,
+  sanitizeUserForLogin
+} = require("../utils/sanitizeData");
 
 //*=======================================  (CREATE, GET, PUT, DELETE) User Data For Admin  ==========================================
 
 //! @desc Create User
 //! @route POST /api/v1/user
 //! @access Private/Admin
-exports.createUser = createDocumnet(UserModel, "User");
+exports.createUser = createDocumnet(UserModel, "User", sanitizeUserForSignUp);
 
 //! @desc Get All user With Pagination
 //! @route GET /api/v1/users
@@ -37,7 +41,8 @@ exports.getUserById = getDocumentById(
   "User",
   [{ path: "reviews", select: "-__v" }],
   "userId",
-  "-__v"
+  "-__v",
+  sanitizeUserForLogin
 );
 
 //! @desc Update Specific User

@@ -2,11 +2,11 @@ const slugify = require("slugify");
 const mongoose = require("mongoose");
 const APIError = require("../utils/apiError");
 const APIFeatures = require("../utils/apiFeatures");
-const { sanitizeUserForSignUp } = require("../utils/sanitizeData");
 
 //! Handler To Create One Document
 exports.createDocumnet =
-  (CreateDocumnetModel, FactoryName) => async (req, res, next) => {
+  (CreateDocumnetModel, FactoryName, sanitizeData) =>
+  async (req, res, next) => {
     if (req.body.name) req.body.slug = slugify(req.body.name);
     if (req.body.title) req.body.slug = slugify(req.body.title);
     if (req.body.expireAt)
@@ -17,10 +17,7 @@ exports.createDocumnet =
 
       res.status(201).json({
         message: `${FactoryName} Created Successfully!`,
-        data:
-          FactoryName === "User"
-            ? sanitizeUserForSignUp(createdDocument)
-            : createdDocument
+        data: sanitizeData ? sanitizeData(createdDocument) : createdDocument
       });
     } catch (err) {
       return next(
@@ -111,7 +108,8 @@ exports.getDocumentById =
     FactoryName,
     ListOfPopulate,
     ParamName,
-    selectedFields
+    selectedFields,
+    sanitizeData
   ) =>
   async (req, res, next) => {
     const documentId = req.params[ParamName];
@@ -127,7 +125,7 @@ exports.getDocumentById =
 
       res.status(200).json({
         message: `${FactoryName} Fetched Successfully!`,
-        data: fetchedDocument
+        data: sanitizeData ? sanitizeData(fetchedDocument) : fetchedDocument
       });
     } catch (err) {
       console.error(err);
