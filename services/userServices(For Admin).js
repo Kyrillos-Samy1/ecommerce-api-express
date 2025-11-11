@@ -37,7 +37,7 @@ exports.getUserById = getDocumentById(
   "User",
   [{ path: "reviews", select: "-__v" }],
   "userId",
-  "-__v +password +active"
+  "-__v"
 );
 
 //! @desc Update Specific User
@@ -64,7 +64,7 @@ exports.updateUser = async (req, res, next) => {
       },
       { new: true, runValidators: true }
     )
-      .select("-__v +password +active")
+      .select("-__v")
       .populate({ path: "reviews", select: "-__v" });
 
     res.status(200).json({
@@ -94,7 +94,7 @@ exports.changeUserPassword = async (req, res, next) => {
       },
       { new: true, runValidators: true }
     )
-      .select("-__v +password +active")
+      .select("-__v")
       .populate({ path: "reviews", select: "-__v" });
 
     res.status(200).json({
