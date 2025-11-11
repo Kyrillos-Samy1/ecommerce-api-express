@@ -8,6 +8,7 @@ const { createToken } = require("./authServices");
 const {
   deleteFromCloudinary
 } = require("../middlewares/uplaodToCloudinaryMiddleware");
+const { sanitizeUserForUpdate } = require("../utils/sanitizeData");
 
 //*===========================================  (GET, PUT, DELETE) User Data For User  ==============================================
 
@@ -62,7 +63,7 @@ exports.updateLoggedUserData = async (req, res, next) => {
       .populate({ path: "reviews", select: "-__v" });
 
     res.status(200).json({
-      data: updatedDocument,
+      data: sanitizeUserForUpdate(updatedDocument),
       message: `User Updated Successfully!`
     });
   } catch (err) {
@@ -89,7 +90,7 @@ exports.updateLoggedUserPassword = async (req, res, next) => {
     const token = createToken(updatedDocument._id);
 
     res.status(200).json({
-      data: updatedDocument,
+      data: sanitizeUserForUpdate(updatedDocument),
       token,
       message: `Password Changed Successfully!`
     });
