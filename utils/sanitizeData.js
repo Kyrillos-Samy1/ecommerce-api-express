@@ -1,4 +1,4 @@
-exports.sanitizeUserForSignUp = (user) => ({
+const baseSanitizeUser = (user) => ({
   _id: user._id,
   name: user.name,
   slug: user.slug,
@@ -7,13 +7,13 @@ exports.sanitizeUserForSignUp = (user) => ({
   phone: user.phone
 });
 
+exports.sanitizeUserForSignUp = (user) => baseSanitizeUser(user);
+
 exports.sanitizeUserForLogin = (user) => ({
-  _id: user._id,
-  name: user.name,
-  slug: user.slug,
-  email: user.email,
-  userPhoto: user.userPhoto,
-  phone: user.phone,
+  ...baseSanitizeUser(user),
   wishlist: user.wishlist,
   addresses: user.addresses
 });
+
+exports.sanitizeUserForUpdate = exports.sanitizeUserForLogin;
+exports.sanitizeUserForGet = exports.sanitizeUserForLogin;
