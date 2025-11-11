@@ -12,7 +12,9 @@ const {
 } = require("./handlersFactory");
 const {
   sanitizeUserForSignUp,
-  sanitizeUserForLogin
+  sanitizeUserForLogin,
+  sanitizeUserForUpdate,
+  sanitizeUserForGet
 } = require("../utils/sanitizeData");
 
 //*=======================================  (CREATE, GET, PUT, DELETE) User Data For Admin  ==========================================
@@ -30,7 +32,8 @@ exports.getAllUsers = getAllDocuments(
   "User",
   [{ path: "reviews", select: "-__v" }],
   ["name", "email"],
-  "userId"
+  "userId",
+  sanitizeUserForGet
 );
 
 //! @desc Get Specific user
@@ -73,7 +76,7 @@ exports.updateUser = async (req, res, next) => {
       .populate({ path: "reviews", select: "-__v" });
 
     res.status(200).json({
-      data: updatedDocument,
+      data: sanitizeUserForUpdate(updatedDocument),
       message: `User Updated Successfully!`
     });
   } catch (err) {
@@ -103,7 +106,7 @@ exports.changeUserPassword = async (req, res, next) => {
       .populate({ path: "reviews", select: "-__v" });
 
     res.status(200).json({
-      data: updatedDocument,
+      data: sanitizeUserForUpdate(updatedDocument),
       message: `Password Changed Successfully!`
     });
   } catch (err) {
