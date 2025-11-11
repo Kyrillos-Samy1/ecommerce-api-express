@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 
 dotenv.config({ path: "./config.env" });
 const compression = require("compression");
+const hpp = require("hpp");
 const helmet = require("helmet");
 const { limiter, xssProtection } = require("./middlewares/securityMiddleware");
 const APIError = require("./utils/apiError");
@@ -45,6 +46,8 @@ app.use(helmet());
 
 //! Prevent XSS attacks and clickjacking vulnerabilities by setting the X-XSS-Protection header
 app.use(xssProtection());
+
+app.use(hpp());
 
 //! Rate limiting middleware
 app.use("/api", limiter);
