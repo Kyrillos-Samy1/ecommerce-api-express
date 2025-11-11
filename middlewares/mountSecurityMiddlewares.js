@@ -3,7 +3,7 @@ const hpp = require("hpp");
 const ExpressMongoSanitize = require("express-mongo-sanitize");
 const { xss } = require("express-xss-sanitizer");
 
-const { limiter, customXssProtection } = require("./securityMiddleware");
+const { limiter, customCSPProtection } = require("./securityMiddleware");
 
 exports.mountSecurityMiddlewares = (app) => {
   //! Prevent NoSQL injection attacks like 
@@ -16,7 +16,7 @@ exports.mountSecurityMiddlewares = (app) => {
   app.use(helmet());
 
   //! Prevent XSS attacks and clickjacking vulnerabilities like X-XSS-Protection
-  app.use(customXssProtection());
+  app.use(customCSPProtection());
 
   //! Prevent HTTP parameter pollution by using the hpp middleware 
   app.use(
