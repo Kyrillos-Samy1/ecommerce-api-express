@@ -6,12 +6,13 @@ const cookieParser = require("cookie-parser");
 
 dotenv.config({ path: "./config.env" });
 const compression = require("compression");
-const dbConnection = require("./config/databaseConnection");
+const helmet = require("helmet");
+const { limiter, xssProtection } = require("./middlewares/securityMiddleware");
 const APIError = require("./utils/apiError");
 const globalErrorHandler = require("./middlewares/errorMiddleware");
 const { Routes } = require("./routes");
 const { webhookCheckout } = require("./services/stripePaymentServices");
-const { limiter } = require("./middlewares/limiterMiddleware");
+const dbConnection = require("./config/databaseConnection");
 
 //! Connect with DB
 dbConnection();
@@ -27,7 +28,7 @@ app.post(
 );
 
 //! Logging middleware for development environment
-app.use(express.json({ limit: "50kb" })); //! Middleware to parse JSON request bodies up to 50kb in size
+app.use(express.json({ limit: "300kb" })); //! Middleware to parse JSON request bodies up to 300kb in size
 app.use(cookieParser()); //! Middleware to parse Cookies
 app.use(cors()); //! Middleware to enable any domain to access your APIs
 app.options("*", cors()); //! Enable pre-flight across-the-board requests
@@ -38,6 +39,14 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Node Environment: ${process.env.NODE_ENV}`);
 }
 
+//? Security Middleware
+//! Set security HTTP headers
+app.use(helmet());
+
+//! Prevent XSS attacks and clickjacking vulnerabilities by setting the X-XSS-Protection header
+app.use(xssProtection());
+
+//! Rate limiting middleware
 app.use("/api", limiter);
 
 //! Mount Routes to handle requests
