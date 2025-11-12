@@ -64,13 +64,13 @@ All API endpoints have been tested, validated, and documented using Postman. You
 
 ```
 ecommerce-api-express
-├── config/             # Configuration files
-├── middlewares/        # Auth, error handling, validation
+├── config/             # Configuration files (DB, Cloudinary, etc.)
+├── middlewares/        # Custom middlewares for auth, security, error handling, image uploads, validation errors, and request preprocessing
 ├── models/             # Mongoose models
 ├── node_modules/       # Node.js dependencies
 ├── routes/             # Express routes
 ├── services/           # Business logic services
-├── utils/              # Helper functions
+├── utils/              # Helper functions for emails, validation layers, API Errors, API Features, and Sanitize Data
 ├── .eslintrc.json      # ESLint configuration
 ├── .gitignore
 ├── config.env          # Environment variables
