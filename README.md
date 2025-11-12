@@ -5,45 +5,6 @@ It provides a secure, scalable, and efficient RESTful API for managing users, pr
 
 ---
 
-## API Endpoints Documentation
-
-**Description:**  
- 
-- Comprehensive API endpoints documentation built and tested using Postman, featuring all HTTP methods, parameters, request bodies, and example responses. This guide helps developers easily understand, test, and
-  integrate the backend system with high performance, reliability, and scalability.
-
-**Postman Documentation:**  
-
-- All API endpoints have been tested, validated, and documented using Postman. You can view and interact with them directly through the link below:
-
-**Using Postman with {{baseURL}}/api/v1/**
-
-- *Open Postman.*
-
-- *Go to Environments and create a new environment (or use an existing one).*
-
-- *Add a variable:*
-
-```
-baseURL
-```
-
-- *Set its value to:*
-
-```
-https://ecommerce-api-express.vercel.app
-```
-
-- *Use it in requests like this:*
-
-```
-{{baseURL}}/api/v1/products
-```
-
-- *This makes it easy to switch environments or update the base URL later.*
-
----
-
 ## Features
 
 - **User Authentication & Authorization**: Secure JWT-based login, signup, password reset, verification, and role-based access (Admin, Manager, User)
@@ -102,13 +63,42 @@ ecommerce-api-express
 
 ---
 
-## Download & Test
+## API Endpoints Documentation
 
-You can access and test the API without installing anything locally:
+**Description:**  
+ 
+- Comprehensive API endpoints documentation built and tested using Postman, featuring all HTTP methods, parameters, request bodies, and example responses. This guide helps developers easily understand, test, and
+  integrate the backend system with high performance, reliability, and scalability.
+
+**Postman Documentation:**  
+
+- All API endpoints have been tested, validated, and documented using Postman. You can view and interact with them directly through the link below:
+
+**You can access and test the API without installing anything locally:**
 
 - **Live API URL**: [https://ecommerce-api-express.vercel.app/](https://ecommerce-api-express.vercel.app/)
-- Use **Postman** or any API client to test all endpoints.
-- All images are hosted on **Cloudinary**.
+
+- *Go to Environments and create a new environment (or use an existing one).*
+
+- *Add a variable:*
+
+```
+baseURL
+```
+
+- *Set its value to:*
+
+```
+https://ecommerce-api-express.vercel.app
+```
+
+- *Use it in requests like this:*
+
+```
+{{baseURL}}/api/v1/products
+```
+
+- *This makes it easy to switch environments or update the base URL later.*
 
 > No environment variables or local setup required. Just explore the API online.
 
