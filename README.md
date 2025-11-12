@@ -128,7 +128,7 @@ Licensed under the [MIT License](./LICENSE).
 
 ## Contact
 
-**Kyrillos Samy Doksh Hanna**  
+**Crafted with vision by Kyrillos Samy Doksh Hanna**  
 Email: `kyrillossamy@outlook.com`  
 Phone: `+20-1271470997`  
 Nickname: `Empire Coder`  
