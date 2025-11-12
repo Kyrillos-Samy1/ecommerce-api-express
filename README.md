@@ -5,58 +5,74 @@ It provides a secure, scalable, and efficient RESTful API for managing users, pr
 
 ---
 
-## Live API
-
-Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express.vercel.app/)
-
-> You can test all endpoints using **Postman**. Product images are hosted on **Cloudinary** for seamless delivery.
-
----
-
-## 🔗 API Endpoints Documentation  
+## 🔗 API Endpoints Documentation
 
 **Description:**  
-Comprehensive API endpoints documentation built and tested using Postman, featuring all HTTP methods, parameters, request bodies, and example responses. This guide helps developers easily understand, test, and integrate the backend system with high performance, reliability, and scalability.  
+Comprehensive API endpoints documentation built and tested using Postman, featuring all HTTP methods, parameters, request bodies, and example responses. This guide helps developers easily understand, test, and integrate the backend system with high performance, reliability, and scalability.
 
 **Postman Documentation:**  
-All API endpoints have been tested, validated, and documented using Postman. You can view and interact with them directly through the link below:  
+All API endpoints have been tested, validated, and documented using Postman. You can view and interact with them directly through the link below:
 
-[View Full API Documentation on Postman](https://documenter.getpostman.com/view/41775437/2sB3WjyP5z)
+🔧 Using Postman with {{baseURL}}/api/v1/
+
+1. Open Postman.
+
+2. Go to Environments and create a new environment (or use an existing one).
+
+3. Add a variable:
+
+```
+baseURL
+```
+
+4. Set its value to:
+
+```
+https://ecommerce-api-express.vercel.app
+```
+
+5. Use it in requests like this:
+
+```
+{{baseURL}}/api/products
+```
+
+6. This makes it easy to switch environments or update the base URL later.
 
 ---
 
 ## Features
 
-- **User Authentication & Authorization**: Secure JWT-based login, signup, password reset, verification, and role-based access (Admin, Manager, User)  
-- **User & Address Management**: Logged-in users can manage their profile, addresses, passwords, and logout; managers can create and manage users  
-- **CRUD Operations** for Categories, Subcategories, Brands, and Products with full control for Admins and Managers  
-- **Product Management**: Supports multiple variants, stock tracking, dynamic pricing, image cover, and array of images for each product  
-- **Reviews & Ratings**: Users can create reviews; Admins and Managers can moderate all reviews; filter reviews by product  
-- **Wishlist Management**: Users can add, view, remove, and clear products from their wishlist  
-- **Shopping Cart & Coupons**: Add products to cart, apply discount coupons, update quantities, remove items, and clear cart  
-- **Orders & Payments**: Create, view, and cancel orders; supports cash on delivery and Stripe payments; automated emails for order confirmation, payment, and delivery  
-- **Advanced Searching & Filtering**: Pagination, filtering, sorting, field limiting, and search across products, categories, subcategories, brands, reviews, and coupons  
-- **Automated Email Notifications**: Sends transactional emails for online payment (stripe), cash payment, update payment status in case cash payment, and delivery updates  
-- **Media Hosting**: Product images uploaded and delivered via **Cloudinary** for fast and reliable media access  
-- **Advanced Error Handling & Validation**: Centralized error management ensures reliable API responses  
-- **Deployment Ready**: Fully hosted backend on **Vercel** with MongoDB Atlas, built for scalability and performance  
+- **User Authentication & Authorization**: Secure JWT-based login, signup, password reset, verification, and role-based access (Admin, Manager, User)
+- **User & Address Management**: Logged-in users can manage their profile, addresses, passwords, and logout; managers can create and manage users
+- **CRUD Operations** for Categories, Subcategories, Brands, and Products with full control for Admins and Managers
+- **Product Management**: Supports multiple variants, stock tracking, dynamic pricing, image cover, and array of images for each product
+- **Reviews & Ratings**: Users can create reviews; Admins and Managers can moderate all reviews; filter reviews by product
+- **Wishlist Management**: Users can add, view, remove, and clear products from their wishlist
+- **Shopping Cart & Coupons**: Add products to cart, apply discount coupons, update quantities, remove items, and clear cart
+- **Orders & Payments**: Create, view, and cancel orders; supports cash on delivery and Stripe payments; automated emails for order confirmation, payment, and delivery
+- **Advanced Searching & Filtering**: Pagination, filtering, sorting, field limiting, and search across products, categories, subcategories, brands, reviews, and coupons
+- **Automated Email Notifications**: Sends transactional emails for online payment (stripe), cash payment, update payment status in case cash payment, and delivery updates
+- **Media Hosting**: Product images uploaded and delivered via **Cloudinary** for fast and reliable media access
+- **Advanced Error Handling & Validation**: Centralized error management ensures reliable API responses
+- **Deployment Ready**: Fully hosted backend on **Vercel** with MongoDB Atlas, built for scalability and performance
 
 ---
 
 ## Tech Stack
 
-| Layer             | Tech Used                                                                                   |
-|------------------|---------------------------------------------------------------------------------------------|
-| Backend           | JavaScript (Node.js), Express.js, dotenv, cookie-parser, cors, helmet, hpp, compression, morgan, express-validator, express-mongo-sanitize, express-rate-limit, express-xss-sanitizer, multer, sharp, slugify, validator |
-| Database          | MongoDB, Mongoose                                                                           |
-| Authentication    | JWT, bcryptjs, Crypto                                                                       |
-| Payment           | Stripe                                                                                      |
-| Media Hosting     | Cloudinary                                                                                  |
-| Email             | Nodemailer                                                                                  |
-| Testing           | Postman                                                                                     |
-| Dev Tools & Lint  | Nodemon, Cross-env, ESLint, Prettier, eslint-config-airbnb, eslint-config-prettier, eslint-plugin-import, eslint-plugin-jsx-a11y, eslint-plugin-node, eslint-plugin-prettier, eslint-plugin-react |
-| Deployment        | Vercel, MongoDB Atlas                                                                       |
-| Security & Middleware | express-validator, express-mongo-sanitize, express-xss-sanitizer, helmet, hpp, cors, compression, express-rate-limit |
+| Layer                 | Tech Used                                                                                                                                                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Backend               | JavaScript (Node.js), Express.js, dotenv, cookie-parser, cors, helmet, hpp, compression, morgan, express-validator, express-mongo-sanitize, express-rate-limit, express-xss-sanitizer, multer, sharp, slugify, validator |
+| Database              | MongoDB, Mongoose                                                                                                                                                                                                        |
+| Authentication        | JWT, bcryptjs, Crypto                                                                                                                                                                                                    |
+| Payment               | Stripe                                                                                                                                                                                                                   |
+| Media Hosting         | Cloudinary                                                                                                                                                                                                               |
+| Email                 | Nodemailer                                                                                                                                                                                                               |
+| Testing               | Postman                                                                                                                                                                                                                  |
+| Dev Tools & Lint      | Nodemon, Cross-env, ESLint, Prettier, eslint-config-airbnb, eslint-config-prettier, eslint-plugin-import, eslint-plugin-jsx-a11y, eslint-plugin-node, eslint-plugin-prettier, eslint-plugin-react                        |
+| Deployment            | Vercel, MongoDB Atlas                                                                                                                                                                                                    |
+| Security & Middleware | express-validator, express-mongo-sanitize, express-xss-sanitizer, helmet, hpp, cors, compression, express-rate-limit                                                                                                     |
 
 ---
 
@@ -85,11 +101,11 @@ ecommerce-api-express
 
 ## Download & Test
 
-You can access and test the API without installing anything locally:  
+You can access and test the API without installing anything locally:
 
-- **Live API URL**: [https://ecommerce-api-express.vercel.app/](https://ecommerce-api-express.vercel.app/)  
-- Use **Postman** or any API client to test all endpoints.  
-- All images are hosted on **Cloudinary**.  
+- **Live API URL**: [https://ecommerce-api-express.vercel.app/](https://ecommerce-api-express.vercel.app/)
+- Use **Postman** or any API client to test all endpoints.
+- All images are hosted on **Cloudinary**.
 
 > No environment variables or local setup required. Just explore the API online.
 
@@ -112,6 +128,6 @@ For questions or collaborations: `kyrillossamy@outlook.com`
 Email: `kyrillossamy@outlook.com`  
 Phone: `+20-1271470997`  
 Nickname: `Empire Coder`  
-Based in Egypt  
+Based in Egypt
 
 > **Still learning, still building, always improving.**
