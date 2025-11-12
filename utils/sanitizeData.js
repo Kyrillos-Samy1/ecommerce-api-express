@@ -1,3 +1,4 @@
+//*=======================================  Sanitize User Data  ==========================================
 const baseSanitizeUser = (user) => ({
   userId: user._id,
   name: user.name,
@@ -18,3 +19,5 @@ exports.sanitizeUserForLogin = (user) => ({
 exports.sanitizeUserForUpdate = (user) => baseSanitizeUser(user);
 
 exports.sanitizeUserForGet = exports.sanitizeUserForLogin;
+
+exports.sanitizeUserForDelete = (user) => baseSanitizeUser(user);

@@ -14,7 +14,8 @@ const {
   sanitizeUserForSignUp,
   sanitizeUserForLogin,
   sanitizeUserForUpdate,
-  sanitizeUserForGet
+  sanitizeUserForGet,
+  sanitizeUserForDelete
 } = require("../utils/sanitizeData");
 
 //*=======================================  (CREATE, GET, PUT, DELETE) User Data For Admin  ==========================================
@@ -123,4 +124,9 @@ exports.changeUserPassword = async (req, res, next) => {
 //! @desc Delete Specific User
 //! @route DELETE /api/v1/users/:userId
 //! @access Private/Admin
-exports.deleteUser = deleteOneDocument(UserModel, "User", "userId");
+exports.deleteUser = deleteOneDocument(
+  UserModel,
+  "User",
+  "userId",
+  sanitizeUserForDelete
+);
