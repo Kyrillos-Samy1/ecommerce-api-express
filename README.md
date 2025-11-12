@@ -45,17 +45,16 @@ Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express
 
 ecommerce-api-express
 ├── src
-│ ├── controllers/ # Request handlers for API endpoints
-│ ├── models/ # Mongoose models
-│ ├── routes/ # Express routes
-│ ├── middleware/ # Auth, error handling, validation
-│ ├── utils/ # Helper functions
-│ ├── app.js # Express app setup
-│ └── server.js # Server entry point
-├── assets/ # Demo videos, Postman requests
+│ ├── services
+│ ├── models
+│ ├── routes
+│ ├── middlewares
+│ ├── utils
+│ └── server.js
 ├── .gitignore
 ├── README.md
 ├── package.json
+├── README
 └── LICENSE
 
 ---
