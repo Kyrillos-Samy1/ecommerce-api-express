@@ -13,31 +13,31 @@ Comprehensive API endpoints documentation built and tested using Postman, featur
 **Postman Documentation:**  
 All API endpoints have been tested, validated, and documented using Postman. You can view and interact with them directly through the link below:
 
-🔧 Using Postman with {{baseURL}}/api/v1/
+**Using Postman with {{baseURL}}/api/v1/**
 
-1. Open Postman.
+*1. *Open Postman.*
 
-2. Go to Environments and create a new environment (or use an existing one).
+*2. Go to Environments and create a new environment (or use an existing one).*
 
-3. Add a variable:
+*3. Add a variable:*
 
 ```
 baseURL
 ```
 
-4. Set its value to:
+*4. Set its value to:*
 
 ```
 https://ecommerce-api-express.vercel.app
 ```
 
-5. Use it in requests like this:
+*5. Use it in requests like this:*
 
 ```
 {{baseURL}}/api/products
 ```
 
-6. This makes it easy to switch environments or update the base URL later.
+*6. This makes it easy to switch environments or update the base URL later.*
 
 ---
 
