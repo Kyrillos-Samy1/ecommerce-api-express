@@ -9,7 +9,19 @@ It provides a secure, scalable, and efficient RESTful API for managing users, pr
 
 Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express.vercel.app/)
 
-> You can test all endpoints using **Postman**. Product images and videos are hosted on **Cloudinary** for seamless delivery.
+> You can test all endpoints using **Postman**. Product images and are hosted on **Cloudinary** for seamless delivery.
+
+---
+
+## 🔗 API Endpoints Documentation  
+
+**Description (300 chars):**  
+Comprehensive API endpoints documentation built and tested using Postman, featuring all HTTP methods, parameters, request bodies, and example responses. This guide helps developers easily understand, test, and integrate the backend system with high performance, reliability, and scalability.  
+
+**📘 Postman Documentation:**  
+All API endpoints have been tested, validated, and documented using Postman. You can view and interact with them directly through the link below:  
+
+👉 [View Full API Documentation on Postman](https://documenter.getpostman.com/view/41775437/2sB3WjyP5z)
 
 ---
 
@@ -23,21 +35,21 @@ Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express
 - **Orders & Payments**: Cash on delivery or online payment integration (Stripe or other gateways)  
 - **Advanced Error Handling & Validation**: Centralized error management for reliable API responses  
 - **Deployment Ready**: Hosted on **Vercel** with MongoDB Atlas as cloud database  
-- **Media Hosting**: Product images/videos uploaded and delivered via **Cloudinary**  
+- **Media Hosting**: Product images uploaded and delivered via **Cloudinary**  
 
 ---
 
 ## Tech Stack
 
-| Layer        | Tech Used                      |
-|--------------|--------------------------------|
-| Backend      | Node.js, Express.js             |
-| Database     | MongoDB, Mongoose              |
-| Authentication | JWT, bcrypt, Crypto          |
-| Payment      | Stripe (optional)              |
-| Media Hosting | Cloudinary                     |
-| Testing      | Postman                        |
-| Deployment   | Vercel, MongoDB Atlas           |
+| Layer          | Tech Used             |
+|----------------|----------------------|
+| Backend        | Node.js, Express.js  |
+| Database       | MongoDB, Mongoose    |
+| Authentication | JWT, bcrypt, Crypto  |
+| Payment        | Stripe (optional)    |
+| Media Hosting  | Cloudinary           |
+| Testing        | Postman              |
+| Deployment     | Vercel, MongoDB Atlas|
 
 ---
 
@@ -45,21 +57,21 @@ Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express
 
 ```
 ecommerce-api-express
-├── config/ # Configuration files
-├── middlewares/ # Auth, error handling, validation
-├── models/ # Mongoose models
-├── node_modules/ # Node.js dependencies
-├── routes/ # Express routes
-├── services/ # Business logic services
-├── utils/ # Helper functions
-├── .eslintrc.json # ESLint configuration
+├── config/             # Configuration files
+├── middlewares/        # Auth, error handling, validation
+├── models/             # Mongoose models
+├── node_modules/       # Node.js dependencies
+├── routes/             # Express routes
+├── services/           # Business logic services
+├── utils/              # Helper functions
+├── .eslintrc.json      # ESLint configuration
 ├── .gitignore
-├── config.env # Environment variables
+├── config.env          # Environment variables
 ├── LICENSE
 ├── package-lock.json
 ├── package.json
 ├── README.md
-└── server.js # Server entry point
+└── server.js           # Server entry point
 ```
 
 ---
@@ -70,19 +82,9 @@ You can access and test the API without installing anything locally:
 
 - **Live API URL**: [https://ecommerce-api-express.vercel.app/](https://ecommerce-api-express.vercel.app/)  
 - Use **Postman** or any API client to test all endpoints.  
-- Product images and videos are hosted on **Cloudinary**.  
+- All images are hosted on **Cloudinary**.  
 
 > No environment variables or local setup required. Just explore the API online.
-
----
-
-## Product / API Demo Video
-
-Watch the demo of the API in action:  
-
-- **Demo Video**: [Insert your video link here]  
-
-> Replace the placeholder link with your Cloudinary or YouTube video showing the API requests or product testing.
 
 ---
 
