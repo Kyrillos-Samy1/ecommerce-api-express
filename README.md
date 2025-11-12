@@ -45,15 +45,18 @@ All API endpoints have been tested, validated, and documented using Postman. You
 
 ## Tech Stack
 
-| Layer          | Tech Used            |
-|----------------|----------------------|
-| Backend        | Node.js, Express.js  |
-| Database       | MongoDB, Mongoose    |
-| Authentication | JWT, bcrypt, Crypto  |
-| Payment        | Stripe (optional)    |
-| Media Hosting  | Cloudinary           |
-| Testing        | Postman              |
-| Deployment     | Vercel, MongoDB Atlas|
+| Layer             | Tech Used                                                                                   |
+|------------------|---------------------------------------------------------------------------------------------|
+| Backend           | JavaScript (Node.js), Express.js, dotenv, cookie-parser, cors, helmet, hpp, compression, morgan, express-validator, express-mongo-sanitize, express-rate-limit, express-xss-sanitizer, multer, sharp, slugify, validator |
+| Database          | MongoDB, Mongoose                                                                           |
+| Authentication    | JWT, bcryptjs, Crypto                                                                       |
+| Payment           | Stripe                                                                                      |
+| Media Hosting     | Cloudinary                                                                                  |
+| Email             | Nodemailer                                                                                  |
+| Testing           | Postman                                                                                     |
+| Dev Tools & Lint  | Nodemon, Cross-env, ESLint, Prettier, eslint-config-airbnb, eslint-config-prettier, eslint-plugin-import, eslint-plugin-jsx-a11y, eslint-plugin-node, eslint-plugin-prettier, eslint-plugin-react |
+| Deployment        | Vercel, MongoDB Atlas                                                                       |
+| Security & Middleware | express-validator, express-mongo-sanitize, express-xss-sanitizer, helmet, hpp, cors, compression, express-rate-limit |
 
 ---
 
