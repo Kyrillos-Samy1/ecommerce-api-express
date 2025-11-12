@@ -176,7 +176,8 @@ exports.updateOneDocument =
 
 //! Handler To Delete One Document
 exports.deleteOneDocument =
-  (DeletingModel, FactoryName, ParamName) => async (req, res, next) => {
+  (DeletingModel, FactoryName, ParamName, sanitizeData) =>
+  async (req, res, next) => {
     const documentId = req.params[ParamName] || req.user._id;
     try {
       const deletedDocument =
@@ -184,7 +185,7 @@ exports.deleteOneDocument =
 
       res.status(200).json({
         message: `${FactoryName} Deleted Successfully!`,
-        data: deletedDocument
+        data: sanitizeData ? sanitizeData(deletedDocument) : deletedDocument
       });
     } catch (err) {
       console.error(err);
