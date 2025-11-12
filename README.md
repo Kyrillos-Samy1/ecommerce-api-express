@@ -60,9 +60,6 @@ ecommerce-api-express
 
 ---
 
-
----
-
 ## Download & Test
 
 You can access and test the API without installing anything locally:  
