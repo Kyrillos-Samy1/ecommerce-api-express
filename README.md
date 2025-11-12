@@ -5,7 +5,7 @@ It provides a secure, scalable, and efficient RESTful API for managing users, pr
 
 ---
 
-## 🔗 API Endpoints Documentation
+## API Endpoints Documentation
 
 **Description:**  
 Comprehensive API endpoints documentation built and tested using Postman, featuring all HTTP methods, parameters, request bodies, and example responses. This guide helps developers easily understand, test, and integrate the backend system with high performance, reliability, and scalability.
