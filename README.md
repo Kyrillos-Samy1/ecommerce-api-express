@@ -9,39 +9,43 @@ It provides a secure, scalable, and efficient RESTful API for managing users, pr
 
 Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express.vercel.app/)
 
-> You can test all endpoints using **Postman**. Product images and are hosted on **Cloudinary** for seamless delivery.
+> You can test all endpoints using **Postman**. Product images are hosted on **Cloudinary** for seamless delivery.
 
 ---
 
 ## 🔗 API Endpoints Documentation  
 
-**Description (300 chars):**  
+**Description:**  
 Comprehensive API endpoints documentation built and tested using Postman, featuring all HTTP methods, parameters, request bodies, and example responses. This guide helps developers easily understand, test, and integrate the backend system with high performance, reliability, and scalability.  
 
-**📘 Postman Documentation:**  
+**Postman Documentation:**  
 All API endpoints have been tested, validated, and documented using Postman. You can view and interact with them directly through the link below:  
 
-👉 [View Full API Documentation on Postman](https://documenter.getpostman.com/view/41775437/2sB3WjyP5z)
+[View Full API Documentation on Postman](https://documenter.getpostman.com/view/41775437/2sB3WjyP5z)
 
 ---
 
 ## Features
 
-- **User Authentication & Authorization**: JWT-based login, signup, password reset, role-based access (Admin, Manager, User)  
-- **CRUD Operations** for Categories, Subcategories, Brands, and Products  
-- **Product Management** with multiple variants, stock tracking, and dynamic pricing  
-- **Reviews & Wishlist**: Users can review products and manage wishlists  
-- **Shopping Cart & Coupons**: Add products, apply discount coupons, adjust quantities  
-- **Orders & Payments**: Cash on delivery or online payment integration (Stripe or other gateways)  
-- **Advanced Error Handling & Validation**: Centralized error management for reliable API responses  
-- **Deployment Ready**: Hosted on **Vercel** with MongoDB Atlas as cloud database  
-- **Media Hosting**: Product images uploaded and delivered via **Cloudinary**  
+- **User Authentication & Authorization**: Secure JWT-based login, signup, password reset, verification, and role-based access (Admin, Manager, User)  
+- **User & Address Management**: Logged-in users can manage their profile, addresses, passwords, and logout; managers can create and manage users  
+- **CRUD Operations** for Categories, Subcategories, Brands, and Products with full control for Admins and Managers  
+- **Product Management**: Supports multiple variants, stock tracking, dynamic pricing, image cover, and array of images for each product  
+- **Reviews & Ratings**: Users can create reviews; Admins and Managers can moderate all reviews; filter reviews by product  
+- **Wishlist Management**: Users can add, view, remove, and clear products from their wishlist  
+- **Shopping Cart & Coupons**: Add products to cart, apply discount coupons, update quantities, remove items, and clear cart  
+- **Orders & Payments**: Create, view, and cancel orders; supports cash on delivery and Stripe payments; automated emails for order confirmation, payment, and delivery  
+- **Advanced Searching & Filtering**: Pagination, filtering, sorting, field limiting, and search across products, categories, subcategories, brands, reviews, and coupons  
+- **Automated Email Notifications**: Sends transactional emails for online payment (stripe), cash payment, update payment status in case cash payment, and delivery updates  
+- **Media Hosting**: Product images uploaded and delivered via **Cloudinary** for fast and reliable media access  
+- **Advanced Error Handling & Validation**: Centralized error management ensures reliable API responses  
+- **Deployment Ready**: Fully hosted backend on **Vercel** with MongoDB Atlas, built for scalability and performance  
 
 ---
 
 ## Tech Stack
 
-| Layer          | Tech Used             |
+| Layer          | Tech Used            |
 |----------------|----------------------|
 | Backend        | Node.js, Express.js  |
 | Database       | MongoDB, Mongoose    |
