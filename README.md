@@ -76,7 +76,7 @@ ecommerce-api-express
 
 **You can access and test the API without installing anything locally:**
 
-- **Live API URL**: [https://ecommerce-api-express.vercel.app/](https://ecommerce-api-express.vercel.app/)
+- **Live API URL**: *[https://documenter.getpostman.com/view/41775437/2sB3WjyP5z](https://documenter.getpostman.com/view/41775437/2sB3WjyP5z)]*
 
 - *Go to Environments and create a new environment (or use an existing one).*
 
