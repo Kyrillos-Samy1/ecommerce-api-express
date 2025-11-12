@@ -15,7 +15,7 @@ All API endpoints have been tested, validated, and documented using Postman. You
 
 **Using Postman with {{baseURL}}/api/v1/**
 
-*1. *Open Postman.*
+*1. Open Postman.*
 
 *2. Go to Environments and create a new environment (or use an existing one).*
 
