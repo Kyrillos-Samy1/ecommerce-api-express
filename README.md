@@ -113,13 +113,14 @@ You can access and test the API without installing anything locally:
 
 ## Legal Notice & Usage Policy
 
-This project is for **educational purposes** only.  
-All source code and media assets are owned by **Kyrillos Samy Doksh Hanna**.
+This project is intended for **educational and portfolio purposes only**.  
+All source code and media assets are owned and maintained by **Kyrillos Samy Doksh Hanna**.
+
+**Unauthorized use, reproduction, or distribution of this code for commercial purposes is strictly prohibited**.
 
 Licensed under the [MIT License](./LICENSE).
 
-For questions or collaborations: `kyrillossamy@outlook.com`
-
+> For commercial inquiries, collaborations, or special permissions, please get in touch with me directly at: `kyrillossamy@outlook.com`
 ---
 
 ## Contact
