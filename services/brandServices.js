@@ -1,4 +1,3 @@
-// const asyncHandler = require("express-async-handler");
 const BrandModel = require("../models/brandModel");
 const {
   deleteOneDocument,
