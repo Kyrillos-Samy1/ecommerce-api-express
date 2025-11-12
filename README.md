@@ -34,7 +34,7 @@ https://ecommerce-api-express.vercel.app
 *5. Use it in requests like this:*
 
 ```
-{{baseURL}}/api/products
+{{baseURL}}/api/v1/products
 ```
 
 *6. This makes it easy to switch environments or update the base URL later.*
