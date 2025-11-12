@@ -105,4 +105,4 @@ Phone: `+20-1271470997`
 Nickname: `Empire Coder`  
 Based in Egypt  
 
-> **Learning, building, and improving every day.**
+> **Still learning, still building, always improving.**
