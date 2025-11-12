@@ -18,29 +18,29 @@ It provides a secure, scalable, and efficient RESTful API for managing users, pr
 
 **Using Postman with {{baseURL}}/api/v1/**
 
-*- Open Postman.*
+- *Open Postman.*
 
-*- Go to Environments and create a new environment (or use an existing one).*
+- *Go to Environments and create a new environment (or use an existing one).*
 
-*- Add a variable:*
+- *Add a variable:*
 
 ```
 baseURL
 ```
 
-*- Set its value to:*
+- *Set its value to:*
 
 ```
 https://ecommerce-api-express.vercel.app
 ```
 
-*- Use it in requests like this:*
+- *Use it in requests like this:*
 
 ```
 {{baseURL}}/api/v1/products
 ```
 
-*- This makes it easy to switch environments or update the base URL later.*
+- *This makes it easy to switch environments or update the base URL later.*
 
 ---
 
