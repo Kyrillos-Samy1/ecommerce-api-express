@@ -44,13 +44,12 @@ Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express
 ## Project Structure
 
 ecommerce-api-express
-├── src
-│ ├── services
-│ ├── models
-│ ├── routes
-│ ├── middlewares
-│ ├── utils
-│ └── server.js
+├── services
+├── models
+├── routes
+├── middlewares
+├── utils
+├── server.js
 ├── .gitignore
 ├── README.md
 ├── package.json
