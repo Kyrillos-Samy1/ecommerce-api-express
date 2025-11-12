@@ -66,7 +66,7 @@ https://ecommerce-api-express.vercel.app
 
 | Layer                 | Tech Used                                                                                                                                                                                                                |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Backend               | JavaScript (Node.js), Express.js, dotenv, cookie-parser, cors, helmet, hpp, compression, morgan, express-validator, express-mongo-sanitize, express-rate-limit, express-xss-sanitizer, multer, sharp, slugify, validator |
+| Backend               | JavaScript (Node.js), Express.js, dotenv, cookie-parser, compression, morgan, multer, sharp, slugify, validator |
 | Database              | MongoDB, Mongoose                                                                                                                                                                                                        |
 | Authentication        | JWT, bcryptjs, Crypto                                                                                                                                                                                                    |
 | Payment               | Stripe                                                                                                                                                                                                                   |
