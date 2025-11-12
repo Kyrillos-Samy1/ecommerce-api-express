@@ -33,7 +33,7 @@ Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express
 |--------------|--------------------------------|
 | Backend      | Node.js, Express.js             |
 | Database     | MongoDB, Mongoose              |
-| Authentication | JWT, bcrypt                  |
+| Authentication | JWT, bcrypt, Crypto          |
 | Payment      | Stripe (optional)              |
 | Media Hosting | Cloudinary                     |
 | Testing      | Postman                        |
@@ -45,17 +45,21 @@ Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express
 
 ```
 ecommerce-api-express
-├── services
-├── models
-├── routes
-├── middlewares
-├── utils
-├── server.js
+├── config/ # Configuration files
+├── middlewares/ # Auth, error handling, validation
+├── models/ # Mongoose models
+├── node_modules/ # Node.js dependencies
+├── routes/ # Express routes
+├── services/ # Business logic services
+├── utils/ # Helper functions
+├── .eslintrc.json # ESLint configuration
 ├── .gitignore
-├── README.md
+├── config.env # Environment variables
+├── LICENSE
+├── package-lock.json
 ├── package.json
-├── README
-└── LICENSE
+├── README.md
+└── server.js # Server entry point
 ```
 
 ---
