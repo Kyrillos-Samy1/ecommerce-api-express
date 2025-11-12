@@ -43,6 +43,7 @@ Test the API live here: [E-Commerce API on Vercel](https://ecommerce-api-express
 
 ## Project Structure
 
+```
 ecommerce-api-express
 ├── services
 ├── models
@@ -55,6 +56,7 @@ ecommerce-api-express
 ├── package.json
 ├── README
 └── LICENSE
+```
 
 ---
 
