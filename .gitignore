@@ -14,3 +14,4 @@ middlewares/corsOptions.js
 generate_commit.py
 
 postman
+.postman
