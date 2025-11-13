@@ -70,7 +70,7 @@ const generateRandomCodeAndHashIt = () => {
   };
 };
 
-const setCookiesInBrowser = (req, res, user) => {
+exports.setCookiesInBrowser = (req, res, user) => {
   //! Generete New Token
   const token = createToken(user._id);
 
@@ -93,7 +93,9 @@ const setCookiesInBrowser = (req, res, user) => {
   return token;
 };
 
-const sendResetCodeToUser = async (
+const setCookiesInBrowser = exports.setCookiesInBrowser;
+
+exports.sendResetCodeToUser = async (
   user,
   req,
   res,
@@ -131,6 +133,8 @@ const sendResetCodeToUser = async (
 
   return { resetCode, hashedResetCode, expiresResetCode };
 };
+
+const sendResetCodeToUser = exports.sendResetCodeToUser;
 
 //! @desc Sign-up
 //! @route POST /api/vi/auth/signup
@@ -231,7 +235,8 @@ exports.verifyResetCodeForSignUp = async (req, res, next) => {
         $set: {
           isEmailVerified: true,
           emailVerificationCode: "",
-          emailVerificationCodeExpires: ""
+          emailVerificationCodeExpires: "",
+          active: true
         }
       },
       { new: true, runValidators: false }
@@ -293,6 +298,17 @@ exports.protectRoutes = async (req, res, next) => {
       return next(
         new APIError(
           "The user belonging to this token does no longer exist.",
+          401,
+          "Unauthorized"
+        )
+      );
+    }
+
+    //! Check if user is suspended or not
+    if (currentUser.active === false) {
+      return next(
+        new APIError(
+          "Your account has been suspended! Please contact support.",
           401,
           "Unauthorized"
         )
