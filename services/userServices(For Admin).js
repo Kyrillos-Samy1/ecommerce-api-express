@@ -7,8 +7,7 @@ const APIError = require("../utils/apiError");
 const {
   deleteOneDocument,
   getDocumentById,
-  getAllDocuments,
-  createDocumnet
+  getAllDocuments
 } = require("./handlersFactory");
 const {
   sanitizeUserForSignUp,
@@ -17,13 +16,63 @@ const {
   sanitizeUserForGet,
   sanitizeUserForDelete
 } = require("../utils/sanitizeData");
+const { sendResetCodeToUser, setCookiesInBrowser } = require("./authServices");
 
 //*=======================================  (CREATE, GET, PUT, DELETE) User Data For Admin  ==========================================
 
 //! @desc Create User
-//! @route POST /api/v1/user
+//! @route POST /api/v1/users/admin
 //! @access Private/Admin
-exports.createUser = createDocumnet(UserModel, "User", sanitizeUserForSignUp);
+exports.createUser = async (req, res, next) => {
+  try {
+    const user = await UserModel.create({
+      name: req.body.name,
+      slug: slugify(req.body.name),
+      email: req.body.email,
+      password: req.body.password,
+      userPhoto: req.body.userPhoto,
+      role: req.body.role || "user",
+      active: true,
+      phone: req.body.phone
+    });
+
+    const token = setCookiesInBrowser(req, res, user);
+
+    //! Generate & send email verification code
+    const { hashedResetCode, expiresResetCode } = await sendResetCodeToUser(
+      user,
+      req,
+      res,
+      next,
+      "Email Verification Required",
+      "Welcome! Please enter the following code to verify your email address and activate your account.",
+      "Verify Email",
+      "Email Verification Code"
+    );
+
+    //! Save verification code info in DB
+    await UserModel.findByIdAndUpdate(
+      { _id: user._id },
+      {
+        $set: {
+          active: false,
+          emailVerificationCode: hashedResetCode,
+          emailVerificationCodeExpires: expiresResetCode,
+          isEmailVerified: false
+        }
+      },
+      { new: true, runValidators: false }
+    );
+
+    res.status(201).json({
+      message: "User Created & Verification Code Sent Successfully!",
+      data: sanitizeUserForSignUp(user),
+      token
+    });
+  } catch (error) {
+    next(new APIError(error.message, 500, error.name));
+  }
+};
 
 //! @desc Get All user With Pagination
 //! @route GET /api/v1/users
