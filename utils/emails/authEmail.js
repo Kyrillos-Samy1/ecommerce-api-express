@@ -36,7 +36,7 @@ exports.emailAuthTemplate = async (
         $unset: {
           resetCode: "",
           resetCodeExpires: "",
-          resetCodeVerified: ""
+          isForgotPasswordCodeVerified: ""
         }
       },
       { new: true, runValidators: false }
