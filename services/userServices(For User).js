@@ -15,13 +15,14 @@ const { sanitizeUserForUpdate } = require("../utils/sanitizeData");
 //! @desc Delete Image From Cloudinary Before Delete User
 exports.deleteImageFromCloudinaryBeforeDeleteUser = async (req, res, next) => {
   try {
-    if (req.user.userPhoto) {
+    if (req.user.userPhoto && req.user.userPhoto.imagePublicId) {
       await deleteFromCloudinary(req.user.userPhoto.imagePublicId);
     }
 
     if (req.params.userId) {
       const user = await UserModel.findById(req.params.userId);
-      if (user.userPhoto) {
+
+      if (user.userPhoto && user.userPhoto.imagePublicId) {
         await deleteFromCloudinary(user.userPhoto.imagePublicId);
       }
     }
