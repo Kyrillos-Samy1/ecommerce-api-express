@@ -23,9 +23,30 @@ exports.signupValidator = [
     .withMessage("Invalid email format")
     .custom(async (value) => {
       const user = await UserModel.findOne({ email: value });
+
+      if (user) {
+        const msLeft = user.resetCodeExpires - Date.now();
+        const minutes = Math.floor(msLeft / 60000);
+        const seconds = Math.floor((msLeft % 60000) / 1000);
+
+        const leftTime = `${minutes}m ${seconds}s`;
+
+        if (user.resetCodeExpires > Date.now()) {
+          throw new Error(
+            `Reset code already sent. Try again later after ${leftTime}`
+          );
+        }
+
+        if (!user.isEmailVerified && user.resetCodeExpires < Date.now()) {
+          throw new Error("Reset Code is Expired! Please try again.");
+        }
+      }
+
       if (user) {
         throw new Error("Email already in use!");
       }
+
+      return true;
     }),
   check("password")
     .notEmpty()
@@ -50,6 +71,39 @@ exports.signupValidator = [
   check("passwordConfirm")
     .notEmpty()
     .withMessage("Password confirmation is required"),
+  validatorMiddleware
+];
+
+exports.resetEmailCodeValidator = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format")
+    .custom(async (value) => {
+      const user = await UserModel.findOne({ email: value });
+      if (!user) {
+        throw new Error(`There is no user with this email address: ${value}`);
+      }
+
+      if (user.isEmailVerified) {
+        throw new Error("Email is Already Verified!");
+      }
+
+      const msLeft = user.resetCodeExpires - Date.now();
+      const minutes = Math.floor(msLeft / 60000);
+      const seconds = Math.floor((msLeft % 60000) / 1000);
+
+      const leftTime = `${minutes}m ${seconds}s`;
+
+      if (user.resetCodeExpires > Date.now()) {
+        throw new Error(
+          `Reset code already sent. Try again later after ${leftTime}`
+        );
+      }
+
+      return true;
+    }),
   validatorMiddleware
 ];
 
@@ -138,6 +192,14 @@ exports.verifyResetCodeValidator = [
         throw new Error("Reset Code is Expired");
       }
 
+      if (user.isForgotPasswordCodeVerified) {
+        throw new Error("Reset Code is Already Verified!");
+      }
+
+      if (user.isEmailVerified) {
+        throw new Error("Email is Already Verified!");
+      }
+
       return true;
     }),
   validatorMiddleware
@@ -155,7 +217,7 @@ exports.resetPasswordValidator = [
         throw new Error(`There is no user with this email address: ${value}`);
       }
 
-      if (!user.resetCodeVerified) {
+      if (!user.isForgotPasswordCodeVerified) {
         throw new Error("Reset Code is Not Verified!");
       }
 
