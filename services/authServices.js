@@ -108,9 +108,7 @@ const sendResetCodeToUser = async (
     generateRandomCodeAndHashIt();
 
   //! Send it to user's email
-  const resetURL = `${req.protocol}://${req.get(
-    "host"
-  )}/api/v1/auth/resetPassword`;
+  const resetURL = `${req.protocol}://${req.get("host")}/api/v1/auth/resetCode`;
 
   //! HTML Code For Verify Code For Forgot Password
   const htmlForVerifyCode = userVerificationEmailTemplate(
