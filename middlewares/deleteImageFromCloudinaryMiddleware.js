@@ -5,7 +5,7 @@ exports.deleteImageFromCloudinary = (Model, id) => async (req, res, next) => {
   try {
     const result = await Model.findById(req.params[id]);
     if (result.image.imagePublicId) {
-      await deleteFromCloudinary(result.image.imagePublicId);
+      await deleteFromCloudinary(result.image.imagePublicId || "");
     }
 
     next();
@@ -20,7 +20,7 @@ exports.deleteImagesFromCloudinary = async (req, res, next) => {
       await Promise.all(
         req.body.images.map((image) => {
           if (image.imagePublicId) {
-            return deleteFromCloudinary(image.imagePublicId);
+            return deleteFromCloudinary(image.imagePublicId || "");
           }
 
           return Promise.resolve();
