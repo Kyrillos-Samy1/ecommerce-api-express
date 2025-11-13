@@ -12,3 +12,5 @@ middlewares/checkIsActiveValue.js
 middlewares/corsOptions.js
 
 generate_commit.py
+
+postman
