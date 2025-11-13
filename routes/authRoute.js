@@ -4,14 +4,16 @@ const {
   login,
   forgotPassword,
   verifyResetCode,
-  resetPassword
+  resetPassword,
+  resetEmailCode
 } = require("../services/authServices");
 const {
   signupValidator,
   loginValidator,
   resetPasswordValidator,
   forgotPasswordValidator,
-  verifyResetCodeValidator
+  verifyResetCodeValidator,
+  resetEmailCodeValidator
 } = require("../utils/validators/authValidator");
 const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 const {
@@ -32,9 +34,25 @@ router.post(
   signupValidator,
   signup
 );
+router.post("/resetEmailCode", resetEmailCodeValidator, resetEmailCode);
 router.post("/login", loginValidator, login);
 router.post("/forgotPassword", forgotPasswordValidator, forgotPassword);
-router.post("/resetCode", verifyResetCodeValidator, verifyResetCode);
+router.post(
+  "/resetCodeForPassword",
+  verifyResetCodeValidator,
+  verifyResetCode({
+    isForgotPasswordCodeVerified: true
+  })
+);
+router.post(
+  "/resetCodeForSignUp",
+  verifyResetCodeValidator,
+  verifyResetCode({
+    isEmailVerified: true,
+    resetCode: "",
+    resetCodeExpires: ""
+  })
+);
 router.put("/resetPassword", resetPasswordValidator, resetPassword);
 
 module.exports = router;
