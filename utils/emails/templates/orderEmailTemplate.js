@@ -135,24 +135,20 @@ const orderConfirmationTemplate = (user = {}, order = {}) => {
         </tr>
         ${itemsHtml}
       </table>
-      <p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">
-        Total Order Price Before ${taxPrice > 0 ? "Tax &" : ""} Shipping${
-          couponApplied ? " & (Coupon Applied)" : ""
-        }: $${
-          totalPriceAfterDiscount
-            ? totalPriceAfterDiscount.toFixed(2)
-            : totalOrderPriceBeforeDiscount.toFixed(2)
-        }
+      <p style="margin-top:20px; font-weight:bold; color:#444; text-align:center;">
+        Total Order Price Before ${taxPrice > 0 ? "Tax &" : ""} Shipping${couponApplied ? " & (Coupon Applied)" : ""}: $${totalPriceAfterDiscount ? totalPriceAfterDiscount.toFixed(2) : totalOrderPriceBeforeDiscount.toFixed(2)}
       </p>
-      ${couponAppliedHtml}
       ${
-        taxPrice > 0
-          ? `<p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">Tax Cost: $${taxPrice.toFixed(2)}</p>`
+        couponAppliedHtml
+          ? `<p style="margin-top:10px; font-weight:bold; color:#444; text-align:center;">
+          Coupon Code Applied: <strong>${couponApplied}</strong> | Discount: <strong>${Math.round(percentageValue())}%</strong> | Amount: <strong>$${(Number(totalPriceAfterDiscount ?? totalOrderPriceBeforeDiscount) - Number(totalPriceAfterCouponApplied)).toFixed(2)}</strong>
+        </p>`
           : ""
       }
-      <p style="margin-top:10px; font-weight:bold; color:#444; text-align: left;">Shipping Cost: $${shippingPrice.toFixed(2)}</p>
-      <p class="total">Total Amount Payable: $${finalTotalPriceAfterTaxAndShippingAdded.toFixed(2)}</p>
-      <p style="margin-top:10px; font-weight:bold; color:#444; text-align: center;">Best regards, FastCart Inc.</p>
+      ${taxPrice > 0 ? `<p style="margin-top:10px; font-weight:bold; color:#444; text-align:center;">Tax Cost: $${taxPrice.toFixed(2)}</p>` : ""}
+      <p style="margin-top:10px; font-weight:bold; color:#444; text-align:center;">Shipping Cost: $${shippingPrice.toFixed(2)}</p>
+      <p class="total" style="margin-top:20px; text-align:center;">Total Amount Payable: $${finalTotalPriceAfterTaxAndShippingAdded.toFixed(2)}</p>
+      <p style="margin-top:20px; font-weight:bold; color:#444; text-align:center;">Best regards, FastCart Inc.</p>
     </div>
     <div class="footer">
       <p>© ${new Date().getFullYear()} FastCart Inc. All Rights Reserved.</p>
