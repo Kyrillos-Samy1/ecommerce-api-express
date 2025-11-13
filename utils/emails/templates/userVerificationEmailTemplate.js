@@ -1,5 +1,5 @@
 //! Responsive Forget Password Email Template - Gray Theme (Improved)
-const forgetPasswordTemplate = (
+const userVerificationEmailTemplate = (
   user = {},
   resetCode = "",
   resetURL = "",
@@ -146,4 +146,4 @@ const forgetPasswordTemplate = (
 </body>
 </html>`;
 
-module.exports = forgetPasswordTemplate;
+module.exports = userVerificationEmailTemplate;
