@@ -93,6 +93,48 @@ const setCookiesInBrowser = (req, res, user) => {
   return token;
 };
 
+const sendResetCodeToUser = async (user, req, res, next) => {
+  //! Generate the random 6-digit reset token & Hash it & Save it into DB
+  const { resetCode, expiresResetCode, hashedResetCode } =
+    generateRandomCodeAndHashIt();
+
+  //! Send it to user's email
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/auth/resetPassword`;
+
+  //! HTML Code For Verify Code For Forgot Password
+  const htmlForVerifyCode = forgotPasswordTemplate(
+    user,
+    resetCode,
+    resetURL,
+    "Password Reset Request",
+    "Please enter the following code to reset your password.",
+    "Verify Reset Code",
+    "Password Reset Code"
+  );
+
+  await emailAuthTemplate(
+    req,
+    res,
+    next,
+    htmlForVerifyCode,
+    "Passward Reset Code (valid for 10 min)"
+  );
+
+  //! Save the data into DB
+  await UserModel.findByIdAndUpdate(
+    { _id: user._id },
+    {
+      resetCode: hashedResetCode,
+      resetCodeExpires: expiresResetCode,
+      isForgotPasswordCodeVerified: false,
+      isEmailVerified: false
+    },
+    { new: true, runValidators: false }
+  );
+};
+
 //! @desc Sign-up
 //! @route POST /api/vi/auth/signup
 //! @access Public
@@ -109,13 +151,30 @@ exports.signup = async (req, res, next) => {
 
     const token = setCookiesInBrowser(req, res, user);
 
+    await sendResetCodeToUser(user, req, res, next);
+
     res.status(201).json({
       data: sanitizeUserForSignUp(user),
       token,
-      message: "Account created successfully!"
+      message: "Reset Code Sent Successfully! Please check your email."
     });
   } catch (error) {
     next(new APIError(error.message, 500));
+  }
+};
+
+//! @desc Reset Email Code
+//! @route POST /api/vi/auth/resetEmailCode
+//! @access Public
+exports.resetEmailCode = async (req, res, next) => {
+  const user = await UserModel.findOne({ email: req.body.email });
+
+  try {
+    await sendResetCodeToUser(user, req, res, next);
+
+    res.status(200).json({ message: "Reset Code Sent Successfully!" });
+  } catch (error) {
+    next(new APIError(error.message, 500, error.name));
   }
 };
 
@@ -186,6 +245,17 @@ exports.protectRoutes = async (req, res, next) => {
       );
     }
 
+    //! Check if user is verified or not
+    if (!currentUser.isEmailVerified) {
+      return next(
+        new APIError(
+          "User is not verified! Please verify your email first.",
+          401,
+          "Unauthorized"
+        )
+      );
+    }
+
     //! Grant access to protected route
     req.user = currentUser;
 
@@ -221,44 +291,7 @@ exports.forgotPassword = async (req, res, next) => {
     //! Get user based on posted email address
     const user = await UserModel.findOne({ email: req.body.email });
 
-    //! Generate the random 6-digit reset token & Hash it & Save it into DB
-    const { resetCode, expiresResetCode, hashedResetCode } =
-      generateRandomCodeAndHashIt();
-
-    //! Send it to user's email
-    const resetURL = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/auth/resetPassword`;
-
-    //! HTML Code For Verify Code For Forgot Password
-    const htmlForVerifyCode = forgotPasswordTemplate(
-      user,
-      resetCode,
-      resetURL,
-      "Password Reset Request",
-      "Please enter the following code to reset your password.",
-      "Verify Reset Code",
-      "Password Reset Code"
-    );
-
-    await emailAuthTemplate(
-      req,
-      res,
-      next,
-      htmlForVerifyCode,
-      "Passward Reset Code (valid for 10 min)"
-    );
-
-    //! Save the data into DB
-    await UserModel.findByIdAndUpdate(
-      { _id: user._id },
-      {
-        resetCode: hashedResetCode,
-        resetCodeExpires: expiresResetCode,
-        resetCodeVerified: false
-      },
-      { new: true, runValidators: false }
-    );
+    await sendResetCodeToUser(user, req, res, next);
   } catch (error) {
     next(new APIError(error.message, 500, error.name));
   }
@@ -267,26 +300,27 @@ exports.forgotPassword = async (req, res, next) => {
 //! @desc Verify Reset Code
 //! @route POST /api/v1/auth/resetCode
 //! @access Public
-exports.verifyResetCode = async (req, res, next) => {
-  //! Get User Based On Reset Code
-  const hashedResetCode = crypto
-    .createHash("sha256")
-    .update(req.body.resetCode)
-    .digest("hex");
+exports.verifyResetCode =
+  (isVerified = {}) =>
+  async (req, res, next) => {
+    //! Get User Based On Reset Code
+    const hashedResetCode = crypto
+      .createHash("sha256")
+      .update(req.body.resetCode)
+      .digest("hex");
 
-  const user = await UserModel.findOne({
-    resetCode: hashedResetCode
-  });
+    const user = await UserModel.findOne({
+      resetCode: hashedResetCode
+    });
 
-  //! Make Reset Verified is (true)
-  await UserModel.findByIdAndUpdate(
-    { _id: user._id },
-    { resetCodeVerified: true },
-    { new: true, runValidators: false }
-  );
+    //! Make Reset Verified is (true) or isEmailVerified is (true)
+    await UserModel.findByIdAndUpdate({ _id: user._id }, isVerified, {
+      new: true,
+      runValidators: false
+    });
 
-  res.status(200).json({ status: "success", message: "Reset Code Verified" });
-};
+    res.status(200).json({ status: "success", message: "Reset Code Verified" });
+  };
 
 //! @desc Reset Password
 //! @route POST /api/v1/auth/resetPassword
@@ -298,6 +332,7 @@ exports.resetPassword = async (req, res, next) => {
 
     //! Update User Password
     const hashedPassword = await bcrypt.hash(req.body.password, 12);
+
     await UserModel.findByIdAndUpdate(
       { _id: user._id },
       { password: hashedPassword, passwordChangedAt: Date.now() - 1000 },
@@ -309,7 +344,7 @@ exports.resetPassword = async (req, res, next) => {
       { _id: user._id },
       {
         $set: {
-          resetCodeVerified: false,
+          isForgotPasswordCodeVerified: false,
           resetCode: "",
           resetCodeExpires: ""
         }
