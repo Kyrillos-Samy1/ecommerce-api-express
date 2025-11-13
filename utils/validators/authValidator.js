@@ -66,9 +66,10 @@ exports.signupValidator = [
 
       const passwordRegex =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{6,}$/;
+
       if (!passwordRegex.test(value)) {
         throw new Error(
-          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character. Ex: Example@123"
+          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
         );
       }
 
@@ -77,6 +78,34 @@ exports.signupValidator = [
   check("passwordConfirm")
     .notEmpty()
     .withMessage("Password confirmation is required"),
+  check("phone")
+    .optional()
+    .isMobilePhone([
+      "ar-EG",
+      "en-EG",
+      "en-US",
+      "en-GB",
+      "en-CA",
+      "en-AU",
+      "en-NZ",
+      "en-IE",
+      "en-ZA",
+      "en-JM",
+      "ar-AE",
+      "ar-KW",
+      "ar-SA"
+    ])
+    .withMessage(
+      "You must enter a valid phone number in Egyptian, England, USA, Canada, Australia, New Zealand, Ireland, South Africa, Jamaica, UAE, Kuwait or Saudi Arabia format!"
+    ),
+  check("role")
+    .optional()
+    .isIn(["user", "admin", "manager"])
+    .withMessage("Role must be either 'user' or 'admin' or 'manager'"),
+  check("active")
+    .optional()
+    .isBoolean()
+    .withMessage("Active must be a boolean value"),
   validatorMiddleware
 ];
 
@@ -286,7 +315,7 @@ exports.resetPasswordValidator = [
       }
 
       const isSamePassword = await bcrypt.compare(value, user.password);
-      
+
       if (isSamePassword) {
         throw new Error(
           "New password must be different from the current password"
