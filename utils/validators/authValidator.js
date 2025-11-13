@@ -2,6 +2,7 @@ const { check } = require("express-validator");
 const crypto = require("crypto");
 const { default: slugify } = require("slugify");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
 const UserModel = require("../../models/userModel");
@@ -25,20 +26,25 @@ exports.signupValidator = [
       const user = await UserModel.findOne({ email: value });
 
       if (user) {
-        const msLeft = user.resetCodeExpires - Date.now();
+        const msLeft = user.emailVerificationCodeExpires - Date.now();
         const minutes = Math.floor(msLeft / 60000);
         const seconds = Math.floor((msLeft % 60000) / 1000);
 
         const leftTime = `${minutes}m ${seconds}s`;
 
-        if (user.resetCodeExpires > Date.now()) {
+        if (user.emailVerificationCodeExpires > Date.now()) {
           throw new Error(
             `Reset code already sent. Try again later after ${leftTime}`
           );
         }
 
-        if (!user.isEmailVerified && user.resetCodeExpires < Date.now()) {
-          throw new Error("Reset Code is Expired! Please try again.");
+        if (
+          !user.isEmailVerified &&
+          user.emailVerificationCodeExpires < Date.now()
+        ) {
+          throw new Error(
+            "Email is not verified yet. Please verify your email first."
+          );
         }
       }
 
@@ -74,34 +80,70 @@ exports.signupValidator = [
   validatorMiddleware
 ];
 
-exports.resetEmailCodeValidator = [
+exports.resendEmailCodeValidator = [
   check("email")
     .notEmpty()
     .withMessage("Email is required")
     .isEmail()
     .withMessage("Invalid email format")
-    .custom(async (value) => {
+    .custom(async (value, { req }) => {
       const user = await UserModel.findOne({ email: value });
       if (!user) {
         throw new Error(`There is no user with this email address: ${value}`);
+      }
+
+      const decoded = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET_KEY);
+
+      if (user._id.toString() !== decoded.userId) {
+        throw new Error("Unauthorized Access!");
       }
 
       if (user.isEmailVerified) {
         throw new Error("Email is Already Verified!");
       }
 
-      const msLeft = user.resetCodeExpires - Date.now();
+      const msLeft = user.emailVerificationCodeExpires - Date.now();
       const minutes = Math.floor(msLeft / 60000);
       const seconds = Math.floor((msLeft % 60000) / 1000);
 
       const leftTime = `${minutes}m ${seconds}s`;
 
-      if (user.resetCodeExpires > Date.now()) {
+      if (user.emailVerificationCodeExpires > Date.now()) {
         throw new Error(
           `Reset code already sent. Try again later after ${leftTime}`
         );
       }
 
+      return true;
+    }),
+  validatorMiddleware
+];
+
+exports.verifyResetCodeValidatorForSignUp = [
+  check("resetCodeForSignUp")
+    .notEmpty()
+    .withMessage("Reset Code is required")
+    .isLength({ min: 6 })
+    .withMessage("Reset Code must be at least 6 characters long")
+    .custom(async (value) => {
+      const hashedResetCode = crypto
+        .createHash("sha256")
+        .update(value)
+        .digest("hex");
+
+      const user = await UserModel.findOne({
+        emailVerificationCode: hashedResetCode,
+        isEmailVerified: false
+      });
+
+      if (!user) {
+        throw new Error("Reset Code is Invalid or Already Verified!");
+      }
+
+      if (user.emailVerificationCodeExpires < Date.now())
+        throw new Error("Reset Code is Expired");
+
+      if (user.isEmailVerified) throw new Error("Email is Already Verified!");
       return true;
     }),
   validatorMiddleware
@@ -151,13 +193,13 @@ exports.forgotPasswordValidator = [
         throw new Error(`There is no user with this email address: ${value}`);
       }
 
-      const msLeft = user.resetCodeExpires - Date.now();
+      const msLeft = user.resetPasswordCodeExpires - Date.now();
       const minutes = Math.floor(msLeft / 60000);
       const seconds = Math.floor((msLeft % 60000) / 1000);
 
       const leftTime = `${minutes}m ${seconds}s`;
 
-      if (user.resetCodeExpires > Date.now()) {
+      if (user.resetPasswordCodeExpires > Date.now()) {
         throw new Error(
           `Reset code already sent. Try again later after ${leftTime}`
         );
@@ -168,8 +210,8 @@ exports.forgotPasswordValidator = [
   validatorMiddleware
 ];
 
-exports.verifyResetCodeValidator = [
-  check("resetCode")
+exports.verifyResetCodeValidatorForPassword = [
+  check("resetCodeForForgotPassword")
     .notEmpty()
     .withMessage("Reset Code is required")
     .isLength({ min: 6 })
@@ -181,25 +223,19 @@ exports.verifyResetCodeValidator = [
         .digest("hex");
 
       const user = await UserModel.findOne({
-        resetCode: hashedResetCode
+        resetPasswordCode: hashedResetCode,
+        isForgotPasswordCodeVerified: false
       });
 
       if (!user) {
-        throw new Error("Reset Code is Invalid!");
+        throw new Error("Reset Code is Invalid or Already Verified!");
       }
 
-      if (user.resetCodeExpires < Date.now()) {
+      if (user.resetPasswordCodeExpires < Date.now())
         throw new Error("Reset Code is Expired");
-      }
 
-      if (user.isForgotPasswordCodeVerified) {
+      if (user.isForgotPasswordCodeVerified)
         throw new Error("Reset Code is Already Verified!");
-      }
-
-      if (user.isEmailVerified) {
-        throw new Error("Email is Already Verified!");
-      }
-
       return true;
     }),
   validatorMiddleware
@@ -221,7 +257,7 @@ exports.resetPasswordValidator = [
         throw new Error("Reset Code is Not Verified!");
       }
 
-      if (user.resetCodeExpires < Date.now()) {
+      if (user.resetPasswordCodeExpires < Date.now()) {
         throw new Error("Reset Code is Expired");
       }
 
@@ -250,6 +286,7 @@ exports.resetPasswordValidator = [
       }
 
       const isSamePassword = await bcrypt.compare(value, user.password);
+      
       if (isSamePassword) {
         throw new Error(
           "New password must be different from the current password"
