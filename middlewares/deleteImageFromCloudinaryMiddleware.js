@@ -28,6 +28,10 @@ exports.deleteImagesFromCloudinary = async (req, res, next) => {
       );
     }
 
+    if (req.body.imageCover && req.body.imageCover.imagePublicId) {
+      await deleteFromCloudinary(req.body.imageCover.imagePublicId || "");
+    }
+
     next();
   } catch (error) {
     next(new APIError(error.message, 500, "Cloudinary Error"));
