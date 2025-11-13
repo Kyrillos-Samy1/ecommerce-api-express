@@ -16,10 +16,7 @@ const userSchema = new mongoose.Schema(
       minlength: [3, "Too short user name!"],
       maxlength: [32, "Too long user name!"]
     },
-    slug: {
-      type: String,
-      lowercase: true
-    },
+    slug: { type: String, lowercase: true },
     email: {
       type: String,
       required: [true, "User email is required!"],
@@ -28,14 +25,8 @@ const userSchema = new mongoose.Schema(
       validate: [validator.isEmail, "Please provide a valid email!"]
     },
     userPhoto: {
-      url: {
-        type: String,
-        trim: true
-      },
-      imagePublicId: {
-        type: String,
-        trim: true
-      }
+      url: { type: String, trim: true },
+      imagePublicId: { type: String, trim: true }
     },
     phone: String,
     role: {
@@ -47,23 +38,34 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "User password is required!"],
       minlength: [6, "Too short password!"],
-      select: false //! to not show the password in any output
+      select: false
     },
     passwordChangedAt: Date,
-    resetCode: String,
-    resetCodeExpires: Date,
-    isForgotPasswordCodeVerified: Boolean,
+    //!----------------------------------------- EMAIL VERIFICATION
+    emailVerificationCode: String,
+    emailVerificationCodeExpires: Date,
+    isEmailVerified: { type: Boolean, default: false },
+
+    //!----------------------------------------- FORGOT PASSWORD
+    resetPasswordCode: String,
+    resetPasswordCodeExpires: Date,
+    isForgotPasswordCodeVerified: {
+      type: Boolean,
+      default: false
+    },
     active: {
       type: Boolean,
       default: true,
-      select: false //! to not show the active field in any output
+      select: false
     },
+
     wishlist: [
       {
         type: mongoose.Schema.ObjectId,
         ref: "Product"
       }
     ],
+
     addresses: [
       {
         addressType: {
@@ -71,18 +73,14 @@ const userSchema = new mongoose.Schema(
           enum: ["home", "office", "work", "billing", "shipping", "other"],
           default: "home"
         },
-        phone: { type: String },
-        details: { type: String },
-        city: { type: String },
-        state: { type: String },
-        zipCode: { type: String },
-        country: { type: String }
+        phone: String,
+        details: String,
+        city: String,
+        state: String,
+        zipCode: String,
+        country: String
       }
-    ],
-    isEmailVerified: {
-      type: Boolean,
-      default: false
-    }
+    ]
   },
   {
     timestamps: true,
@@ -92,36 +90,34 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-//! Virtual Fields for reviews count
+//! Virtual for reviews count
 userSchema.virtual("reviews", {
   ref: "Review",
   foreignField: "user",
   localField: "_id"
 });
 
-//! Encrypt user password using bcryptjs
+//! Encrypt password
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 12);
-
   next();
 });
 
-//! Implement cascade delete for user-related data and enhance order cancellation logic with stock restoration
+//! Cascade delete on user delete
 userSchema.pre("findOneAndDelete", async function (next) {
   try {
     const filter = this.getFilter();
     const userId = filter._id;
-
     if (!userId) return next();
 
-    //! Get affected reviews & orders before deletion
+    //! Get reviews + orders
     const [deletedReviews, userOrders] = await Promise.all([
       ReviewModel.find({ user: userId }),
       OrderModel.find({ user: userId })
     ]);
 
-    //! Restore stock & adjust sold counts
+    //! Restore product quantities
     const productAdjustments = [];
 
     userOrders.forEach((order) => {
@@ -129,12 +125,7 @@ userSchema.pre("findOneAndDelete", async function (next) {
         productAdjustments.push({
           updateOne: {
             filter: { _id: item.product },
-            update: {
-              $inc: {
-                quantity: item.quantity,
-                sold: -item.quantity
-              }
-            }
+            update: { $inc: { quantity: item.quantity, sold: -item.quantity } }
           }
         });
       });
@@ -144,16 +135,14 @@ userSchema.pre("findOneAndDelete", async function (next) {
       await ProductModel.bulkWrite(productAdjustments);
     }
 
-    //! Delete reviews & orders concurrently
     await Promise.all([
       ReviewModel.deleteMany({ user: userId }),
       OrderModel.deleteMany({ user: userId }),
       CartModel.deleteMany({ user: userId })
     ]);
 
-    //! Recalculate ratings for affected products
     const productIds = [
-      ...new Set(deletedReviews.map((review) => review.product.toString()))
+      ...new Set(deletedReviews.map((r) => r.product.toString()))
     ];
 
     if (productIds.length > 0) {
@@ -169,7 +158,6 @@ userSchema.pre("findOneAndDelete", async function (next) {
   }
 });
 
-//! 2- Create User Model
+//! Create Model
 const UserModel = mongoose.model("User", userSchema);
-
 module.exports = UserModel;
