@@ -24,9 +24,35 @@ exports.createUserValidator = [
     .withMessage("Invalid email format")
     .custom(async (value) => {
       const user = await UserModel.findOne({ email: value });
+
+      if (user) {
+        const msLeft = user.emailVerificationCodeExpires - Date.now();
+        const minutes = Math.floor(msLeft / 60000);
+        const seconds = Math.floor((msLeft % 60000) / 1000);
+
+        const leftTime = `${minutes}m ${seconds}s`;
+
+        if (user.emailVerificationCodeExpires > Date.now()) {
+          throw new Error(
+            `Reset code already sent. Try again later after ${leftTime}`
+          );
+        }
+
+        if (
+          !user.isEmailVerified &&
+          user.emailVerificationCodeExpires < Date.now()
+        ) {
+          throw new Error(
+            "Email is not verified yet. Please verify your email first."
+          );
+        }
+      }
+
       if (user) {
         throw new Error("Email already in use!");
       }
+
+      return true;
     }),
   check("password")
     .notEmpty()
