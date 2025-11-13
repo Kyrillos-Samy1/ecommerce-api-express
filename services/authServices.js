@@ -128,7 +128,7 @@ const sendResetCodeToUser = async (
     res,
     next,
     htmlForVerifyCode,
-    "Passward Reset Code (valid for 10 min)"
+    `${title} (valid for 10 min)`
   );
 
   //! Save the data into DB
@@ -160,7 +160,16 @@ exports.signup = async (req, res, next) => {
 
     const token = setCookiesInBrowser(req, res, user);
 
-    await sendResetCodeToUser(user, req, res, next);
+    await sendResetCodeToUser(
+      user,
+      req,
+      res,
+      next,
+      "Email Verification Required",
+      "Welcome! Please enter the following code to verify your email address and activate your account.",
+      "Verify Email",
+      "Email Verification Code"
+    );
 
     res.status(201).json({
       data: sanitizeUserForSignUp(user),
