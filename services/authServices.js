@@ -93,7 +93,16 @@ const setCookiesInBrowser = (req, res, user) => {
   return token;
 };
 
-const sendResetCodeToUser = async (user, req, res, next) => {
+const sendResetCodeToUser = async (
+  user,
+  req,
+  res,
+  next,
+  h2Content,
+  pContent,
+  aContent,
+  title
+) => {
   //! Generate the random 6-digit reset token & Hash it & Save it into DB
   const { resetCode, expiresResetCode, hashedResetCode } =
     generateRandomCodeAndHashIt();
@@ -108,10 +117,10 @@ const sendResetCodeToUser = async (user, req, res, next) => {
     user,
     resetCode,
     resetURL,
-    "Password Reset Request",
-    "Please enter the following code to reset your password.",
-    "Verify Reset Code",
-    "Password Reset Code"
+    h2Content,
+    pContent,
+    aContent,
+    title
   );
 
   await emailAuthTemplate(
@@ -170,7 +179,16 @@ exports.resetEmailCode = async (req, res, next) => {
   const user = await UserModel.findOne({ email: req.body.email });
 
   try {
-    await sendResetCodeToUser(user, req, res, next);
+    await sendResetCodeToUser(
+      user,
+      req,
+      res,
+      next,
+      "Email Verification Required",
+      "Welcome! Please enter the following code to verify your email address and activate your account.",
+      "Verify Email",
+      "Email Verification Code"
+    );
 
     res.status(200).json({ message: "Reset Code Sent Successfully!" });
   } catch (error) {
@@ -291,7 +309,16 @@ exports.forgotPassword = async (req, res, next) => {
     //! Get user based on posted email address
     const user = await UserModel.findOne({ email: req.body.email });
 
-    await sendResetCodeToUser(user, req, res, next);
+    await sendResetCodeToUser(
+      user,
+      req,
+      res,
+      next,
+      "Password Reset Request",
+      "We received a request to reset your password. Please enter the following code to proceed.",
+      "Verify Reset Code",
+      "Password Reset Code"
+    );
   } catch (error) {
     next(new APIError(error.message, 500, error.name));
   }
