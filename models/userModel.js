@@ -30,13 +30,11 @@ const userSchema = new mongoose.Schema(
     userPhoto: {
       url: {
         type: String,
-        trim: true,
-        required: [true, "User photo url is required!"]
+        trim: true
       },
       imagePublicId: {
         type: String,
-        trim: true,
-        required: [true, "User photo public id is required!"]
+        trim: true
       }
     },
     phone: String,
@@ -54,7 +52,7 @@ const userSchema = new mongoose.Schema(
     passwordChangedAt: Date,
     resetCode: String,
     resetCodeExpires: Date,
-    resetCodeVerified: Boolean,
+    isForgotPasswordCodeVerified: Boolean,
     active: {
       type: Boolean,
       default: true,
@@ -80,7 +78,11 @@ const userSchema = new mongoose.Schema(
         zipCode: { type: String },
         country: { type: String }
       }
-    ]
+    ],
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,
