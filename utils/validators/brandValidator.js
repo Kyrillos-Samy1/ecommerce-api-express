@@ -14,7 +14,7 @@ exports.createBrandValidator = [
     .custom((brandName) =>
       BrandModel.findOne({ name: brandName }).then((brand) => {
         if (brand) {
-          throw new Error("Brand Name Already Exists!")();
+          throw new Error("Brand Name Already Exists!");
         }
         return true;
       })
@@ -32,7 +32,7 @@ exports.getBrandByIdValidator = [
     .custom((value) =>
       BrandModel.findById(value).then((brand) => {
         if (!brand) {
-          throw new Error(`No Brands For This ID: ${value}`)();
+          throw new Error(`No Brands For This ID: ${value}`);
         }
         return true;
       })
@@ -95,7 +95,7 @@ exports.updateBrandValidator = [
     .custom((brandId) =>
       BrandModel.findById(brandId).then((brand) => {
         if (!brand) {
-          throw new Error(`No Brand Found For This ID: ${brandId}`)();
+          throw new Error(`No Brand Found For This ID: ${brandId}`);
         }
         return true;
       })
@@ -113,7 +113,7 @@ exports.updateBrandValidator = [
       });
 
       if (brand) {
-        throw new Error(`${value} Name Already Exists For Another Brand!`)();
+        throw new Error(`${value} Name Already Exists For Another Brand!`);
       }
 
       return true;
@@ -130,7 +130,7 @@ exports.deleteBrandValidator = [
     .custom(async (brandId) => {
       const brand = await BrandModel.findById(brandId);
       if (!brand) {
-        throw new Error(`No Brand Found For This ID: ${brandId}`)();
+        throw new Error(`No Brand Found For This ID: ${brandId}`);
       }
       return true;
     }),
@@ -157,7 +157,7 @@ exports.getAllBrandsValidator = [
     .toInt()
     .custom((value) => {
       if (value < 1) {
-        throw new Error("Page Must Be Greater Than 0!")();
+        throw new Error("Page Must Be Greater Than 0!");
       }
       return true;
     }),
@@ -170,10 +170,10 @@ exports.getAllBrandsValidator = [
     .toInt()
     .custom((value) => {
       if (value < 5) {
-        throw new Error("Limit Must Be Greater Than 5!")();
+        throw new Error("Limit Must Be Greater Than 5!");
       }
       if (value > 30) {
-        throw new Error("Limit Must Be Less Than Or Equal To 30!")();
+        throw new Error("Limit Must Be Less Than Or Equal To 30!");
       }
       return true;
     }),
@@ -235,7 +235,6 @@ exports.getAllBrandsValidator = [
     .isString()
     .withMessage("Search must be a string")
     .notEmpty()
-    .withMessage("Search query cannot be empty.")
-    ,
+    .withMessage("Search query cannot be empty."),
   validatorMiddleware
 ];
