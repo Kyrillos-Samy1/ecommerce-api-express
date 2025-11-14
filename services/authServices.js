@@ -15,9 +15,16 @@ const {
 } = require("../utils/sanitizeData");
 
 const createToken = (payload) =>
-  jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY, {
+  jwt.sign({ id: payload }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES_IN
   });
+
+const createRefreshToken = (payload) =>
+  jwt.sign({ id: payload }, process.env.JWT_SECRET_KEY, {
+    expiresIn: process.env.JWT_REFRESH_EXPIRES
+  });
+
+exports.createRefreshToken = createRefreshToken;
 
 exports.createToken = createToken;
 
@@ -38,7 +45,7 @@ const getTokenFromHeader = (req) => {
 
 const isCurrentUserExists = async (token) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-  const currentUser = await UserModel.findById(decoded.userId).select(
+  const currentUser = await UserModel.findById(decoded.id).select(
     "+password +active"
   );
   return { decoded, currentUser };
@@ -73,6 +80,7 @@ const generateRandomCodeAndHashIt = () => {
 exports.setCookiesInBrowser = (req, res, user) => {
   //! Generete New Token
   const token = createToken(user._id);
+  const refreshToken = createRefreshToken(user._id);
 
   //! Set Cookie (JWT) in Browser
   res.cookie("jwt", token, {
@@ -83,14 +91,14 @@ exports.setCookiesInBrowser = (req, res, user) => {
   });
 
   //! Set Cookie (Refresh Token) in Browser
-  res.cookie("refreshToken", token, {
+  res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 30 * 24 * 60 * 60 * 1000
   });
 
-  return token;
+  return { token, refreshToken };
 };
 
 const setCookiesInBrowser = exports.setCookiesInBrowser;
@@ -150,7 +158,7 @@ exports.signup = async (req, res, next) => {
       userPhoto: req.body.userPhoto
     });
 
-    const token = setCookiesInBrowser(req, res, user);
+    const { token } = setCookiesInBrowser(req, res, user);
 
     const { hashedResetCode, expiresResetCode } = await sendResetCodeToUser(
       user,
@@ -261,7 +269,7 @@ exports.login = async (req, res, next) => {
         { path: "wishlist", select: "-__v" }
       ]);
 
-    const token = setCookiesInBrowser(req, res, user);
+    const { token } = setCookiesInBrowser(req, res, user);
 
     res.status(200).json({
       data: sanitizeUserForLogin(user),
@@ -368,24 +376,42 @@ exports.allowRoles =
 exports.refreshToken = async (req, res, next) => {
   try {
     const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) return next(new APIError("No refresh token!", 401));
+    if (!refreshToken)
+      return next(new APIError("No refresh token!", 401, "Unauthorized"));
 
+    //! Verify refresh token ONLY
     const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET_KEY);
+
     const user = await UserModel.findById(decoded.id);
-    if (!user) return next(new APIError("User no longer exists!", 401));
+    if (!user)
+      return next(new APIError("User no longer exists!", 401, "Unauthorized"));
 
-    const newToken = createToken(user._id);
+    //! Create new tokens
+    const newAccessToken = createToken(user._id);
+    const newRefreshToken = createRefreshToken(user._id);
 
-    res.cookie("jwt", newToken, {
+    //! Send new tokens to cookies
+    res.cookie("jwt", newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 15 * 60 * 60 * 1000 //! 15 minutes
+      maxAge: 15 * 60 * 1000
     });
 
-    res.status(200).json({ token: newToken });
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json({
+      status: "success",
+      token: newAccessToken,
+      refreshToken: newRefreshToken
+    });
   } catch (error) {
-    next(new APIError(error.message, 500, error.name));
+    next(new APIError(error.message, 401, error.name));
   }
 };
 
