@@ -110,11 +110,11 @@ exports.updateLoggedUserPassword = async (req, res, next) => {
 //! @route GET /api/v1/users/logout
 //! @access Public
 exports.logoutUser = (req, res, next) => {
-  res.clearCookie("jwt", { httpOnly: true, secure: true, sameSite: "none" });
+  res.clearCookie("jwt", { httpOnly: true, secure: true, sameSite: "strict" });
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: true,
-    sameSite: "none"
+    sameSite: "strict"
   });
 
   res
