@@ -36,7 +36,7 @@ const CategorySchema = new mongoose.Schema(
 );
 
 //! Prenvent deleting category if there are subcategories or products linked to it
-CategorySchema.pre("findByIdAndDelete", async function (next) {
+CategorySchema.pre("findOneAndDelete", async function (next) {
   try {
     const filter = this.getFilter();
     const categoryId = filter._id;
