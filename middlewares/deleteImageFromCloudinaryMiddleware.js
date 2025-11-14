@@ -43,4 +43,3 @@ exports.removeImage = async (imagePublicId) => {
     await deleteFromCloudinary(imagePublicId);
   }
 };
-
