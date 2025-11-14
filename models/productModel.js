@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+//! 1- Create Product Schema
 const productSchema = new mongoose.Schema(
   {
     title: {
@@ -50,14 +51,11 @@ const productSchema = new mongoose.Schema(
     imageCover: {
       url: {
         type: String,
-        required: [true, "Product Image Cover Url is Required!"],
-        default: "https://via.placeholder.com/150",
         trim: true
       },
       imagePublicId: {
         type: String,
-        trim: true,
-        required: [true, "Product Image Cover Public Id is Required!"]
+        trim: true
       }
     },
     images: [
@@ -65,12 +63,10 @@ const productSchema = new mongoose.Schema(
         url: {
           type: String,
           trim: true,
-          required: [true, "Product Image Url is Required!"]
         },
         imagePublicId: {
           type: String,
           trim: true,
-          required: [true, "Product Image Public Id is Required!"]
         }
       }
     ],
