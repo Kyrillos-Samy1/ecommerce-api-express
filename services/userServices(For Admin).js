@@ -36,7 +36,7 @@ exports.createUser = async (req, res, next) => {
       phone: req.body.phone
     });
 
-    const token = setCookiesInBrowser(req, res, user);
+    const { token } = setCookiesInBrowser(req, res, user);
 
     //! Generate & send email verification code
     const { hashedResetCode, expiresResetCode } = await sendResetCodeToUser(
