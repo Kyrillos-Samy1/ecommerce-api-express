@@ -142,7 +142,7 @@ userSchema.pre("findOneAndDelete", async function (next) {
     ]);
 
     const productIds = [
-      ...new Set(deletedReviews.map((r) => r.product.toString()))
+      ...new Set(deletedReviews.map((review) => review.product.toString()))
     ];
 
     if (productIds.length > 0) {
