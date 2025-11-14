@@ -18,12 +18,10 @@ const CategorySchema = new mongoose.Schema(
       url: {
         type: String,
         trim: true,
-        required: [true, "Category Image Url is Required!"]
       },
       imagePublicId: {
         type: String,
         trim: true,
-        required: [true, "Category Image Public Id is Required!"]
       }
     },
     //! A and B => shopping.com/a-and-b
