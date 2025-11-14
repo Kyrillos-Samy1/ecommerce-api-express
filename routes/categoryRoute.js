@@ -42,7 +42,7 @@ router
     protectRoutes,
     allowRoles("admin", "manager"),
     uploadSingleImage("image"),
-    resizeImageWithSharp("image", 600, 95, "", CategoryModel, "Category"),
+    resizeImageWithSharp("image", 600, 95, "categoryId", CategoryModel, "Category"),
     createImageCategoryValidator,
     uploadImageToCloudinary("ecommerce-api-express-uploads/categories", "image"),
     createCategoryValidator,
