@@ -19,14 +19,9 @@ exports.resizeImageWithSharp =
       const file = req.file;
       if (!file) return next();
 
-      const result = await Model.findById(req.params[paramId] || req.user._id);
+      const result = await Model.findById(req.params[paramId] ?? req.user._id);
 
-      if (!result) {
-        req.validationMessage = `No ${docName} Found For This ID: ${req.params.brandId}`;
-        return true;
-      }
-
-      const name = refacorFileName(result.name || req.body.name);
+      const name = refacorFileName(result?.name ?? req.body.name);
 
       const originalName = slugify(`${name}-logo-${docName}`.toLowerCase());
 
