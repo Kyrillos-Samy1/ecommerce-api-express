@@ -37,3 +37,10 @@ exports.deleteImagesFromCloudinary = async (req, res, next) => {
     next(new APIError(error.message, 500, "Cloudinary Error"));
   }
 };
+
+exports.removeImage = async (imagePublicId) => {
+  if (imagePublicId) {
+    await deleteFromCloudinary(imagePublicId);
+  }
+};
+
