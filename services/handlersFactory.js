@@ -180,8 +180,9 @@ exports.deleteOneDocument =
   async (req, res, next) => {
     const documentId = req.params[ParamName] || req.user._id;
     try {
-      const deletedDocument =
-        await DeletingModel.findByIdAndDelete(documentId).select("-__v");
+      const deletedDocument = await DeletingModel.findOneAndDelete({
+        _id: documentId
+      }).select("-__v");
 
       res.status(200).json({
         message: `${FactoryName} Deleted Successfully!`,
