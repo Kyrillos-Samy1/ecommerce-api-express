@@ -29,17 +29,8 @@ exports.uploadImageToCloudinary =
   (folder, fieldImageName) => async (req, res, next) => {
     try {
       const imagesData = req.body[fieldImageName];
-      if (!imagesData || imagesData.length === 0) {
+      if (!imagesData) {
         return next();
-      }
-
-      if (req.files) {
-        const result = await uploadImageToCloudinary(
-          folder,
-          imagesData[0].tempFilename,
-          imagesData[0].newBuffer
-        );
-        req.body[fieldImageName] = result;
       }
 
       if (req.file) {
@@ -47,6 +38,15 @@ exports.uploadImageToCloudinary =
           folder,
           req.body[fieldImageName].tempFilename,
           req.body[fieldImageName].buffer
+        );
+        req.body[fieldImageName] = result;
+      }
+
+      if (req.files) {
+        const result = await uploadImageToCloudinary(
+          folder,
+          imagesData[0].tempFilename,
+          imagesData[0].newBuffer
         );
         req.body[fieldImageName] = result;
       }
