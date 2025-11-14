@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const APIError = require("../utils/apiError");
+const ProductModel = require("./productModel");
 
 //! 1- Create Category Schema
 const BrandSchema = new mongoose.Schema(
@@ -14,13 +16,11 @@ const BrandSchema = new mongoose.Schema(
     image: {
       url: {
         type: String,
-        trim: true,
-        required: [true, "Brand Image is Required!"]
+        trim: true
       },
       imagePublicId: {
         type: String,
-        trim: true,
-        required: [true, "Brand Image Public Id is Required!"]
+        trim: true
       }
     },
     //! A and B => shopping.com/a-and-b
@@ -31,6 +31,24 @@ const BrandSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+//! Prevent Brand Deletion if there are any products linked to it
+BrandSchema.pre("findOneAndDelete", async function (next) {
+  const brandId = this.getFilter()._id;
+
+  const product = await ProductModel.findOne({ brand: brandId });
+  if (product) {
+    return next(
+      new APIError(
+        "Cannot Delete Brand! There are products linked to this brand. Remove or reassign them first.",
+        400,
+        "Brand Deletion Error"
+      )
+    );
+  }
+
+  next();
+});
 
 //! 2- Create Model
 const BrandModel = mongoose.model("Brand", BrandSchema);
