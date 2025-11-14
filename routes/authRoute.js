@@ -6,7 +6,8 @@ const {
   resetPassword,
   resetEmailCode,
   verifyResetCodeForSignUp,
-  verifyResetCodeForForgotPassword
+  verifyResetCodeForForgotPassword,
+  refreshToken
 } = require("../services/authServices");
 const {
   signupValidator,
@@ -51,5 +52,7 @@ router.post(
   verifyResetCodeForForgotPassword
 );
 router.put("/resetPassword", resetPasswordValidator, resetPassword);
+
+router.post("/refreshToken", refreshToken);
 
 module.exports = router;
