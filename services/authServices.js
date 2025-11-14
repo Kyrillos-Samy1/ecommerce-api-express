@@ -78,16 +78,16 @@ exports.setCookiesInBrowser = (req, res, user) => {
   res.cookie("jwt", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 7 * 24 * 60 * 60 * 1000
+    sameSite: "strict",
+    maxAge: 15 * 60 * 60 * 1000 //! 15 minutes
   });
 
   //! Set Cookie (Refresh Token) in Browser
   res.cookie("refreshToken", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 90 * 24 * 60 * 60 * 1000
+    sameSite: "strict",
+    maxAge: 30 * 24 * 60 * 60 * 1000
   });
 
   return token;
@@ -361,6 +361,33 @@ exports.allowRoles =
             "Forbidden"
           )
         );
+
+//! @desc  Refresh Token
+//! @route POST /api/v1/auth/refreshToken
+//! @access Public
+exports.refreshToken = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return next(new APIError("No refresh token!", 401));
+
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET_KEY);
+    const user = await UserModel.findById(decoded.id);
+    if (!user) return next(new APIError("User no longer exists!", 401));
+
+    const newToken = createToken(user._id);
+
+    res.cookie("jwt", newToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 60 * 1000 //! 15 minutes
+    });
+
+    res.status(200).json({ token: newToken });
+  } catch (error) {
+    next(new APIError(error.message, 500, error.name));
+  }
+};
 
 //*==================================================== FORGOT PASSWORD ==============================================
 
