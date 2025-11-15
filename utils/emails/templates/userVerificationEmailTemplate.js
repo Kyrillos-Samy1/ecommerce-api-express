@@ -1,4 +1,3 @@
-//! Responsive Forget Password Email Template - Gray Theme (Improved)
 const userVerificationEmailTemplate = (
   user = {},
   resetCode = "",
