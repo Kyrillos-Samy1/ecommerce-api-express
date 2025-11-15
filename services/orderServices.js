@@ -7,6 +7,7 @@ const {
 } = require("../utils/emails/sendEmailNotification");
 const orderDeliveredEmailTemplate = require("../utils/emails/templates/orderDeliveredEmailTemplate");
 const orderConfirmationTemplate = require("../utils/emails/templates/orderEmailTemplate");
+const { getAllDocuments } = require("./handlersFactory");
 
 //! @ desc Helper Function to Update Product Quantities & Clear Cart
 const updateOrderQuantityAndClearCart = async (order, cart, userId) => {
@@ -213,6 +214,23 @@ exports.cancelOrder = async (req, res, next) => {
 };
 
 //*====================================================== FOR ADMIN ======================================================
+
+//! @desk Get All Orders With Pagination
+//! @route GET /api/v1/orders/forAdmin
+//! @access Private/Protected/Admin/Manager
+exports.getAllOrdersForAdmin = getAllDocuments(
+  OrderModel,
+  "Orders",
+  [],
+  [
+    "isDelivered",
+    "isCancelled",
+    "paymentMethodType",
+    "couponApplied",
+    "name",
+  ],
+  "orderId"
+);
 
 //! @desk Update Is Paid Status
 //! @route PATCH /api/v1/orders/cash/:orderId/pay
