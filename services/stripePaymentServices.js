@@ -2,7 +2,9 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const CartModel = require("../models/cartModel");
 const APIError = require("../utils/apiError");
-const { sendOrderConfirmationEmail } = require("../utils/emails/ordersEmail");
+const {
+  sendEmailNotification
+} = require("../utils/emails/sendEmailNotification");
 const orderConfirmationTemplate = require("../utils/emails/templates/orderEmailTemplate");
 const { createCardOrder } = require("./orderServices");
 
@@ -201,16 +203,21 @@ exports.webhookCheckout = async (req, res, next) => {
 
     const order = await createCardOrder(session, next);
 
-    await sendOrderConfirmationEmail(
+    await sendEmailNotification(
+      req,
+      res,
+      next,
       session.customer_details.email,
       orderConfirmationTemplate(
         {
           userName: session.metadata.userName,
-          photo: session.metadata.userPhoto,
+          photo: session.metadata.userPhoto
         },
-        order
+        order,
+        "Order Confirmation - FastCart Inc"
       ),
-      "Order Confirmation - FastCart Inc"
+      "Order Confirmation - FastCart Inc",
+      "Order Placed Successfully! Check Your Email!"
     );
   }
   res.status(200).json({ received: true });
