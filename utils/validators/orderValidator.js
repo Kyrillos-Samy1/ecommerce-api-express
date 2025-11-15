@@ -2,6 +2,7 @@ const { check } = require("express-validator");
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
 const CartModel = require("../../models/cartModel");
 const OrderModel = require("../../models/orderSchema");
+const UserModel = require("../../models/userModel");
 
 exports.createCashOrderValidator = [
   check("cardId")
@@ -116,9 +117,37 @@ exports.createCashOrderValidator = [
   validatorMiddleware
 ];
 
+exports.getLoggedUserOrdersValidator = [
+  check("userId")
+    .isMongoId()
+    .withMessage("Invalid User ID Format")
+    .notEmpty()
+    .withMessage("User ID is Required!")
+    .custom(async (value, { req }) => {
+      const user = await UserModel.findById(value);
+      if (!user) {
+        throw new Error("User Not Found!");
+      }
+
+      const orders = await OrderModel.find({ user: req.params.userId }).sort(
+        "-createdAt"
+      );
+
+      if (orders.length === 0) {
+        throw new Error("No Orders Found!");
+      }
+
+      if (value.toString() !== req.user._id.toString()) {
+        throw new Error("You cannot get an order for another user!");
+      }
+
+      return true;
+    }),
+  validatorMiddleware
+];
+
 exports.getSpecificOrderValidator = [
   check("orderId")
-    .trim()
     .isMongoId()
     .withMessage("Invalid Order ID format")
     .notEmpty()
@@ -129,12 +158,8 @@ exports.getSpecificOrderValidator = [
         throw new Error(`Order not found with this ID: ${value}`);
       }
 
-      if (order.user.toString() !== req.user._id.toString()) {
+      if (order.user._id.toString() !== req.user._id.toString()) {
         throw new Error("You cannot get an order for another user");
-      }
-
-      if (order.isCancelled) {
-        throw new Error("This order has been cancelled");
       }
 
       return true;
@@ -176,7 +201,7 @@ exports.cancelOrderValidator = [
   validatorMiddleware
 ];
 
-//!===================================================== FOR ADMIN ======================================================
+//!===================================================== FOR ADMIN or MANAGER ======================================================
 
 exports.updateOrderIsPaidStatusValidator = [
   check("orderId")
