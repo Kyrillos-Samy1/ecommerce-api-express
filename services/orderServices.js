@@ -2,7 +2,9 @@ const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");
+const sendOrderDeliveryEmail = require("../utils/emails/orderDelivredEmail");
 const { sendOrderConfirmationEmail } = require("../utils/emails/ordersEmail");
+const orderDeliveredEmailTemplate = require("../utils/emails/templates/orderDeliveredEmailTemplate");
 const orderConfirmationTemplate = require("../utils/emails/templates/orderEmailTemplate");
 
 //! @ desc Helper Function to Update Product Quantities & Clear Cart
@@ -133,16 +135,12 @@ exports.createCashOrder = async (req, res, next) => {
 
 //! @desk Get Logged User Orders
 //! @route GET /api/v1/orders
-//! @access Private/Protected/User/Admin/Manager
+//! @access Private/Protected/Admin/Manager/User
 exports.getLoggedUserOrders = async (req, res, next) => {
   try {
-    const orders = await OrderModel.find({ user: req.user._id }).sort(
+    const orders = await OrderModel.find({ user: req.params.userId }).sort(
       "-createdAt"
     );
-
-    if (orders.length === 0) {
-      return next(new APIError("No Orders Found!", 404, "NotFoundError"));
-    }
 
     res.status(200).json({
       status: "success",
@@ -155,8 +153,8 @@ exports.getLoggedUserOrders = async (req, res, next) => {
 };
 
 //! @desk Get Specific Order
-//! @route GET /api/v1/orders/:orderId
-//! @access Private/Protected/User/Admin/Manager
+//! @route GET /api/v1/orders/:orderId/order
+//! @access Private/Protected/User
 exports.getSpecificOrder = async (req, res, next) => {
   try {
     const order = await OrderModel.findById(req.params.orderId);
@@ -238,6 +236,22 @@ exports.updateOrderIsPaidStatus = async (req, res, next) => {
 exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
   try {
     const order = await OrderModel.findById(req.params.orderId).select("-__v");
+
+    //! Send Email
+    await sendOrderDeliveryEmail(
+      order.user.email,
+      orderDeliveredEmailTemplate(
+        {
+          name: order.user.name,
+          photo: order.user.userPhoto?.url,
+          orderId: order._id
+        },
+        order.paymentMethodType,
+        order.finalTotalPriceAfterTaxAndShippingAdded,
+        "Order Delivery - FastCart Inc"
+      ),
+      "Order Delivery - FastCart Inc"
+    );
 
     order.isDelivered = true;
     order.deliveredAt = Date.now();
