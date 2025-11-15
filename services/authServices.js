@@ -8,7 +8,9 @@ require("dotenv").config();
 const UserModel = require("../models/userModel");
 const APIError = require("../utils/apiError");
 const userVerificationEmailTemplate = require("../utils/emails/templates/userVerificationEmailTemplate");
-const { emailAuthTemplate } = require("../utils/emails/authEmail");
+const {
+  sendEmailNotification
+} = require("../utils/emails/sendEmailNotification");
 const {
   sanitizeUserForSignUp,
   sanitizeUserForLogin
@@ -131,12 +133,14 @@ exports.sendResetCodeToUser = async (
     title
   );
 
-  await emailAuthTemplate(
+  await sendEmailNotification(
     req,
     res,
     next,
+    user.email,
     htmlForVerifyCode,
-    `${title} (valid for 10 min)`
+    `${title} (valid for 10 min)`,
+    "Reset Code Sent Successfully! Check Your Email!"
   );
 
   return { resetCode, hashedResetCode, expiresResetCode };
