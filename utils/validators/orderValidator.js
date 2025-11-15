@@ -191,7 +191,17 @@ const allowedFields = [
   "paidAt",
   "deliveredAt",
   "createdAt",
-  "updatedAt"
+  "updatedAt",
+  "finalTotalPriceAfterTaxAndShippingAdded",
+  "totalOrderPriceBeforeDiscount",
+  "totalPriceAfterDiscount",
+  "totalPriceAfterCouponApplied",
+  "couponApplied",
+  "taxPrice",
+  "shippingAddress",
+  "shippingPrice",
+  "totalPrice",
+  "__v"
 ];
 
 exports.getAllOrdersForAdminValidator = [
