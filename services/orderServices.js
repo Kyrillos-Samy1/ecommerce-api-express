@@ -2,8 +2,9 @@ const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
 const APIError = require("../utils/apiError");
-const sendOrderDeliveryEmail = require("../utils/emails/orderDelivredEmail");
-const { sendOrderConfirmationEmail } = require("../utils/emails/ordersEmail");
+const {
+  sendEmailNotification
+} = require("../utils/emails/sendEmailNotification");
 const orderDeliveredEmailTemplate = require("../utils/emails/templates/orderDeliveredEmailTemplate");
 const orderConfirmationTemplate = require("../utils/emails/templates/orderEmailTemplate");
 
@@ -112,13 +113,18 @@ exports.createCashOrder = async (req, res, next) => {
     await updateOrderQuantityAndClearCart(order, cart, req.user._id);
 
     //! 5) Send Email
-    await sendOrderConfirmationEmail(
+    await sendEmailNotification(
+      req,
+      res,
+      next,
       req.user.email,
       orderConfirmationTemplate(
         { userName: req.user.name, photo: req.user.userPhoto?.url },
-        order
+        order,
+        "Order Confirmation - FastCart Inc"
       ),
-      "Order Confirmation - FastCart Inc"
+      "Order Confirmation - FastCart Inc",
+      "Check Your Email For Order Created Successfully! Please proceed to pay at delivery time."
     );
 
     //! 6) Send Response
@@ -235,10 +241,20 @@ exports.updateOrderIsPaidStatus = async (req, res, next) => {
 //! @access Private/Protected/Admin/Manager
 exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
   try {
-    const order = await OrderModel.findById(req.params.orderId).select("-__v");
+    console.log("OrderId from params:", req.params.orderId);
+    const order = await OrderModel.findById(req.params.orderId)
+      .populate({
+        path: "user",
+        select: "name email userPhoto"
+      })
+      .select("-__v");
+    console.log("Fetched order:", order);
 
     //! Send Email
-    await sendOrderDeliveryEmail(
+    await sendEmailNotification(
+      req,
+      res,
+      next,
       order.user.email,
       orderDeliveredEmailTemplate(
         {
@@ -250,7 +266,8 @@ exports.updateOrderIsDeliveredStatus = async (req, res, next) => {
         order.finalTotalPriceAfterTaxAndShippingAdded,
         "Order Delivery - FastCart Inc"
       ),
-      "Order Delivery - FastCart Inc"
+      "Order Delivery - FastCart Inc",
+      "Order Mark Delivered Successfully! Check Your Email!"
     );
 
     order.isDelivered = true;
