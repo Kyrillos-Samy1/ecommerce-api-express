@@ -19,7 +19,7 @@ const sendEmail = async (options, html) => {
     from: `"FastCart" <${options.from}>`,
     to: options.email,
     subject: options.subject,
-    html,
+    html
     // attachments: [
     //   {
     //     filename: "Kyrillos_Samy_LinkedIn.png",
