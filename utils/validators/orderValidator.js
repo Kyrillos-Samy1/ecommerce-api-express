@@ -174,7 +174,8 @@ exports.cancelOrderValidator = [
 //!===================================================== FOR ADMIN or MANAGER ======================================================
 
 const allowedFields = [
-  "orderId",
+  "user",
+  "orderItems",
   "name",
   "email",
   "address",
@@ -190,8 +191,7 @@ const allowedFields = [
   "paidAt",
   "deliveredAt",
   "createdAt",
-  "updatedAt",
-  "__v"
+  "updatedAt"
 ];
 
 exports.getAllOrdersForAdminValidator = [
