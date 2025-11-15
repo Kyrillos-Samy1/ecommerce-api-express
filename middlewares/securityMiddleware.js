@@ -5,7 +5,7 @@ const { default: helmet } = require("helmet");
 exports.limiter = (maxLimitig) =>
   rateLimit({
     //! Generate a unique key for each request based on the user's ID or email
-    keyGenerator: (req) => req.user?.id || req.body.email,
+    keyGenerator: (req) => req.user?._id || req.body.email,
     max: maxLimitig,
     windowMs: 60 * 60 * 1000,
     message: "Too many requests, please try again in an hour!"
