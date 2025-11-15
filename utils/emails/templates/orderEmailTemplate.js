@@ -1,5 +1,9 @@
 //! Order Email Template - Works for Cash & Card Payments
-const orderConfirmationTemplate = (user = {}, order = {}) => {
+const orderConfirmationTemplate = (
+  user = {},
+  order = {},
+  title = "Order Confirmation - FastCart Inc"
+) => {
   const {
     orderItems = [],
     finalTotalPriceAfterTaxAndShippingAdded = 0,
@@ -8,8 +12,7 @@ const orderConfirmationTemplate = (user = {}, order = {}) => {
     totalOrderPriceBeforeDiscount = 0,
     couponApplied = "",
     taxPrice = 0,
-    shippingPrice = 0,
-    title = "Order Confirmation - FastCart Inc"
+    shippingPrice = 0
   } = order;
 
   const percentageValue = () => {
