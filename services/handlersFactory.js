@@ -64,31 +64,49 @@ exports.getAllDocuments =
         req.query
       );
 
-      const documentsCount = await GetAllDocumentsModel.countDocuments(
-        apiFeatures.mongooseQuery.getFilter()
-      );
-
       apiFeatures
-        .paginate(documentsCount)
         .filter()
         .sort()
         .fields()
         .search(ListOfSearchedFields)
         .populate(ListOfPopulate);
 
-      //! Execute query
-      const { mongooseQuery, paginationResult } = apiFeatures;
-      const documents = await mongooseQuery.find(filteredSubDocuments);
+      //! Execute query first to get filtered documents
+      const documents =
+        await apiFeatures.mongooseQuery.find(filteredSubDocuments);
 
       if (documents.length === 0) {
         return next(new APIError(`No ${FactoryName} Found!`, 404, "Not Found"));
       }
 
+      //! Pagination after getting filtered documents
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 5;
+      const totalDocuments = await GetAllDocumentsModel.countDocuments();
+      const results = documents.length;
+      const numberOfPages = Math.ceil(results / limit);
+      const startIndex = (page - 1) * limit;
+      const endIndex = Math.min(startIndex + limit, results);
+      const paginatedData = documents.slice(startIndex, endIndex);
+
+      const paginationResult = {
+        currentPage: page,
+        limit,
+        totalDocuments,
+        numberOfPages,
+        hasNextPage: page < numberOfPages,
+        next: page < numberOfPages ? page + 1 : null,
+        hasPrevPage: page > 1,
+        prev: page > 1 ? page - 1 : null,
+        startIndex: startIndex + 1,
+        endIndex
+      };
+
       res.status(200).json({
         paginationResult,
-        results: documents.length,
+        results: paginatedData.length,
         message: `${FactoryName} Fetched Successfully!`,
-        data: documents
+        data: paginatedData
       });
     } catch (err) {
       return next(
