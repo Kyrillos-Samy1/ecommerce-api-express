@@ -54,7 +54,10 @@ class APIFeatures {
     if (this.query.search) {
       const searchedQuery = {};
       searchedQuery.$or = searchedFields.map((fieldName) => ({
-        [fieldName]: { $regex: this.query.search.trim(), $options: "i" }
+        [fieldName]: {
+          $regex: this.query.search.trim(),
+          $options: "i"
+        }
       })); //! Case-insensitive search for each field name
       this.mongooseQuery = this.mongooseQuery.find(searchedQuery);
     }
@@ -63,48 +66,48 @@ class APIFeatures {
   }
 
   //! 5) Pagination Logic
-  paginate(totalDocuments) {
-    const page = parseInt(this.query.page, 10) || 1; //! Default page = 1
-    const limit = parseInt(this.query.limit, 10) || 30; //! Default limit = 30
-    const skip = (page - 1) * limit;
-    const endIndex = page * limit;
+  // paginate(totalDocuments) {
+  //   const page = parseInt(this.query.page, 10) || 1; //! Default page = 1
+  //   const limit = parseInt(this.query.limit, 10) || 5; //! Default limit = 5
+  //   const skip = (page - 1) * limit;
+  //   const endIndex = page * limit;
 
-    //! Pagination result object
-    const pagination = {
-      currentPage: page,
-      limit,
-      totalDocuments,
-      numberOfPages: Math.round(totalDocuments / limit)
-    };
+  //   //! Pagination result object
+  //   const pagination = {
+  //     currentPage: page,
+  //     limit,
+  //     totalDocuments,
+  //     numberOfPages: Math.round(totalDocuments / limit)
+  //   };
 
-    //! Next page
-    if (endIndex < totalDocuments) {
-      pagination.hasNextPage = true;
-      pagination.next = page + 1;
-    } else {
-      pagination.hasNextPage = false;
-      pagination.next = null;
-    }
+  //   //! Next page
+  //   if (endIndex < totalDocuments) {
+  //     pagination.hasNextPage = true;
+  //     pagination.next = page + 1;
+  //   } else {
+  //     pagination.hasNextPage = false;
+  //     pagination.next = null;
+  //   }
 
-    //! Previous page
-    if (skip > 0) {
-      pagination.hasPrevPage = true;
-      pagination.prev = page - 1;
-    } else {
-      pagination.hasPrevPage = false;
-      pagination.prev = null;
-    }
+  //   //! Previous page
+  //   if (skip > 0) {
+  //     pagination.hasPrevPage = true;
+  //     pagination.prev = page - 1;
+  //   } else {
+  //     pagination.hasPrevPage = false;
+  //     pagination.prev = null;
+  //   }
 
-    //! Range (start and end index)
-    pagination.startIndex = skip + 1;
-    pagination.endIndex = Math.min(endIndex, totalDocuments);
+  //   //! Range (start and end index)
+  //   pagination.startIndex = skip + 1;
+  //   pagination.endIndex = Math.min(endIndex, totalDocuments);
 
-    //! Attach pagination & apply skip/limit on mongoose query
-    this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
-    this.paginationResult = pagination;
+  //   //! Attach pagination & apply skip/limit on mongoose query
+  //   this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
+  //   this.paginationResult = pagination;
 
-    return this;
-  }
+  //   return this;
+  // }
 
   //! 6) Population Logic
   populate(populateName) {
