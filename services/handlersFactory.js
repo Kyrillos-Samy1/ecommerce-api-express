@@ -93,6 +93,7 @@ exports.getAllDocuments =
         currentPage: page,
         limit,
         totalDocuments,
+        totalResults: results,
         numberOfPages,
         hasNextPage: page < numberOfPages,
         next: page < numberOfPages ? page + 1 : null,
