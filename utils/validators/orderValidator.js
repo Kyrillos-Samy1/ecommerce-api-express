@@ -2,7 +2,6 @@ const { check } = require("express-validator");
 const validatorMiddleware = require("../../middlewares/vaildatorMiddleware");
 const CartModel = require("../../models/cartModel");
 const OrderModel = require("../../models/orderSchema");
-const UserModel = require("../../models/userModel");
 
 exports.createCashOrderValidator = [
   check("cardId")
@@ -117,35 +116,6 @@ exports.createCashOrderValidator = [
   validatorMiddleware
 ];
 
-exports.getLoggedUserOrdersValidator = [
-  check("userId")
-    .isMongoId()
-    .withMessage("Invalid User ID Format")
-    .notEmpty()
-    .withMessage("User ID is Required!")
-    .custom(async (value, { req }) => {
-      const user = await UserModel.findById(value);
-      if (!user) {
-        throw new Error("User Not Found!");
-      }
-
-      const orders = await OrderModel.find({ user: req.params.userId }).sort(
-        "-createdAt"
-      );
-
-      if (orders.length === 0) {
-        throw new Error("No Orders Found!");
-      }
-
-      if (value.toString() !== req.user._id.toString()) {
-        throw new Error("You cannot get an order for another user!");
-      }
-
-      return true;
-    }),
-  validatorMiddleware
-];
-
 exports.getSpecificOrderValidator = [
   check("orderId")
     .isMongoId()
@@ -202,6 +172,123 @@ exports.cancelOrderValidator = [
 ];
 
 //!===================================================== FOR ADMIN or MANAGER ======================================================
+
+const allowedFields = [
+  "orderId",
+  "name",
+  "email",
+  "address",
+  "city",
+  "country",
+  "phone",
+  "postalCode",
+  "paymentMethod",
+  "paymentResult",
+  "isCancelled",
+  "isDelivered",
+  "isPaid",
+  "paidAt",
+  "deliveredAt",
+  "createdAt",
+  "updatedAt",
+  "__v"
+];
+
+exports.getAllOrdersForAdminValidator = [
+  check("page")
+    .optional()
+    .notEmpty()
+    .withMessage("Page query cannot be empty.")
+    .isNumeric()
+    .withMessage("Page Must Be a Number!")
+    .toInt()
+    .custom((value) => {
+      if (value < 1) {
+        return Promise.reject(new Error("Page Must Be Greater Than 0!"));
+      }
+      return true;
+    }),
+  check("limit")
+    .optional()
+    .notEmpty()
+    .withMessage("Limit query cannot be empty.")
+    .isNumeric()
+    .withMessage("Limit Must Be a Number!")
+    .toInt()
+    .custom((value) => {
+      if (value < 5) {
+        return Promise.reject(new Error("Limit Must Be Greater Than 5!"));
+      }
+      if (value > 30) {
+        return Promise.reject(
+          new Error("Limit Must Be Less Than Or Equal To 30!")
+        );
+      }
+      return true;
+    }),
+  check("fields")
+    .optional()
+    .notEmpty()
+    .withMessage("Fields query cannot be empty.")
+    .custom((value) => {
+      const fields = value.split(",");
+      const disAllowedFields = [];
+
+      fields.forEach((field) => {
+        const cleanFields = field.startsWith("-") ? field.slice(1) : field;
+
+        if (!allowedFields.includes(cleanFields)) {
+          disAllowedFields.push(field);
+        }
+      });
+
+      if (disAllowedFields.length > 0) {
+        return Promise.reject(
+          new Error(
+            `The ${
+              disAllowedFields.length === 1 ? "field" : "fields"
+            } you entered ${disAllowedFields.length === 1 ? "is" : "are"} not valid: ${disAllowedFields.join(", ")}`
+          )
+        );
+      }
+
+      return true;
+    }),
+  check("sort")
+    .optional()
+    .notEmpty()
+    .withMessage("Sort query cannot be empty.")
+    .custom((value) => {
+      const sorts = value.split(",");
+      const disAllowedSorts = [];
+
+      sorts.forEach((sort) => {
+        const cleanSort = sort.startsWith("-") ? sort.slice(1) : sort;
+
+        if (!allowedFields.includes(cleanSort)) {
+          disAllowedSorts.push(sort);
+        }
+      });
+
+      if (disAllowedSorts.length > 0) {
+        throw new Error(
+          `The ${
+            disAllowedSorts.length === 1 ? "sort" : "sorts"
+          } you entered ${disAllowedSorts.length === 1 ? "is" : "are"} not valid: ${disAllowedSorts.join(", ")}`
+        );
+      }
+
+      return true;
+    }),
+  check("search")
+    .optional()
+    .trim()
+    .isString()
+    .withMessage("Search must be a string")
+    .notEmpty()
+    .withMessage("Search query cannot be empty."),
+  validatorMiddleware
+];
 
 exports.updateOrderIsPaidStatusValidator = [
   check("orderId")
