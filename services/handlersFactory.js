@@ -37,8 +37,7 @@ exports.getAllDocuments =
     FactoryName,
     ListOfPopulate,
     ListOfSearchedFields,
-    ParamName,
-    sanitizeData
+    ParamName
   ) =>
   async (req, res, next) => {
     const filteredSubDocuments = {};
@@ -89,7 +88,7 @@ exports.getAllDocuments =
         paginationResult,
         results: documents.length,
         message: `${FactoryName} Fetched Successfully!`,
-        data: sanitizeData ? sanitizeData(documents) : documents
+        data: documents
       });
     } catch (err) {
       return next(
