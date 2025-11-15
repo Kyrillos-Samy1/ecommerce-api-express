@@ -5,7 +5,8 @@ const {
   getSpecificOrder,
   cancelOrder,
   updateOrderIsPaidStatus,
-  updateOrderIsDeliveredStatus
+  updateOrderIsDeliveredStatus,
+  getAllOrdersForAdmin
 } = require("../services/orderServices");
 const { allowRoles, protectRoutes } = require("../services/authServices");
 const {
@@ -20,6 +21,10 @@ const {
 const router = express.Router();
 
 router.use(protectRoutes);
+
+router
+  .route("/forAdmin")
+  .get(allowRoles("admin", "manager"), getAllOrdersForAdmin);
 
 router
   .route("/:userId")
