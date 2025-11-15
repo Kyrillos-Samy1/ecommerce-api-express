@@ -1,6 +1,7 @@
 const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderSchema");
 const ProductModel = require("../models/productModel");
+const UserModel = require("../models/userModel");
 const APIError = require("../utils/apiError");
 const {
   sendEmailNotification
@@ -145,9 +146,19 @@ exports.createCashOrder = async (req, res, next) => {
 //! @access Private/Protected/Admin/Manager/User
 exports.getLoggedUserOrders = async (req, res, next) => {
   try {
-    const orders = await OrderModel.find({ user: req.params.userId }).sort(
+    const user = await UserModel.findById(req.user._id);
+
+    if (!user) {
+      throw new Error("User Not Found!");
+    }
+
+    const orders = await OrderModel.find({ user: req.user._id }).sort(
       "-createdAt"
     );
+
+    if (!orders) {
+      throw new Error("Orders Not Found!");
+    }
 
     res.status(200).json({
       status: "success",
@@ -222,13 +233,7 @@ exports.getAllOrdersForAdmin = getAllDocuments(
   OrderModel,
   "Orders",
   [],
-  [
-    "isDelivered",
-    "isCancelled",
-    "paymentMethodType",
-    "couponApplied",
-    "name",
-  ],
+  ["paymentMethodType", "user.name"],
   "orderId"
 );
 
