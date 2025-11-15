@@ -233,7 +233,7 @@ exports.getAllOrdersForAdmin = getAllDocuments(
   OrderModel,
   "Orders",
   [],
-  ["paymentMethodType", "user.name"],
+  ["paymentMethodType", "isCancelled", "isPaid", "isDelivered"],
   "orderId"
 );
 
