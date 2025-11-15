@@ -14,7 +14,8 @@ const {
   getSpecificOrderValidator,
   cancelOrderValidator,
   updateOrderIsPaidStatusValidator,
-  updateOrderIsDeliveredStatusValidator
+  updateOrderIsDeliveredStatusValidator,
+  getAllOrdersForAdminValidator
 } = require("../utils/validators/orderValidator");
 
 const router = express.Router();
@@ -23,7 +24,11 @@ router.use(protectRoutes);
 
 router
   .route("/forAdmin")
-  .get(allowRoles("admin", "manager"), getAllOrdersForAdmin);
+  .get(
+    allowRoles("admin", "manager"),
+    getAllOrdersForAdminValidator,
+    getAllOrdersForAdmin
+  );
 
 router.route("/").get(allowRoles("user"), getLoggedUserOrders);
 
