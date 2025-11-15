@@ -121,7 +121,7 @@ const userVerificationEmailTemplate = (
     <div class="header">
       <div class="header-content">
         <img src="${
-          user.photo ||
+          user.userPhoto?.url ||
           "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-photo-183042379.jpg"
         }" 
         alt="${user.name || "User Photo"}" />
