@@ -99,7 +99,7 @@ const orderDeliveredEmailTemplate = (
 
         <div class="content">
               <p>Your order has been <strong>successfully delivered</strong></p>
-              <p class="order-id">Order ID: <strong>#${user.orderId.toLocaleString().slice(0, 6)}</strong></p>
+              <p class="order-id">Order ID: <strong>#${user.orderId.toLocaleString()}</strong></p>
               <p class="payment-method">Payment Method: <strong>${capitalize(paymentMethod)}</strong></p>
               <p class="total">Total Paid: <strong>${totalAmount.toLocaleString()} USD</strong></p>
               <p>Thank you for shopping with FastCart!</p>
