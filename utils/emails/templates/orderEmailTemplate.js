@@ -8,7 +8,8 @@ const orderConfirmationTemplate = (user = {}, order = {}) => {
     totalOrderPriceBeforeDiscount = 0,
     couponApplied = "",
     taxPrice = 0,
-    shippingPrice = 0
+    shippingPrice = 0,
+    title = "Order Confirmation - FastCart Inc"
   } = order;
 
   const percentageValue = () => {
@@ -57,12 +58,12 @@ const orderConfirmationTemplate = (user = {}, order = {}) => {
  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Order Confirmation</title>
+    <title>${title}</title>
     <style>
       body { 
         background: linear-gradient(135deg, #d9d9d9, #bfbfbf); 
         font-family: "Segoe UI", Arial, sans-serif; 
-        margin:0; padding:0; color:#333; 
+        padding:0; color:#333; margin:0px;
       }
       .container { 
         max-width:700px; width:95%; margin:20px auto; background-color:#f5f5f5; 
