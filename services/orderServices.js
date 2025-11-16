@@ -10,7 +10,7 @@ const orderDeliveredEmailTemplate = require("../utils/emails/templates/orderDeli
 const orderConfirmationTemplate = require("../utils/emails/templates/orderEmailTemplate");
 const { getAllDocuments } = require("./handlersFactory");
 
-//! @ desc Helper Function to Update Product Quantities & Clear Cart
+//! @desc Helper Function to Update Product Quantities & Clear Cart
 const updateOrderQuantityAndClearCart = async (order, cart, userId) => {
   //! 4) Update Product Quantities
   if (order) {
