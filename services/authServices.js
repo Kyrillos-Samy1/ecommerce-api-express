@@ -148,6 +148,31 @@ exports.sendResetCodeToUser = async (
 
 const sendResetCodeToUser = exports.sendResetCodeToUser;
 
+//! @desc Login
+//! @route POST /api/vi/auth/login
+//! @access Public
+exports.login = async (req, res, next) => {
+  try {
+    //! Find the user by email
+    const user = await UserModel.findOne({ email: req.body.email })
+      .select("-__v")
+      .populate([
+        { path: "reviews", select: "-__v" },
+        { path: "wishlist", select: "-__v" }
+      ]);
+
+    const { token } = setCookiesInBrowser(req, res, user);
+
+    res.status(200).json({
+      data: sanitizeUserForLogin(user),
+      token,
+      message: "Login successful!"
+    });
+  } catch (error) {
+    next(new APIError(error.message, 500, error.name));
+  }
+};
+
 //! @desc Sign-up
 //! @route POST /api/vi/auth/signup
 //! @access Public
@@ -255,31 +280,6 @@ exports.verifyResetCodeForSignUp = async (req, res, next) => {
     );
 
     res.status(200).json({ message: "Reset Code Verified Successfully!" });
-  } catch (error) {
-    next(new APIError(error.message, 500, error.name));
-  }
-};
-
-//! @desc Login
-//! @route POST /api/vi/auth/login
-//! @access Public
-exports.login = async (req, res, next) => {
-  try {
-    //! Find the user by email
-    const user = await UserModel.findOne({ email: req.body.email })
-      .select("-__v")
-      .populate([
-        { path: "reviews", select: "-__v" },
-        { path: "wishlist", select: "-__v" }
-      ]);
-
-    const { token } = setCookiesInBrowser(req, res, user);
-
-    res.status(200).json({
-      data: sanitizeUserForLogin(user),
-      token,
-      message: "Login successful!"
-    });
   } catch (error) {
     next(new APIError(error.message, 500, error.name));
   }
